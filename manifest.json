@@ -1,0 +1,20 @@
+{
+  "name": "Ham niconico",
+  "version": "0.1.0",
+  "manifest_version": 2,
+  "description": "hamによるniconico便利機能",
+  "content_security_policy":  "script-src 'self'; object-src 'self'",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["*://www.nicovideo.jp/my/*",
+                  "*://www.nicovideo.jp/my?*"],
+      "js": [
+        "lib/chrome.js",
+        "js/nicorepo/nicorepo_filter.js",
+        "js/nicorepo.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

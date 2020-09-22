@@ -1,0 +1,32 @@
+.save{
+
+    visibility: hidden;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    left: auto;
+    /*background-color: ;*/
+}
+.save.is-show{
+    animation-name: save-view;
+    animation-duration:3s;
+}
+
+@keyframes save-view{
+    0%{
+        opacity: 0;
+        visibility: hidden;
+    }
+    20%{
+        opacity: 1;
+        visibility: visible;
+    }
+    80%{
+        opacity: 1;
+        visibility: visible;
+    }
+    100%{
+        opacity: 0;
+        visibility: hidden;
+    }
+}

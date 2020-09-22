@@ -52,8 +52,7 @@ function insertOptionElement(parent,options,headNumber) {
 }
 
 const options = async function () {
-    const settings = ChromeStorage.init()
-    await Promise.all([settings])
+    await ChromeStorage.init()
 
     insertOptionElement(document.getElementById('option-main'),OPTION_PARAM,2)
     /*

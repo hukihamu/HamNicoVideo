@@ -2,7 +2,7 @@ const nicovideo = async function () {
 
     function initInView(inView){
         initHttpVideo()
-
+        initContentsTree()
     }
     function initHttpVideo(){
         //http_video_url
@@ -18,9 +18,8 @@ const nicovideo = async function () {
             }
         }
         if (player !== undefined){
-            let video
-            if ((video = player.firstChild) !== null){
-                setSrc(video.src)
+            if (player.firstChild !== null){
+                setSrc(player.firstChild.src)
             }
             const callback = function (mutationsList) {
                 for (let mutation of mutationsList){
@@ -36,6 +35,10 @@ const nicovideo = async function () {
             console.error('MainVideoPlayerが見つかりません')
         }
     }
+    function initContentsTree() {
+        document.getElementById('contents_tree').href =
+            'http://commons.nicovideo.jp/tree/' + location.href.substring(location.href.lastIndexOf('/') + 1)
+    }
 
     const expOption =
         '<div class="Card">' +
@@ -43,10 +46,23 @@ const nicovideo = async function () {
         '       <h1 class="Card-title">拡張オプション</h1>' +
         '   </div>' +
         '   <div class="Card-main">' +
-        '       <a id="http_video_url">HttpVideoURL</a>' +
+        '       <a id="http_video_url" target="_blank" rel="noopener noreferrer">HttpVideoURL</a><br>' +
+        '       <style>' +
+        '           #contents_tree{' +
+        '               display: block;' +
+        '               background-image: url(http://commons.nicovideo.jp/cpp/img/common/button/btn_tree_min.png);' +
+        '               text-indent: -9999px;' +
+        '               width: 102px;' +
+        '               height: 18px;' +
+        '               ' +
+        '           }' +
+        '           #contents_tree:hover{' +
+        '               background-position: 0 -18px;' +
+        '           }' +
+        '       </style>' +
+        '       <a id="contents_tree" target="_blank" rel="noopener noreferrer">コンテンツツリー</a>' +
         '   </div>' +
         '</div>'
-
     const inView = document.createElement('div')
     inView.className = 'InView'
     inView.innerHTML = expOption

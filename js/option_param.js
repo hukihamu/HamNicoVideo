@@ -72,5 +72,11 @@ const OPTION_PARAM = {
                 ADD_VIDEO: new FilterOptionParam('nicorepo_filter_add_video',false,'投稿しました$|^動画を登録しました$','動画投稿'),
             }
         },
+        SHOW: {
+            SHOW_TYPES: new OptionParam('nicorepo_show_types',true),
+            SHOW_TARGET: new OptionParam('nicorepo_show_target',true),
+            SHOW_FILTER: new OptionParam('nicorepo_show_filter',true),
+        },
+
     }
 }

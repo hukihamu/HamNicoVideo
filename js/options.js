@@ -34,6 +34,7 @@ function insertOptionElement(parent,options,headNumber) {
         const element = createOptionParamElement(options)
         parent.appendChild(element)
     } else{
+        headNumber++
         for (let key in options){
             const value = options[key]
 
@@ -43,7 +44,7 @@ function insertOptionElement(parent,options,headNumber) {
                 head.innerText = key
                 div.appendChild(head)
             }
-            insertOptionElement(div,value, headNumber++)
+            insertOptionElement(div,value, headNumber)
             parent.appendChild(div)
 
         }
@@ -54,7 +55,7 @@ function insertOptionElement(parent,options,headNumber) {
 const options = async function () {
     await ChromeStorage.init()
 
-    insertOptionElement(document.getElementById('option-main'),OPTION_PARAM,2)
+    insertOptionElement(document.getElementById('option-main'),OPTION_PARAM,1)
     /*
     const keys = ChromeStorage.keys()
     for (let i = 0;i < keys.length; i++){

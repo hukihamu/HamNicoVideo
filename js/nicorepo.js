@@ -29,7 +29,10 @@ const nicorepo = async function () {
 //サイドメニュー作成
     function setSideSetting() {
         const subMenu = document.getElementsByClassName('NicorepoPageSubMenu')[0]
-
+        const div = document.createElement('div')
+        div.style.marginTop = '24px'
+        div.className = 'NicorepoPageSubMenu-filter'
+        subMenu.appendChild(div)
 
         const header = document.createElement('header')
         header.className = 'SubMenuHeader'
@@ -38,13 +41,17 @@ const nicorepo = async function () {
         headerTitle.className = 'SubMenuHeader-title'
         headerTitle.innerHTML = 'フィルター'
         header.appendChild(headerTitle)
+        div.appendChild(header)
 
-        subMenu.appendChild(header)
+
+        const ul = document.createElement('ul')
+        ul.className = 'SubMenuLinkList'
+        div.appendChild(ul)
         //各フィルターセット
         const filters = Object.values(OPTION_PARAM.NICOREPO.FILTER.VALUE_FILTER)
         for (let filter of filters) {
             const element = filter.createCheckBox(applyFilter)
-            subMenu.appendChild(element)
+            ul.appendChild(element)
         }
 
     }
@@ -78,6 +85,36 @@ const nicorepo = async function () {
             }
         }
     }
+    function setAccordionToUl() {
+        const subMenuClasses = {
+            'RadioGroup NicorepoPageSubMenu-types': ChromeStorage.get(OPTION_PARAM.NICOREPO.SHOW.SHOW_TYPES.key),
+            'RadioGroup NicorepoPageSubMenu-target': ChromeStorage.get(OPTION_PARAM.NICOREPO.SHOW.SHOW_TARGET.key),
+            'NicorepoPageSubMenu-filter': ChromeStorage.get(OPTION_PARAM.NICOREPO.SHOW.SHOW_FILTER.key)
+        }
+
+        for (let header of document.getElementsByClassName('SubMenuHeader')){
+            header.style.border = 1
+            const ul = header.parentNode.getElementsByClassName('SubMenuLinkList')[0]
+            ul.style.transition = '0.5s'
+            ul.style.overflow = 'hidden'
+            ul.style.height = 'auto'
+            ul.dataset['height'] = ul.clientHeight
+
+            ul.style.height = (subMenuClasses[ul.parentNode.className] ? ul.dataset['height']: '0') + 'px'
+            header.onclick = ()=>{
+                const lastH = ul.style.height
+                ul.style.height = ( lastH === '0px') ? ul.dataset['height']+'px' : '0px';
+            }
+            header.onmouseover = ()=>{
+                header.style.backgroundColor = '#ccc8'
+            }
+            header.onmouseout = ()=>{
+                header.style.backgroundColor = '#0000'
+            }
+        }
+
+
+    }
 
     function elementMatchText(text, object) {
         const filters = Object.values(object)
@@ -108,6 +145,9 @@ const nicorepo = async function () {
                 if (document.getElementById('nicorepo-filter') === null) {
                     setSideSetting()
                 }
+
+                setAccordionToUl()
+
                 //フィルター
                 applyFilter()
             }

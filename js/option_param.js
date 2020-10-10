@@ -77,6 +77,10 @@ const OPTION_PARAM = {
             SHOW_TARGET: new OptionParam('nicorepo_show_target',true),
             SHOW_FILTER: new OptionParam('nicorepo_show_filter',true),
         },
-
+    },
+    NICOVIDEO: {
+        CUSTOM_MYLIST: {
+            VALUE_CUSTOM_MYLIST: new OptionParam('nicovideo_custom_mylist_id',-1)
+        }
     }
 }

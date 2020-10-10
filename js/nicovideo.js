@@ -36,7 +36,7 @@ const nicovideo = async function () {
         }
         const styleText = '.AddingMylistPanelContainer:before{left: '+px+'px;}'
         const styleTag = document.getElementById('ham-style')
-        styleTag.innerHTML+= styleText
+        styleTag.innerHTML = styleText + styleTag.innerHTML
     }
 
     function initCustomMyListButton() {

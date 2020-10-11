@@ -1,6 +1,6 @@
 {
   "name": "Ham NicoVideo",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "manifest_version": 2,
   "description": "hamによるniconico便利機能",
   "options_page": "html/options.html",
@@ -34,7 +34,6 @@
   ],
   "web_accessible_resources": [
     "css/*.css",
-    "html/*.html",
-    "localization/strings.json"
+    "html/*.html"
   ]
 }

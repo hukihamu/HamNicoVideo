@@ -148,8 +148,9 @@ const nicovideo = async function () {
                 const addedNode = mutation.addedNodes[0]
                 if (addedNode !== undefined) {
                     const panelEvent = (event) => {
-                        ChromeStorage.set(OPTION_PARAM.NICOVIDEO.CUSTOM_MYLIST.VALUE_CUSTOM_MYLIST.key, addedNode.dataset['mylistId'])
-                        CUSTOM_MYLIST_NAME = addedNode.dataset['mylistName']
+                        const mylistNode = event.target.parentElement.parentElement
+                        ChromeStorage.set(OPTION_PARAM.NICOVIDEO.CUSTOM_MYLIST.VALUE_CUSTOM_MYLIST.key, mylistNode.dataset['mylistId'])
+                        CUSTOM_MYLIST_NAME = mylistNode.dataset['mylistName']
                         document.getElementById('custom_mylist_button').dataset['title'] = CUSTOM_MYLIST_NAME
                         //panel.firstChild.remove()
                         myList.click()

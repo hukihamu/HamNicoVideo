@@ -81,6 +81,7 @@ const OPTION_PARAM = {
     NICOVIDEO: {
         CUSTOM_MYLIST: {
             VALUE_CUSTOM_MYLIST: new OptionParam('nicovideo_custom_mylist_id',-1)
-        }
+        },
+        HIDE_WATCHLATER: new OptionParam('nicovideo_hide_watchlater',true)
     }
 }

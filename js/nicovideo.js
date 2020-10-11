@@ -12,7 +12,7 @@ const nicovideo = async function () {
         initHttpVideo()
         initContentsTree()
         initDeleteShareButton()
-        initDeleteWatchLater()
+        if (ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HIDE_WATCHLATER.key)) initDeleteWatchLater()
         initCustomMyListButton()
         initMylistArrow()
     }

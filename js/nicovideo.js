@@ -9,12 +9,12 @@ const nicovideo = async function () {
     }
 
     function initInView(inView) {
-        initHttpVideo()
-        initContentsTree()
         initDeleteShareButton()
         if (ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HIDE_WATCHLATER.key)) initDeleteWatchLater()
         initCustomMyListButton()
         initMylistArrow()
+        initHttpVideo()
+        initContentsTree()
     }
 
     let CUSTOM_MYLIST_NAME = 'カスタムマイリスト'

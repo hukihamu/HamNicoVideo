@@ -29,7 +29,10 @@ const nicovideo = async function () {
     }
 
     function initInView() {
-        initHttpVideo()
+        checkElement(
+            ()=>{return document.getElementById('MainVideoPlayer')},
+            initHttpVideo
+        )
         initContentsTree()
         checkElement(
             ()=>{
@@ -37,9 +40,19 @@ const nicovideo = async function () {
                 return temp && temp.childElementCount >= 4
             },
             initDeleteShareButton)
-        if (ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HIDE_WATCHLATER.key)) initDeleteWatchLater()
-        initCustomMyListButton()
-        initMylistArrow()
+        if (ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HIDE_WATCHLATER.key)) checkElement(
+            ()=>{return document.getElementsByClassName('ActionButton WatchLaterButton VideoMenuContainer-button')[0] !== undefined},
+            initDeleteWatchLater
+        )
+        checkElement(
+            ()=>{return document.getElementsByClassName('VideoMenuContainer-areaLeft')[0] !== undefined},
+            initCustomMyListButton
+        )
+        checkElement(
+            ()=>{return document.getElementsByClassName('GridCell col-fill VideoMenuContainer-areaLeft')[0] !== undefined},
+            initMylistArrow
+        )
+
     }
 
     let CUSTOM_MYLIST_NAME = 'カスタムマイリスト'
@@ -258,43 +271,49 @@ const nicovideo = async function () {
     }
 
     //初期処理
-    const expOption =
-        '<div class="Card">' +
-        '   <div class="Card-header">' +
-        '       <h1 class="Card-title">拡張オプション</h1>' +
-        '   </div>' +
-        '   <div class="Card-main">' +
-        '       <style id="ham-style">' +
-        '           #contents_tree{' +
-        '               display: block;' +
-        '               background-image: url(http://commons.nicovideo.jp/images/common/button/btn_tree_min.png);' +
-        '               text-indent: -9999px;' +
-        '               width: 102px;' +
-        '               height: 18px;' +
-        '               ' +
-        '           }' +
-        '           #contents_tree:hover{' +
-        '               background-position: 0 -18px;' +
-        '           }' +
-        '           .custom-mylist:before{' +
-        '               left: 12px;' +
-        '           }' +
-        '       </style>' +
-        '       <a id="http_video_url" target="_blank" rel="noopener noreferrer">HttpVideoURL</a><br>' +
-        '       <a id="contents_tree" target="_blank" rel="noopener noreferrer">コンテンツツリー</a><br>' +
-        '       <button id="custom_mulist_setting" >カスタムマイリスト設定</button>' +
-        '   </div>' +
-        '</div>'
-    const inView = document.createElement('div')
-    inView.className = 'InView'
-    inView.innerHTML = expOption
+    function setExpOption(){
+        const expOption =
+            '<div class="Card">' +
+            '   <div class="Card-header">' +
+            '       <h1 class="Card-title">拡張オプション</h1>' +
+            '   </div>' +
+            '   <div class="Card-main">' +
+            '       <style id="ham-style">' +
+            '           #contents_tree{' +
+            '               display: block;' +
+            '               background-image: url(http://commons.nicovideo.jp/images/common/button/btn_tree_min.png);' +
+            '               text-indent: -9999px;' +
+            '               width: 102px;' +
+            '               height: 18px;' +
+            '               ' +
+            '           }' +
+            '           #contents_tree:hover{' +
+            '               background-position: 0 -18px;' +
+            '           }' +
+            '           .custom-mylist:before{' +
+            '               left: 12px;' +
+            '           }' +
+            '       </style>' +
+            '       <a id="http_video_url" target="_blank" rel="noopener noreferrer">HttpVideoURL</a><br>' +
+            '       <a id="contents_tree" target="_blank" rel="noopener noreferrer">コンテンツツリー</a><br>' +
+            '       <button id="custom_mulist_setting" >カスタムマイリスト設定</button>' +
+            '   </div>' +
+            '</div>'
+        const inView = document.createElement('div')
+        inView.className = 'InView'
+        inView.innerHTML = expOption
 
-    //document.body.innerHTML += expStyle
+        //document.body.innerHTML += expStyle
 
-    const sideGrid = document.getElementsByClassName('GridCell BottomSideContainer')[0]
-    sideGrid.prepend(inView)
-    initInView()
+        const sideGrid = document.getElementsByClassName('GridCell BottomSideContainer')[0]
+        sideGrid.prepend(inView)
+        initInView()
+    }
 
+    checkElement(
+        ()=>{return document.getElementsByClassName('GridCell BottomSideContainer')[0] !== undefined},
+        setExpOption
+    )
 }
 
 window.onload = nicovideo

@@ -8,13 +8,38 @@ const nicovideo = async function () {
         csrfToken: jsonApiData['context']['csrfToken']
     }
 
-    function initInView(inView) {
-        initDeleteShareButton()
+    function checkElement(checker,init,checkParentElement){
+        if (!checkParentElement) checkParentElement = document.getElementById('js-app')
+        if (checker()){
+            init()
+            return
+        }
+        new MutationObserver((mutationsList,observer)=>{
+            let isFound = false
+                if (checker()){
+                    observer.disconnect()
+                    isFound = true
+            }
+            if (isFound) init()
+        }).observe(checkParentElement, {
+            subtree: true,
+            childList: true
+        })
+
+    }
+
+    function initInView() {
+        initHttpVideo()
+        initContentsTree()
+        checkElement(
+            ()=>{
+                const temp = document.getElementsByClassName('GridCell col-1of12 VideoMenuContainer-areaRight')[0]
+                return temp && temp.childElementCount >= 4
+            },
+            initDeleteShareButton)
         if (ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HIDE_WATCHLATER.key)) initDeleteWatchLater()
         initCustomMyListButton()
         initMylistArrow()
-        initHttpVideo()
-        initContentsTree()
     }
 
     let CUSTOM_MYLIST_NAME = 'カスタムマイリスト'
@@ -180,7 +205,7 @@ const nicovideo = async function () {
             childList: true
         })
         myList.click()
-        //TODO 便乗　表示時に上書き
+        //便乗　表示時に上書き
     }
 
     function initDeleteShareButton() {
@@ -191,6 +216,8 @@ const nicovideo = async function () {
         const lineButton = document.getElementsByClassName('LineShareButton')[0]
         lineButton.remove()
     }
+
+
 
     function initHttpVideo() {
         //http_video_url
@@ -205,7 +232,7 @@ const nicovideo = async function () {
                 httpVideo.title = '視聴方法がhttpではないため、利用できません。'
             }
         }
-        if (player !== undefined) {
+        if (player) {
             const firstChild = player.firstChild
             if (firstChild !== null) {
                 setSrc(firstChild.src)
@@ -230,6 +257,7 @@ const nicovideo = async function () {
             'http://commons.nicovideo.jp/tree/' + location.href.substring(location.href.lastIndexOf('/') + 1)
     }
 
+    //初期処理
     const expOption =
         '<div class="Card">' +
         '   <div class="Card-header">' +
@@ -265,7 +293,7 @@ const nicovideo = async function () {
 
     const sideGrid = document.getElementsByClassName('GridCell BottomSideContainer')[0]
     sideGrid.prepend(inView)
-    initInView(inView)
+    initInView()
 
 }
 

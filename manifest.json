@@ -28,7 +28,7 @@
       "js": [
         "js/option_param.js",
         "lib/chrome.js",
-        "js/playback_rate.js"
+        "js/init_player.js"
       ],
       "run_at": "document_start"
     },

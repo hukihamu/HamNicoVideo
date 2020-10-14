@@ -8,51 +8,48 @@ const nicovideo = async function () {
         csrfToken: jsonApiData['context']['csrfToken']
     }
 
-    function checkElement(checker,init,checkParentElement){
-        if (!checkParentElement) checkParentElement = document.getElementById('js-app')
-        if (checker()){
-            init()
-            return
+    class InitFunc{
+        constructor(func,param,checker) {
+            this.isRun = false
+            this.param = param
+            this.checker = checker
+            this.func = func
         }
-        new MutationObserver((mutationsList,observer)=>{
-            let isFound = false
-                if (checker()){
-                    observer.disconnect()
-                    isFound = true
+        checkRun(){
+            if (this.param && !this.paramValue){
+                //storage確認
+                this.paramValue = ChromeStorage.get(this.param.key)
+                if (!this.paramValue){
+                    this.isRun = !this.paramValue
+                    return !this.paramValue
+                }
             }
-            if (isFound) init()
-        }).observe(checkParentElement, {
-            subtree: true,
-            childList: true
-        })
 
+            const temp =  this.checker()
+            this.isRun = temp
+            if (this.isRun) this.func()
+            return temp
+        }
+
+        isCheck(){
+            return this.isRun || this.checkRun()
+        }
     }
-
-    function initInView() {
-        checkElement(
-            ()=>{return document.getElementById('MainVideoPlayer')},
-            initHttpVideo
-        )
-        initContentsTree()
-        if (ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HIDE_SHARE.key))checkElement(
-            ()=>{
-                const temp = document.getElementsByClassName('GridCell col-1of12 VideoMenuContainer-areaRight')[0]
-                return temp && temp.childElementCount >= 4
-            },
-            initDeleteShareButton)
-        if (ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HIDE_WATCHLATER.key)) checkElement(
-            ()=>{return document.getElementsByClassName('ActionButton WatchLaterButton VideoMenuContainer-button')[0] !== undefined},
-            initDeleteWatchLater
-        )
-        checkElement(
-            ()=>{return document.getElementsByClassName('VideoMenuContainer-areaLeft')[0] !== undefined},
-            initCustomMyListButton
-        )
-        checkElement(
-            ()=>{return document.getElementsByClassName('GridCell col-fill VideoMenuContainer-areaLeft')[0] !== undefined},
-            initMylistArrow
-        )
-
+    const initFunc = [
+        new InitFunc(initExpOption,null,()=>document.getElementsByClassName('GridCell BottomSideContainer')[0]),
+        new InitFunc(initHttpVideo,null,()=>document.getElementById('MainVideoPlayer')),
+        new InitFunc(initDeleteWatchLater,OPTION_PARAM.NICOVIDEO.HIDE_WATCHLATER,()=>document.getElementsByClassName('ActionButton WatchLaterButton VideoMenuContainer-button')[0]),
+        new InitFunc(initCustomMyListButton,null,()=>document.getElementsByClassName('VideoMenuContainer-areaLeft')[0]),
+        new InitFunc(initContentsTree,null,()=>document.getElementById('contents_tree')),
+        new InitFunc(initMylistArrow,null,()=>document.getElementsByClassName('GridCell col-fill VideoMenuContainer-areaLeft')[0]),
+        new InitFunc(initDeleteShareButton,OPTION_PARAM.NICOVIDEO.HIDE_SHARE,document.getElementsByClassName('GridCell col-1of12 VideoMenuContainer-areaRight')[0]),
+    ]
+    function initElement(){
+        let isInitComp = true
+        for (let f of initFunc){
+            isInitComp = f.isCheck() && isInitComp
+        }
+        return isInitComp
     }
 
     let CUSTOM_MYLIST_NAME = 'カスタムマイリスト'
@@ -147,6 +144,9 @@ const nicovideo = async function () {
                 if (xhr.readyState === 4) {
                         settingButton.classList.remove(['is-busy'])
                         if (xhr.status === 200) {
+
+                            settingButton.classList.remove(['is-succeeded'])
+                            settingButton.classList.remove(['is-failed'])
                             if (JSON.parse(xhr.response)['status'] == 'ok'){
                                 settingButton.classList.add(['is-succeeded'])
                                 settingButton.dataset['title'] = '「'+CUSTOM_MYLIST_NAME+'」に追加しました'
@@ -159,7 +159,8 @@ const nicovideo = async function () {
                                 settingButton.classList.remove(['is-failed'])
                                 settingButton.dataset['title'] = CUSTOM_MYLIST_NAME
                             }
-                            setTimeout(waitFun,8000)
+                            clearTimeout(waitFun)
+                            setTimeout(waitFun,5000)
                         } else {
                             console.log('Failed. HttpStatus: ' + xhr.statusText)
                         }
@@ -271,7 +272,7 @@ const nicovideo = async function () {
     }
 
     //初期処理
-    function setExpOption(){
+    function initExpOption(){
         const expOption =
             '<div class="Card">' +
             '   <div class="Card-header">' +
@@ -307,13 +308,33 @@ const nicovideo = async function () {
 
         const sideGrid = document.getElementsByClassName('GridCell BottomSideContainer')[0]
         sideGrid.prepend(inView)
-        initInView()
     }
 
-    checkElement(
-        ()=>{return document.getElementsByClassName('GridCell BottomSideContainer')[0] !== undefined},
-        setExpOption
-    )
+
+    //nicovideoRun
+    if (!initElement()){
+        const checkParentElement = document.getElementById('js-app')
+
+        new MutationObserver((mutationsList,observer)=>{
+            if (initElement()){
+                observer.disconnect()
+            }
+        }).observe(checkParentElement, {
+            subtree: true,
+            childList: true
+        })
+    }
+
+    let href = location.href
+    new MutationObserver((mutationsList,observer)=>{
+        if (location.href !== href){
+            console.log('href')
+            href = location.href
+        }
+    }).observe(document, {
+        subtree: true,
+        childList: true
+    })
 }
 
 window.onload = nicovideo

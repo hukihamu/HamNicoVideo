@@ -83,6 +83,7 @@ const OPTION_PARAM = {
             VALUE_CUSTOM_MYLIST: new OptionParam('nicovideo_custom_mylist_id',-1)
         },
         HIDE_WATCHLATER: new OptionParam('nicovideo_hide_watchlater',true),
+        HIDE_SHARE: new OptionParam('nicovideo_hide_share',true),
         HOLD_PLAYBACK_RATE:{
             IS_HOLD_PLAYBACK_RATE: new OptionParam('nicovideo_is_hold_playback_rate',true),
             PLAYBACK_RATE: new OptionParam('nicovideo_playback_rate',1)

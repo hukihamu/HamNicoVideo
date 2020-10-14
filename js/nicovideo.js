@@ -34,7 +34,7 @@ const nicovideo = async function () {
             initHttpVideo
         )
         initContentsTree()
-        checkElement(
+        if (ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HIDE_SHARE.key))checkElement(
             ()=>{
                 const temp = document.getElementsByClassName('GridCell col-1of12 VideoMenuContainer-areaRight')[0]
                 return temp && temp.childElementCount >= 4

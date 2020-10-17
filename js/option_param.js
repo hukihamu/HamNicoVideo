@@ -4,6 +4,20 @@ class OptionParam{
         this.key = _key
         this.default = _default
     }
+    get param(){
+        return  ChromeStorage.get(this.key)
+    }
+    set param(value){
+        return  ChromeStorage.set(this.key,value)
+    }
+}
+//セレクトタグ用
+class SelectOptionParam extends OptionParam{
+    constructor(_key,_default,_options) {
+        super(_key,_default);
+        this.options = _options
+    }
+
 }
 class MatchOptionParam extends OptionParam{
     constructor(_key,_default,_match) {
@@ -79,14 +93,15 @@ const OPTION_PARAM = {
         },
     },
     NICOVIDEO: {
+        HIDE_WATCHLATER: new OptionParam('nicovideo_hide_watchlater',true),
+        HIDE_SHARE: new OptionParam('nicovideo_hide_share',true),
+        COMMENT_TOOLTIP: new OptionParam('nicovideo_comment_tooltip',true),
         CUSTOM_MYLIST: {
             VALUE_CUSTOM_MYLIST: new OptionParam('nicovideo_custom_mylist_id',-1)
         },
-        HIDE_WATCHLATER: new OptionParam('nicovideo_hide_watchlater',true),
-        HIDE_SHARE: new OptionParam('nicovideo_hide_share',true),
-        HOLD_PLAYBACK_RATE:{
-            IS_HOLD_PLAYBACK_RATE: new OptionParam('nicovideo_is_hold_playback_rate',true),
-            PLAYBACK_RATE: new OptionParam('nicovideo_playback_rate',1)
-        }
+        // HOLD_PLAYBACK_RATE:{
+        //     SELECT_HOLD_PLAYBACK_RATE: new SelectOptionParam('nicovideo_select_hold_playback_rate',1,['無効','連続再生時以外有効','有効']),
+        //     PLAYBACK_RATE: new OptionParam('nicovideo_playback_rate',1)
+        // },
     }
 }

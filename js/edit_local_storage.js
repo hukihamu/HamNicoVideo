@@ -1,0 +1,3 @@
+/*if ( ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HOLD_PLAYBACK_RATE.SELECT_HOLD_PLAYBACK_RATE.key) !== 0){
+    nicoStorage.playbackRate = ChromeStorage.get(OPTION_PARAM.NICOVIDEO.HOLD_PLAYBACK_RATE.PLAYBACK_RATE.key)
+}*/

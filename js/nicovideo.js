@@ -42,7 +42,8 @@ const nicovideo = async function () {
         new InitFunc(initCustomMyListButton,null,()=>document.getElementsByClassName('VideoMenuContainer-areaLeft')[0]),
         new InitFunc(initContentsTree,null,()=>document.getElementById('contents_tree')),
         new InitFunc(initMylistArrow,null,()=>document.getElementsByClassName('GridCell col-fill VideoMenuContainer-areaLeft')[0]),
-        new InitFunc(initDeleteShareButton,OPTION_PARAM.NICOVIDEO.HIDE_SHARE,document.getElementsByClassName('GridCell col-1of12 VideoMenuContainer-areaRight')[0]),
+        new InitFunc(initDeleteShareButton,OPTION_PARAM.NICOVIDEO.HIDE_SHARE,()=>document.getElementsByClassName('GridCell col-1of12 VideoMenuContainer-areaRight')[0]),
+        new InitFunc(initToolTip,OPTION_PARAM.NICOVIDEO.COMMENT_TOOLTIP,()=>document.getElementsByClassName('DataGrid-TableRow CommentPanelDataGrid-TableRow')[0]),
     ]
     function initElement(){
         let isInitComp = true
@@ -325,16 +326,83 @@ const nicovideo = async function () {
         })
     }
 
+    function initToolTip() {
+        const tooltipInner = document.createElement('div')
+        tooltipInner.className = 'Tooltip-inner'
+
+        const tooltip = document.createElement('div')
+        tooltip.id = 'comment_tooltip'
+        tooltip.className = 'Tooltip top'
+        tooltip.style.opacity = 0
+        tooltip.style.visibility = 'hidden'
+        tooltip.style.setProperty('transition','opacity 0.4s ease 0s')
+        tooltip.appendChild(tooltipInner)
+        document.body.appendChild(tooltip)
+
+        setTooltip()
+
+        //追加されるCommentにもListener追加
+        new MutationObserver((mutationsList,observer)=>{
+            for (let mutation of mutationsList){
+                const t = mutation.target
+                if (t.className !== 'DataGrid-Table CommentPanelDataGrid-Table'){
+                    setTooltip()
+                }
+            }
+        }).observe(document.getElementsByClassName('PlayerPanelContainer-content')[0], {
+            subtree: true,
+            childList: true
+        })
+    }
+    function setTooltip() {
+        const table = document.getElementsByClassName('DataGrid-TableRow CommentPanelDataGrid-TableRow')
+        const commentList = []
+        for (let row of table){
+            for (let child of row.childNodes){
+                if (child.dataset['name'] === 'content'){
+                    commentList.push(child)
+                    break
+                }
+            }
+        }
+        for (let comment of commentList){
+            if (!comment.onmouseenter){
+                const title = comment.parentElement.title
+                comment.parentElement.title = ''
+                comment.onmouseenter = (event)=>{
+                    const temp = document.getElementById('comment_tooltip')
+                    if (temp.firstChild.innerText !== title){
+                        temp.firstChild.innerText = title
+                        temp.style.opacity = 1
+                        temp.style.visibility = 'visible'
+                        const clientRect = event.target.getBoundingClientRect() ;
+                        temp.style.top = window.pageYOffset +clientRect.top - temp.clientHeight - 5 + 'px'
+                        const left = window.pageXOffset +clientRect.left + event.target.clientWidth - temp.clientWidth
+                        temp.style.left = (0 <= left)? left + 'px' : '0'
+                    }
+                }
+                comment.onmouseleave = ()=>{
+                    const temp = document.getElementById('comment_tooltip')
+                    temp.firstChild.innerText = ''
+                    temp.style.opacity = 0
+                    temp.style.visibility = 'hidden'
+                }
+            }
+        }
+    }
+
+    /*nico storage処理
     let href = location.href
     new MutationObserver((mutationsList,observer)=>{
         if (location.href !== href){
-            console.log('href')
+            //処理
+
             href = location.href
         }
     }).observe(document, {
         subtree: true,
         childList: true
-    })
+    })*/
 }
 
 window.onload = nicovideo

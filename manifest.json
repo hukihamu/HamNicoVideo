@@ -1,6 +1,6 @@
 {
   "name": "Ham NicoVideo",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "manifest_version": 2,
   "description": "hamによるniconico便利機能",
   "options_page": "html/options.html",
@@ -28,7 +28,8 @@
       "js": [
         "js/option_param.js",
         "lib/chrome.js",
-        "js/init_player.js"
+        "lib/nico_storage.js",
+        "js/edit_local_storage.js"
       ],
       "run_at": "document_start"
     },

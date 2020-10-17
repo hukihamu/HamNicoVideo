@@ -30,7 +30,18 @@ function createOptionParamElement(optionParam) {
     const text = lang[optionParam.key]
     label.innerHTML += text === undefined ? optionParam.key : text
 
-    switch (typeof optionParam.default){
+    if (optionParam instanceof SelectOptionParam){
+        element = document.createElement('select')
+        const selectedValue = ChromeStorage.get(optionParam.key)
+        for (let i = 0; i < optionParam.options.length;i++) {
+            const option = optionParam.options[i]
+            const optElm = document.createElement('option')
+            optElm.value = i
+            optElm.text = option
+            optElm.selected = i === selectedValue
+            element.appendChild(optElm)
+        }
+    }else switch (typeof optionParam.default){
         case 'boolean':
             element = document.createElement('input')
             element.type = 'checkbox'
@@ -61,7 +72,9 @@ function insertOptionElement(parent,options,headNumber) {
             const div = document.createElement('ul')
             if (!(value instanceof OptionParam)){
                 const head = document.createElement('h'+headNumber)
-                head.innerText = key
+
+                const text = lang[key]
+                head.innerText = text === undefined ? key : text
                 div.appendChild(head)
             }
             insertOptionElement(div,value, headNumber)

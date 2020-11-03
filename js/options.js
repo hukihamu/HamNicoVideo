@@ -14,6 +14,20 @@ const lang = {
     nicorepo_filter_kiriban: "キリ番",
     nicorepo_filter_mylist: "マイリスト",
     nicorepo_filter_add_video: "投稿",
+    NICOVIDEO: "ニコニコ動画",
+    nicovideo_hide_watchlater: "「後で見る」非表示",
+    nicovideo_hide_share: "共有ボタン(twitter,facebook,line)非表示",
+    nicovideo_comment_tooltip: "コメントツールチップ置き換え(見やすくしました)",
+    CUSTOM_MYLIST: "カスタムマイリスト(1クリックで選択したマイリストに保存される機能)",
+    nicovideo_custom_mylist_id: "カスタムマイリストID(マイリストURL末尾の数字)",
+    SHOW: "サイドバー最小化(タイトルクリックで最大化されます)",
+    nicorepo_show_types: "「タイプ」",
+    nicorepo_show_target: "「表示対象」",
+    nicorepo_show_filter: "「フィルター」",
+    PLAYER_STATUS: "プレイヤー状態　(動画プレイヤー移動時に固定値適用　※動画ページ内遷移は適用外)",
+    nicovideo_player_status_hold_playback_rate: "再生速度を「1」に固定",
+    nicovideo_player_status_hold_panel_state: "プレイヤーパネルを「コメントリスト」に固定",
+    nicovideo_player_status_hold_is_not_continuous: "自動再生を「off」に固定",
 }
 
 

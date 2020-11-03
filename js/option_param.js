@@ -99,9 +99,10 @@ const OPTION_PARAM = {
         CUSTOM_MYLIST: {
             VALUE_CUSTOM_MYLIST: new OptionParam('nicovideo_custom_mylist_id',-1)
         },
-        // HOLD_PLAYBACK_RATE:{
-        //     SELECT_HOLD_PLAYBACK_RATE: new SelectOptionParam('nicovideo_select_hold_playback_rate',1,['無効','連続再生時以外有効','有効']),
-        //     PLAYBACK_RATE: new OptionParam('nicovideo_playback_rate',1)
-        // },
+        PLAYER_STATUS: {
+            HOLD_PLAYBACK_RATE: new OptionParam('nicovideo_player_status_hold_playback_rate',true),
+            HOLD_PANEL_STATE: new OptionParam('nicovideo_player_status_hold_panel_state',true),
+            HOLD_IS_NOT_CONTINUOUS: new OptionParam('nicovideo_player_status_hold_is_not_continuous',true)
+        }
     }
 }

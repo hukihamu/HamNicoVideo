@@ -7,7 +7,9 @@ Q.どんな機能があるの？　どんな機能を実装予定？
 A.[Projects「機能一覧」](https://github.com/hukihamu/HamNicoVideo/projects/1)、[wiki](https://github.com/hukihamu/HamNicoVideo/wiki)内に記載されていますが、余裕があればこちらにまとめます...
 
 Q.利用方法は？  
-A.https://chrome.google.com/webstore/detail/ham-nicovideo/bnmkahbkccmncbcgdmdfgbcbklnmeghb?hl=ja&authuser=0
+A.  
+ Chrome : https://chrome.google.com/webstore/detail/ham-nicovideo/bnmkahbkccmncbcgdmdfgbcbklnmeghb?hl=ja&authuser=0  
+ Firefox: https://addons.mozilla.org/ja/firefox/addon/ham-nicovideo/
 
 Q.こんな機能が欲しいんだけど　バグ・不具合・修正案がある  
 A.Issuesに書き込みをお願いします。

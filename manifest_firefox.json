@@ -1,0 +1,51 @@
+{
+  "name": "Ham NicoVideo",
+  "version": "0.3.0",
+  "manifest_version": 2,
+  "description": "hamによるniconico便利機能",
+  "options_ui": {
+    "page": "html/options.html"
+  },
+  "permissions": [
+    "storage",
+    "https://www.nicovideo.jp/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.nicovideo.jp/my/*",
+        "https://www.nicovideo.jp/my?*"
+      ],
+      "js": [
+        "js/option_param.js",
+        "lib/firefox.js",
+        "js/nicorepo.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.nicovideo.jp/watch/*"
+      ],
+      "js": [
+        "js/option_param.js",
+        "lib/firefox.js",
+        "lib/nico_storage.js",
+        "js/edit_local_storage.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.nicovideo.jp/watch/*"
+      ],
+      "js": [
+        "js/nicovideo.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    "css/*.css",
+    "html/*.html"
+  ]
+}

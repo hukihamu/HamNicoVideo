@@ -42,7 +42,7 @@ function createOptionParamElement(optionParam) {
     let element
     const label = document.createElement('label')
     const text = lang[optionParam.key]
-    label.innerHTML += text === undefined ? optionParam.key : text
+    label.innerText += text === undefined ? optionParam.key : text
 
     if (optionParam instanceof SelectOptionParam){
         element = document.createElement('select')

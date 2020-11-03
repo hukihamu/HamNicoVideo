@@ -53,7 +53,7 @@ class FilterOptionParam extends MatchOptionParam{
 
         const label = document.createElement("span")
         label.className = "SubMenuLink-label"
-        label.innerHTML = this.text
+        label.innerText = this.text
         subMenuItemLink.appendChild(checkBox)
         subMenuItemLink.appendChild(label)
         subMenuItem.appendChild(subMenuItemLink)

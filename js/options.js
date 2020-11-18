@@ -32,7 +32,7 @@ const lang = {
 
 
 function save(event) {
-    ChromeStorage.set(event.target.id,event.target.checked)
+    BrowserStorage.set(event.target.id,event.target.checked)
     const saveElement = document.getElementById('save')
     saveElement.classList.add('is-show')
     //alert('保存しました') TODO
@@ -46,7 +46,7 @@ function createOptionParamElement(optionParam) {
 
     if (optionParam instanceof SelectOptionParam){
         element = document.createElement('select')
-        const selectedValue = ChromeStorage.get(optionParam.key)
+        const selectedValue = BrowserStorage.get(optionParam.key)
         for (let i = 0; i < optionParam.options.length;i++) {
             const option = optionParam.options[i]
             const optElm = document.createElement('option')
@@ -59,13 +59,13 @@ function createOptionParamElement(optionParam) {
         case 'boolean':
             element = document.createElement('input')
             element.type = 'checkbox'
-            element.checked = ChromeStorage.get(optionParam.key)
+            element.checked = BrowserStorage.get(optionParam.key)
             label.onchange = save
             break
         default:
             element = document.createElement('input')
             element.type = 'text'
-            element.value = ChromeStorage.get(optionParam.key)
+            element.value = BrowserStorage.get(optionParam.key)
             break
     }
     element.id = optionParam.key
@@ -100,7 +100,7 @@ function insertOptionElement(parent,options,headNumber) {
 }
 
 const options = async function () {
-    await ChromeStorage.init()
+    await BrowserStorage.init()
 
     insertOptionElement(document.getElementById('option-main'),OPTION_PARAM,1)
     /*

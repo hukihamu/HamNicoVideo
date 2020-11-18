@@ -5,10 +5,10 @@ class OptionParam{
         this.default = _default
     }
     get param(){
-        return  ChromeStorage.get(this.key)
+        return  BrowserStorage.get(this.key)
     }
     set param(value){
-        return  ChromeStorage.set(this.key,value)
+        return  BrowserStorage.set(this.key,value)
     }
 }
 //セレクトタグ用
@@ -46,10 +46,10 @@ class FilterOptionParam extends MatchOptionParam{
             if(event.target.nodeName!=='INPUT'){
                 checkBox.checked = !checkBox.checked
             }
-            ChromeStorage.set(f.key,checkBox.checked)
+            BrowserStorage.set(f.key,checkBox.checked)
             _applyFilter()
         },false)
-        checkBox.checked = ChromeStorage.get(this.key)
+        checkBox.checked = BrowserStorage.get(this.key)
 
         const label = document.createElement("span")
         label.className = "SubMenuLink-label"

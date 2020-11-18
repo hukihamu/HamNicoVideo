@@ -1,0 +1,15 @@
+#contents_tree {
+    display: block;
+    background-image: url(http://commons.nicovideo.jp/images/common/button/btn_tree_min.png);
+    text-indent: -9999px;
+    width: 102px;
+    height: 18px;
+}
+
+#contents_tree:hover {
+    background-position: 0 -18px;
+}
+
+.custom-mylist:before {
+    left: 12px;
+}

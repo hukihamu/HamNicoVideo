@@ -1,5 +1,5 @@
 const nicovideo = async function () {
-    await ChromeStorage.init()
+    await BrowserStorage.init()
 
 
     const jsonApiData = JSON.parse(document.getElementById('js-initial-watch-data').dataset['apiData'])
@@ -18,7 +18,7 @@ const nicovideo = async function () {
         checkRun(){
             if (this.param && !this.paramValue){
                 //storage確認
-                this.paramValue = ChromeStorage.get(this.param.key)
+                this.paramValue = BrowserStorage.get(this.param.key)
                 if (!this.paramValue){
                     this.isRun = !this.paramValue
                     return !this.paramValue
@@ -70,9 +70,9 @@ const nicovideo = async function () {
                 break
             }
         }
-        const styleText = '.AddingMylistPanelContainer:before{left: '+px+'px;}'
-        const styleTag = document.getElementById('ham-style')
-        styleTag.innerHTML = styleText + styleTag.innerHTML
+        const style = document.createElement('style')
+        style.textContent = '.AddingMylistPanelContainer:not(.custom-mylist):before{left: '+px+'px;}'
+        videoMenu.appendChild(style)
     }
 
     function initCustomMyListButton() {
@@ -80,10 +80,6 @@ const nicovideo = async function () {
         const buttonContainer = document.getElementsByClassName('VideoMenuContainer-areaLeft')[0]
 
 
-        // const myListStyle = document.createElement('style')
-        // myListStyle.type = 'text/css'
-        // myListStyle.innerHTML = '.AddingMylistPanelContainer:before{left: 84px;}'
-        // document.head.appendChild(myListStyle)
 
         const div = document.createElement('div')
         div.className = 'ClickInterceptor LoginRequirer is-inline'
@@ -91,11 +87,10 @@ const nicovideo = async function () {
 
         const myListIcon = document.getElementsByClassName('MylistIcon')[0]
         myListIcon.parentElement.id = 'add_my_list_button'
-        const svg = myListIcon.cloneNode()
-        const path = document.createElement("path")
-        path.setAttribute('d','M22 0h22c.4 0 .8 0 1.1.2A8 8 0 0 1 51 4.9l3 7.1H92a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H8a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8h14zm48.2 53.4v-11a1.3 1.3 0 0 1 1.2-1.2h5.2a1.3 1.3 0 0 1 1.2 1.3v10.9h11a1.3 1.3 0 0 1 1.2 1.2v5.2a1.3 1.3 0 0 1-1.3 1.2H77.8v11a1.3 1.3 0 0 1-1.2 1.2h-5.2a1.3 1.3 0 0 1-1.2-1.3V61h-11a1.3 1.3 0 0 1-1.2-1.2v-5.2a1.3 1.3 0 0 1 1.3-1.2h10.9zM24')
-        svg.innerHTML += '<path d="M22 0h22c.4 0 .8 0 1.1.2A8 8 0 0 1 51 4.9l3 7.1H92a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H8a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8h14zm48.2 53.4v-11a1.3 1.3 0 0 1 1.2-1.2h5.2a1.3 1.3 0 0 1 1.2 1.3v10.9h11a1.3 1.3 0 0 1 1.2 1.2v5.2a1.3 1.3 0 0 1-1.3 1.2H77.8v11a1.3 1.3 0 0 1-1.2 1.2h-5.2a1.3 1.3 0 0 1-1.2-1.3V61h-11a1.3 1.3 0 0 1-1.2-1.2v-5.2a1.3 1.3 0 0 1 1.3-1.2h10.9zM24"></path>'
-        // svg.appendChild(path)
+        const svg = myListIcon.cloneNode(true)
+        svg.children[0].setAttribute('d','M22 0h22c.4 0 .8 0 1.1.2A8 8 0 0 1 51 4.9l3 7.1H92a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H8a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8h14zm48.2 53.4v-11a1.3 1.3 0 0 1 1.2-1.2h5.2a1.3 1.3 0 0 1 1.2 1.3v10.9h11a1.3 1.3 0 0 1 1.2 1.2v5.2a1.3 1.3 0 0 1-1.3 1.2H77.8v11a1.3 1.3 0 0 1-1.2 1.2h-5.2a1.3 1.3 0 0 1-1.2-1.3V61h-11a1.3 1.3 0 0 1-1.2-1.2v-5.2a1.3 1.3 0 0 1 1.3-1.2h10.9zM24')
+
+
 
         const button = document.createElement('button')
         button.id = 'custom_mylist_button'
@@ -106,12 +101,12 @@ const nicovideo = async function () {
         button.appendChild(svg)
         div.appendChild(button)
 
-        const settingButton = document.getElementById('custom_mulist_setting')
+        const settingButton = document.getElementById('custom_mylist_setting')
         settingButton.onclick = setCustomMylist
 
         //マイリスト名取得
         const xhr = new XMLHttpRequest()
-        const mylistId = ChromeStorage.get(OPTION_PARAM.NICOVIDEO.CUSTOM_MYLIST.VALUE_CUSTOM_MYLIST.key)
+        const mylistId = BrowserStorage.get(OPTION_PARAM.NICOVIDEO.CUSTOM_MYLIST.VALUE_CUSTOM_MYLIST.key)
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
@@ -135,7 +130,7 @@ const nicovideo = async function () {
 
     function resistCustomMyList(event) {
         const settingButton = event.target
-        const mylistId = ChromeStorage.get(OPTION_PARAM.NICOVIDEO.CUSTOM_MYLIST.VALUE_CUSTOM_MYLIST.key)
+        const mylistId = BrowserStorage.get(OPTION_PARAM.NICOVIDEO.CUSTOM_MYLIST.VALUE_CUSTOM_MYLIST.key)
         if (mylistId === OPTION_PARAM.NICOVIDEO.CUSTOM_MYLIST.VALUE_CUSTOM_MYLIST.default){
             //設定無し
             setCustomMylist()
@@ -192,7 +187,7 @@ const nicovideo = async function () {
                 if (addedNode !== undefined) {
                     const panelEvent = (event) => {
                         const mylistNode = event.target.parentElement.parentElement
-                        ChromeStorage.set(OPTION_PARAM.NICOVIDEO.CUSTOM_MYLIST.VALUE_CUSTOM_MYLIST.key, mylistNode.dataset['mylistId'])
+                        BrowserStorage.set(OPTION_PARAM.NICOVIDEO.CUSTOM_MYLIST.VALUE_CUSTOM_MYLIST.key, mylistNode.dataset['mylistId'])
                         CUSTOM_MYLIST_NAME = mylistNode.dataset['mylistName']
                         document.getElementById('custom_mylist_button').dataset['title'] = CUSTOM_MYLIST_NAME
                         //panel.firstChild.remove()
@@ -202,7 +197,7 @@ const nicovideo = async function () {
                     switch (addedNode.className) {
                         case 'FloatingPanelContainer is-visible':
                             const panelHeader = addedNode.getElementsByClassName('AddingMylistPanelContainer-header')[0]
-                            panelHeader.innerHTML = panelHeader.innerHTML.replace('マイリストに登録', 'カスタムマイリストに設定')
+                            panelHeader.innerText = panelHeader.innerText.replace('マイリストに登録', 'カスタムマイリストに設定')
                             panelHeader.parentElement.classList.add('custom-mylist')
                             const panelItems = addedNode.getElementsByClassName('AddingMylistPanel-item')
                             for (let item of panelItems) {
@@ -277,41 +272,55 @@ const nicovideo = async function () {
 
     //初期処理
     function initExpOption(){
-        const expOption =
-            '<div class="Card">' +
-            '   <div class="Card-header">' +
-            '       <h1 class="Card-title">拡張オプション</h1>' +
-            '   </div>' +
-            '   <div class="Card-main">' +
-            '       <style id="ham-style">' +
-            '           #contents_tree{' +
-            '               display: block;' +
-            '               background-image: url(http://commons.nicovideo.jp/images/common/button/btn_tree_min.png);' +
-            '               text-indent: -9999px;' +
-            '               width: 102px;' +
-            '               height: 18px;' +
-            '               ' +
-            '           }' +
-            '           #contents_tree:hover{' +
-            '               background-position: 0 -18px;' +
-            '           }' +
-            '           .custom-mylist:before{' +
-            '               left: 12px;' +
-            '           }' +
-            '       </style>' +
-            '       <a id="http_video_url" target="_blank" rel="noopener noreferrer">HttpVideoURL</a><br>' +
-            '       <a id="contents_tree" target="_blank" rel="noopener noreferrer">コンテンツツリー</a><br>' +
-            '       <button id="custom_mulist_setting" >カスタムマイリスト設定</button>' +
-            '   </div>' +
-            '</div>'
+
+
+
+        const httpVideoUrl = document.createElement('a')
+        httpVideoUrl.id = 'http_video_url'
+        httpVideoUrl.target= '_blank'
+        httpVideoUrl.rel='noopener noreferrer'
+        httpVideoUrl.innerText = 'HttpVideoURL'
+        const contentsTree = document.createElement('a')
+        contentsTree.id = 'contents_tree'
+        contentsTree.target= '_blank'
+        contentsTree.rel='noopener noreferrer'
+        contentsTree.innerText = 'コンテンツツリー'
+        const customMylistSetting = document.createElement('button')
+        customMylistSetting.id = 'custom_mylist_setting'
+        customMylistSetting.innerText = 'カスタムマイリスト設定'
+
+        const cardMain = document.createElement('div')
+        cardMain.className = 'Card-main'
+        cardMain.appendChild(httpVideoUrl)
+        cardMain.appendChild(document.createElement('br'))
+        cardMain.appendChild(contentsTree)
+        cardMain.appendChild(document.createElement('br'))
+        cardMain.appendChild(customMylistSetting)
+
+
+        const cardTitle = document.createElement('h1')
+        cardTitle.className = 'Card-title'
+        cardTitle.innerText = '拡張オプション'
+        const cardHeader = document.createElement('div')
+        cardHeader.className = 'Card-header'
+        cardHeader.appendChild(cardTitle)
+
+        const card = document.createElement('div')
+        card.className = 'Card'
+        card.appendChild(cardHeader)
+        card.appendChild(cardMain)
         const inView = document.createElement('div')
         inView.className = 'InView'
-        inView.innerHTML = expOption
-
-        //document.body.innerHTML += expStyle
+        inView.appendChild(card)
 
         const sideGrid = document.getElementsByClassName('GridCell BottomSideContainer')[0]
         sideGrid.prepend(inView)
+
+        //css適用
+        const hamStyle = document.createElement('link')
+        hamStyle.rel = 'stylesheet'
+        hamStyle.href = browserInstance.runtime.getURL("css/nicovideo.css");
+        document.head.appendChild(hamStyle)
     }
 
 

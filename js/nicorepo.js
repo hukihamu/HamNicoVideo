@@ -1,5 +1,5 @@
 const nicorepo = async function () {
-    await ChromeStorage.init()
+    await BrowserStorage.init()
 
 
     //document 定数
@@ -39,7 +39,7 @@ const nicorepo = async function () {
         header.id = 'nicorepo-filter'
         const headerTitle = document.createElement('h3')
         headerTitle.className = 'SubMenuHeader-title'
-        headerTitle.innerHTML = 'フィルター'
+        headerTitle.innerText = 'フィルター'
         header.appendChild(headerTitle)
         div.appendChild(header)
 
@@ -68,7 +68,7 @@ const nicorepo = async function () {
             const activityDescription = item.activityDescription.innerText
             const highlight = elementMatchText(activityDescription, OPTION_PARAM.NICOREPO.HIGHLIGHT.VALUE_HIGHLIGHT)
             if (highlight !== null) {
-                item.style.backgroundColor = ChromeStorage.get(highlight.key)
+                item.style.backgroundColor = BrowserStorage.get(highlight.key)
             }
         }
     }
@@ -81,15 +81,15 @@ const nicorepo = async function () {
             const itemText = item.activityDescription.innerText
             const filter = elementMatchText(itemText, OPTION_PARAM.NICOREPO.FILTER.VALUE_FILTER)
             if (filter !== null) {
-                item.parentStyle.display = ChromeStorage.get(filter.key) ? 'none' : 'block'
+                item.parentStyle.display = BrowserStorage.get(filter.key) ? 'none' : 'block'
             }
         }
     }
     function setAccordionToUl() {
         const subMenuClasses = {
-            'RadioGroup NicorepoPageSubMenu-types': ChromeStorage.get(OPTION_PARAM.NICOREPO.SHOW.SHOW_TYPES.key),
-            'RadioGroup NicorepoPageSubMenu-target': ChromeStorage.get(OPTION_PARAM.NICOREPO.SHOW.SHOW_TARGET.key),
-            'NicorepoPageSubMenu-filter': ChromeStorage.get(OPTION_PARAM.NICOREPO.SHOW.SHOW_FILTER.key)
+            'RadioGroup NicorepoPageSubMenu-types': BrowserStorage.get(OPTION_PARAM.NICOREPO.SHOW.SHOW_TYPES.key),
+            'RadioGroup NicorepoPageSubMenu-target': BrowserStorage.get(OPTION_PARAM.NICOREPO.SHOW.SHOW_TARGET.key),
+            'NicorepoPageSubMenu-filter': BrowserStorage.get(OPTION_PARAM.NICOREPO.SHOW.SHOW_FILTER.key)
         }
 
         for (let header of document.getElementsByClassName('SubMenuHeader')){
@@ -140,7 +140,7 @@ const nicorepo = async function () {
         if (more !== undefined) {
             // more.addEventListener('click', findNicorepo, false)
 
-            if (ChromeStorage.get(OPTION_PARAM.NICOREPO.FILTER.IS_FILTER.key)) {
+            if (BrowserStorage.get(OPTION_PARAM.NICOREPO.FILTER.IS_FILTER.key)) {
                 //サイドメニュー追加
                 if (document.getElementById('nicorepo-filter') === null) {
                     setSideSetting()
@@ -153,7 +153,7 @@ const nicorepo = async function () {
             }
 
             //色
-            if (ChromeStorage.get(OPTION_PARAM.NICOREPO.HIGHLIGHT.IS_HIGHLIGHT.key)) {
+            if (BrowserStorage.get(OPTION_PARAM.NICOREPO.HIGHLIGHT.IS_HIGHLIGHT.key)) {
                 applyNicorepoColor()
             }
         }

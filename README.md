@@ -12,4 +12,4 @@ A.
  Firefox: https://addons.mozilla.org/ja/firefox/addon/ham-nicovideo/
 
 Q.こんな機能が欲しいんだけど　バグ・不具合・修正案がある  
-A.Issuesに書き込みをお願いします。
+A.Issues、各拡張機能のレビューに書き込みをお願いします。

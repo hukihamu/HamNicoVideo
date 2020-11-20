@@ -69,7 +69,7 @@ const OPTION_PARAM = {
             VALUE_HIGHLIGHT: {
                 LIKE: new MatchOptionParam('nicorepo_highlight_like', '#a5d17814', '^動画を「いいね！」しました$'),
                 AD: new MatchOptionParam('nicorepo_highlight_ad', '#FFFFFF', '^ニコニ広告しました'),
-                LIVE: new MatchOptionParam('nicorepo_highlight_live', '#FFFFFF', '生放送を開始しました$'),
+                LIVE: new MatchOptionParam('nicorepo_highlight_live', '#FFFFFF', '(生放送を開始しました$)|(生放送予定です$)'),
                 KIRIBAN: new MatchOptionParam('nicorepo_highlight_kiriban', '#FFFFFF', '再生を達成しました$'),
                 MYLIST: new MatchOptionParam('nicorepo_highlight_mylist', '#76b3f914', '^マイリスト'),
                 ADD_VIDEO: new MatchOptionParam('nicorepo_highlight_add_video', '#d0021b14', '投稿しました$|^動画を登録しました$'),
@@ -80,7 +80,7 @@ const OPTION_PARAM = {
             VALUE_FILTER: {
                 LIKE: new FilterOptionParam('nicorepo_filter_like',false,'^動画を「いいね！」しました$','いいね！'),
                 AD: new FilterOptionParam('nicorepo_filter_ad',false,'^ニコニ広告しました', '広告'),
-                LIVE: new FilterOptionParam('nicorepo_filter_live',false,'生放送を開始しました$', '生放送'),
+                LIVE: new FilterOptionParam('nicorepo_filter_live',false,'(生放送を開始しました$)|(生放送予定です$)', '生放送'),
                 KIRIBAN: new FilterOptionParam('nicorepo_filter_kiriban',false,'再生を達成しました$', 'キリ番'),
                 MYLIST: new FilterOptionParam('nicorepo_filter_mylist',false,'^マイリスト','マイリスト'),
                 ADD_VIDEO: new FilterOptionParam('nicorepo_filter_add_video',false,'投稿しました$|^動画を登録しました$','動画投稿'),

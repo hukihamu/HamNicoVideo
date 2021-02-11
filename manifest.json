@@ -1,35 +1,44 @@
 {
   "name": "Ham NicoVideo",
-  "version": "0.3.2",
+  "version": "0.3.1",
   "manifest_version": 2,
   "description": "hamによるniconico便利機能",
   "options_page": "html/options.html",
   "permissions": [
-    "storage",
-    "https://www.nicovideo.jp/*"
+    "*://*.nicovideo.jp/*",
+    "storage"
   ],
   "content_scripts": [
+
+    {
+      "matches": [
+        "https://www.nicovideo.jp/watch/*"
+      ],
+      "js": [
+        "lib/storage_event.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://*.nicovideo.jp/*"
+      ],
+      "js": [
+        "lib/browser.js",
+        "lib/parameter.js",
+        "lib/browser/storage.js"
+      ],
+      "run_at": "document_start"
+    },
     {
       "matches": [
         "https://www.nicovideo.jp/my/*",
         "https://www.nicovideo.jp/my?*"
       ],
       "js": [
-        "js/option_param.js",
-        "lib/browser.js",
-        "js/nicorepo.js"
-      ],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": [
-        "https://www.nicovideo.jp/watch/*"
-      ],
-      "js": [
-        "js/option_param.js",
-        "lib/browser.js",
-        "lib/nico_storage.js",
-        "js/edit_local_storage.js"
+        "js/video/my/custom_layout.js",
+        "js/video/my/filter.js",
+        "js/video/my/repo.js"
       ],
       "run_at": "document_start"
     },
@@ -38,8 +47,13 @@
         "https://www.nicovideo.jp/watch/*"
       ],
       "js": [
-        "js/nicovideo.js"
-      ]
+        "js/video/watch/custom_my_list.js",
+        "js/video/watch/hide_watch_later.js",
+        "js/video/watch/hold_setting.js",
+        "js/video/watch/http_video.js",
+        "js/video/watch/watch.js"
+      ],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [

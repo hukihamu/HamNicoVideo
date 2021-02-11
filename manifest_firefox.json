@@ -7,12 +7,16 @@
     "page": "html/options.html",
     "open_in_tab": true
   },
+  "browser_action": {
+    "default_icon": {
+      "32": "images/icon_32.png"
+    }
+  },
   "permissions": [
     "storage",
     "https://www.nicovideo.jp/*"
   ],
   "content_scripts": [
-
     {
       "matches": [
         "https://www.nicovideo.jp/watch/*"

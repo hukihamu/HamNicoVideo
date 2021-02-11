@@ -26,12 +26,16 @@ const repo = async function () {
                         cl(child)
                         f(child)
                     }
+                    if (!document.getElementById('nicorepo-filter')){
+                        setSideSetting()
+                    }
                 } else if (target.className.match('SlideOut NicorepoItem NicorepoTimeline-item')) {
                     cl(target)
                     f(target)
                 }else if (target.className === 'NicorepoPage'){
                     setSideSetting()
                 }
+                console.log(target.className)
             }
         }
     }
@@ -43,9 +47,3 @@ const repo = async function () {
 
 
 window.addEventListener('DOMContentLoaded', repo)
-
-//一覧
-//https://nvapi.nicovideo.jp/v1/users/me/watch-later?sortKey=addedAt&sortOrder=desc&pageSize=100&page=1
-
-//Request Method: DELETE, Request Method: OPTIONS
-//https://nvapi.nicovideo.jp/v1/users/me/watch-later?itemIds=1612792388

@@ -74,8 +74,9 @@ const watch = async function () {
         }
 
         adjustMylistArrow()
+        // onRemoveWatchLater()
     }
-    //TODO 見つからないケースあり
+    //TODO 見つからないケースあり 例：えらー画面
     const checkParentElement = document.getElementById('js-app')
 
     if (document.getElementsByClassName('VideoMenuContainer-areaLeft').length === 0){

@@ -1,6 +1,11 @@
 const repo = async function () {
     await BStorage.init()
 
+    const cssLink = document.createElement('link')
+    cssLink.rel = 'stylesheet'
+    cssLink.href = browserInstance.runtime.getURL("css/nico_repo.css");
+    document.head.appendChild(cssLink)
+
     let cl = function () {
     }
     if (PARAMETER.VIDEO.REPO.CUSTOM_LAYOUT.ENABLE.pValue) cl = customLayout
@@ -39,7 +44,8 @@ const repo = async function () {
 
 window.addEventListener('DOMContentLoaded', repo)
 
-//あとでみるボタン
-//https://www.nicovideo.jp/api/deflist/add
-//post
-//item_id: sm38248121
+//一覧
+//https://nvapi.nicovideo.jp/v1/users/me/watch-later?sortKey=addedAt&sortOrder=desc&pageSize=100&page=1
+
+//Request Method: DELETE, Request Method: OPTIONS
+//https://nvapi.nicovideo.jp/v1/users/me/watch-later?itemIds=1612792388

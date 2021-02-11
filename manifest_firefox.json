@@ -1,10 +1,11 @@
 {
   "name": "Ham NicoVideo",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "manifest_version": 2,
   "description": "hamによるniconico便利機能",
   "options_ui": {
-    "page": "html/options.html"
+    "page": "html/options.html",
+    "open_in_tab": true
   },
   "permissions": [
     "storage",

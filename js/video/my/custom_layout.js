@@ -10,10 +10,10 @@ function applyLayout(item) {
     item.style.marginTop = '8px'
 
     if (PARAMETER.VIDEO.REPO.CUSTOM_LAYOUT.ADD_WATCH_LATER.pValue){
-        addWatchLater()
+        addWatchLater(item)
     }
 }
-function addWatchLater(){
+function addWatchLater(item){
     //後で見る
     if (item.getElementsByClassName('ContentLabel_video').length > 0){
         const button = document.createElement('button')

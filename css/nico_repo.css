@@ -1,8 +1,8 @@
 .NicorepoItem-item{
-    overflow: initial;
+    overflow: initial !important;
 }
 .NicorepoTimeline-item{
-    overflow: initial;
+    overflow: initial !important;
 }
 [data-title]:not([disabled]) {
     z-index: 1;

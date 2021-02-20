@@ -40,6 +40,9 @@ function setRemoveWatchLater() {
     checkWatchLater(1)
 }
 function checkWatchLater(page){
+    if (page > 5){
+        return
+    }
     const xhr = new XMLHttpRequest()
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
@@ -53,7 +56,7 @@ function checkWatchLater(page){
                     return
                 }
             }
-            if (watchLater['hasNext']){
+            if (watchLater['hasNext'].toString() === 'true'){
                 checkWatchLater(page + 1)
             }else {
                 wldButton.style.display = 'none'
@@ -91,7 +94,7 @@ function onRemoveWatchLater(){
                 const waitFun = () => {
                     wldButton.classList.remove(['is-succeeded'])
                     wldButton.classList.remove(['is-failed'])
-                    wldButton.dataset['title'] = 'あとで見る'
+                    wldButton.dataset['title'] = '「あとで見る」から削除'
                 }
                 clearTimeout(waitFun)
                 setTimeout(waitFun, 5000)

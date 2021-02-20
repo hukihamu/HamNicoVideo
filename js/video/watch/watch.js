@@ -82,17 +82,20 @@ const watch = async function () {
             httpVideo()
         }
 
-        //TODO if
-        // setRemoveWatchLater()
-
         adjustMylistArrow()
 
-        //動画変更毎
-        // new MutationObserver((mutationsList,observer)=>{
-            // checkWatchLater(1)
-        // }).observe(document.getElementsByClassName('Thumbnail VideoContainer-prePlayThumbnail')[0], {
-        // attributes: true
-        // })
+
+        if (PARAMETER.VIDEO.WATCH.REMOVE_WATCH_LATER.pValue){
+            setRemoveWatchLater()
+            //動画変更毎
+            if (document.getElementsByClassName('Thumbnail VideoContainer-prePlayThumbnail')[0]){
+                new MutationObserver((mutationsList,observer)=>{
+                    checkWatchLater(1)
+                }).observe(document.getElementsByClassName('Thumbnail VideoContainer-prePlayThumbnail')[0], {
+                    attributes: true
+                })
+            }
+        }
     }
     //TODO 見つからないケースあり 例：えらー画面
     const checkParentElement = document.getElementById('js-app')
@@ -101,8 +104,8 @@ const watch = async function () {
         new MutationObserver((mutationsList,observer)=>{
             const areaLeft = document.getElementsByClassName('VideoMenuContainer-areaLeft')
             if (areaLeft.length > 0){
-                loadEvent()
                 observer.disconnect()
+                loadEvent()
             }
         }).observe(checkParentElement, {
             subtree: true,

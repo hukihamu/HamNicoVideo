@@ -96,6 +96,9 @@ body, html {
 .td-default{
 
 }
+a{
+    color: var(--font-color);
+}
 tr{
     padding: 5px 15px 5px 10px;
 }
@@ -122,3 +125,8 @@ label{
     border-left: 40px solid transparent;
     font-weight: 200;
 }
+.input-disabled{
+    pointer-events: none;
+    opacity: 0.4;
+}
+

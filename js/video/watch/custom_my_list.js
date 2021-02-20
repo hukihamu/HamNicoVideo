@@ -1,15 +1,8 @@
 let CUSTOM_MYLIST_NAME = 'カスタムマイリスト'
 
-let jsonApiData
-let apiData
+
 
 function setCustomMyListButton() {
-
-    jsonApiData = JSON.parse(document.getElementById('js-initial-watch-data').dataset['apiData'])
-    apiData = {
-        thread_id: jsonApiData['video']['dmcInfo']['thread']['thread_id'],
-        csrfToken: jsonApiData['context']['csrfToken']
-    }
 
     const buttonContainer = document.getElementsByClassName('VideoMenuContainer-areaLeft')[0]
 
@@ -108,7 +101,7 @@ function onClickCustomMyList(event) {
         xhr.withCredentials = true
         xhr.open('POST', 'https://www.nicovideo.jp/api/mylist/add')
         const formData = new FormData()
-        formData.append('item_id', apiData.thread_id)
+        formData.append('item_id', watchId())
         formData.append('group_id', mylistId)
         formData.append('item_type', 0)
         formData.append('description', '')

@@ -43,9 +43,18 @@ function setMainView(param,level){
             tdDefault.appendChild(button)
 
 
-            tr.appendChild(tdLabel)
-            tr.appendChild(tdInput)
-            tr.appendChild(tdDefault)
+            if (p === 'ENABLE'){
+                tr.remove()
+                const hTR = document.getElementById('main').lastChild
+                hTR.firstChild.colSpan = 1
+                hTR.appendChild(tdInput)
+                hTR.appendChild(tdDefault)
+            }else {
+                tr.appendChild(tdLabel)
+                tr.appendChild(tdInput)
+                tr.appendChild(tdDefault)
+            }
+
         }else {
             const h = document.createElement('h' + level)
             h.innerText = PARAMETER_TITLE[p] === undefined ? p : PARAMETER_TITLE[p]
@@ -74,3 +83,4 @@ const options = async function () {
     document.head.appendChild(script)
 }
 document.addEventListener("DOMContentLoaded", options,true);
+

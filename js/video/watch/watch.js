@@ -1,3 +1,6 @@
+let jsonApiData
+let apiData
+
 const watch = async function () {
     await BStorage.init()
 
@@ -61,6 +64,12 @@ const watch = async function () {
 
 
     function loadEvent() {
+        jsonApiData = JSON.parse(document.getElementById('js-initial-watch-data').dataset['apiData'])
+        apiData = {
+            thread_id: jsonApiData['video']['dmcInfo']['thread']['thread_id'],
+            csrfToken: jsonApiData['context']['csrfToken']
+        }
+
         setOptionView()
 
         if (PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.ENABLE.pValue){
@@ -73,8 +82,17 @@ const watch = async function () {
             httpVideo()
         }
 
+        //TODO if
+        // setRemoveWatchLater()
+
         adjustMylistArrow()
-        // onRemoveWatchLater()
+
+        //動画変更毎
+        // new MutationObserver((mutationsList,observer)=>{
+            // checkWatchLater(1)
+        // }).observe(document.getElementsByClassName('Thumbnail VideoContainer-prePlayThumbnail')[0], {
+        // attributes: true
+        // })
     }
     //TODO 見つからないケースあり 例：えらー画面
     const checkParentElement = document.getElementById('js-app')
@@ -91,6 +109,8 @@ const watch = async function () {
             childList: true
         })
     }
+
+
 }
 
 

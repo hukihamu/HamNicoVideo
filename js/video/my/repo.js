@@ -6,19 +6,17 @@ const repo = async function () {
     cssLink.href = browserInstance.runtime.getURL("css/nico_repo.css");
     document.head.appendChild(cssLink)
 
-    let cl = function () {
-    }
+    let cl = function () {}
     if (PARAMETER.VIDEO.REPO.CUSTOM_LAYOUT.ENABLE.pValue) cl = customLayout
 
-    let f = function () {
-    }
+    let f = function () {}
     if (PARAMETER.VIDEO.REPO.FILTER.ENABLE.pValue) {
         f = applyFilter
     }
 
     const userPageMain = document.getElementsByClassName('UserPage-main')[0]
     const userPageMainCallback = function (mutationsList, observer) {
-        if (location.pathname === '/my/' || location.pathname === '/my') for (let mutation of mutationsList) {
+        if (location.pathname.match('^(/my/|/my|/my/nicorepo|/my/nicorepo/)')) for (let mutation of mutationsList) {
             const target = mutation.addedNodes[0]
             if (target !== undefined && target.className !== undefined) {
                 if (target.className === 'NicorepoTimeline') {
@@ -26,16 +24,13 @@ const repo = async function () {
                         cl(child)
                         f(child)
                     }
-                    if (!document.getElementById('nicorepo-filter')){
-                        setSideSetting()
-                    }
                 } else if (target.className.match('SlideOut NicorepoItem NicorepoTimeline-item')) {
                     cl(target)
                     f(target)
-                }else if (target.className === 'NicorepoPage'){
+                }
+                if (!document.getElementById('nicorepo-filter')){
                     setSideSetting()
                 }
-                console.log(target.className)
             }
         }
     }
@@ -44,6 +39,5 @@ const repo = async function () {
         childList: true
     })
 }
-
 
 window.addEventListener('DOMContentLoaded', repo)

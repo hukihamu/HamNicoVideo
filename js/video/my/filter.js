@@ -1,5 +1,4 @@
 function setSideSetting() {
-    if (location.pathname === '/my/' || location.pathname === '/my'){
         const subMenu = document.getElementsByClassName('NicorepoPageSubMenu')[0]
         const div = document.createElement('div')
         div.style.marginTop = '24px'
@@ -26,7 +25,6 @@ function setSideSetting() {
             ul.appendChild(element)
         }
         setAccordionToUl()
-    }
 }
 
 function setAccordionToUl() {

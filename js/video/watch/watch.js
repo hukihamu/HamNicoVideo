@@ -57,18 +57,14 @@ const watch = async function () {
     document.head.appendChild(cssLink)
 
 
-
+    let oh = function (){}
     if (PARAMETER.VIDEO.WATCH.HOLD_SETTING.ENABLE.pValue){
         holdSetting()
+        oh = onHold
     }
 
 
     function loadEvent() {
-        jsonApiData = JSON.parse(document.getElementById('js-initial-watch-data').dataset['apiData'])
-        apiData = {
-            thread_id: jsonApiData['video']['dmcInfo']['thread']['thread_id'],
-            csrfToken: jsonApiData['context']['csrfToken']
-        }
 
         setOptionView()
 
@@ -83,18 +79,26 @@ const watch = async function () {
         }
 
         adjustMylistArrow()
-
-
+        let cwl = function (){}
         if (PARAMETER.VIDEO.WATCH.REMOVE_WATCH_LATER.pValue){
             setRemoveWatchLater()
-            //動画変更毎
-            if (document.getElementsByClassName('Thumbnail VideoContainer-prePlayThumbnail')[0]){
-                new MutationObserver((mutationsList,observer)=>{
-                    checkWatchLater(1)
-                }).observe(document.getElementsByClassName('Thumbnail VideoContainer-prePlayThumbnail')[0], {
-                    attributes: true
-                })
-            }
+            cwl = checkWatchLater
+        }
+
+        //動画変更毎
+        const thumbnail = document.getElementsByClassName('VideoPlayer')[0]
+        if (thumbnail){
+            new MutationObserver((mutationsList,observer)=>{
+                for (const mutations of mutationsList){
+                    if(mutations.target.className === 'VideoPlayer'){
+                        cwl(1)
+                        oh()
+
+                    }
+                }
+            }).observe(thumbnail, {
+                attributes: true
+            })
         }
     }
     //TODO 見つからないケースあり 例：えらー画面
@@ -115,6 +119,6 @@ const watch = async function () {
 
 
 }
-
-
+//TODO あとでみる表示？
+// playlist=eyJ0eXBlIjoid2F0Y2hsYXRlciIsImNvbnRleHQiOnsic29ydEtleSI6ImFkZGVkQXQiLCJzb3J0T3JkZXIiOiJkZXNjIn19
 window.addEventListener('DOMContentLoaded', watch)

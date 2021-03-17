@@ -69,7 +69,7 @@ function onClickEnable(event) {
     for (const child of table.children) {
         if (isStart) {
             if (child.dataset['level'] > level) {
-                if (target.checked) {
+                if (target.checked || target.selectedIndex !== 0) {
                     child.classList.remove('input-disabled')
                 } else {
                     child.classList.add('input-disabled')

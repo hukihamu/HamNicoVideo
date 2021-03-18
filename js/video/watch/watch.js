@@ -1,5 +1,3 @@
-let jsonApiData
-let apiData
 
 const watch = async function () {
     await BStorage.init()

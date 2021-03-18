@@ -27,6 +27,7 @@
         "lib/parameter.js",
         "lib/browser/storage.js"
       ],
+      "css": ["css/nico.css"],
       "run_at": "document_start"
     },
     {

@@ -47,11 +47,6 @@ function applyHighlight(item){
 
 function onClickWatchLater(event){
 
-    jsonApiData = JSON.parse(document.getElementById('js-initial-userpage-data').dataset['environment'])
-    environment = {
-        csrfToken: jsonApiData['csrfToken']
-    }
-
     const target = event.target
     const url = target.dataset.url.replace('https://www.nicovideo.jp/watch/','')
     target.dataset.title = '更新中'
@@ -61,33 +56,39 @@ function onClickWatchLater(event){
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             target.classList.remove(['is-busy'])
-            if (xhr.status === 200) {
-                target.classList.remove(['is-succeeded'])
-                target.classList.remove(['is-failed'])
-                if (JSON.parse(xhr.response)['status'] == 'ok'){
-                    target.classList.add(['is-succeeded'])
-                    target.dataset['title'] = '「あとで見る」に追加しました'
-                }else {
+            switch (xhr.status){
+                case 409:{
                     target.classList.add(['is-failed'])
                     target.dataset['title'] = 'すでに「あとで見る」に追加されています'
+                    break
                 }
-                const waitFun = ()=>{
-                    target.classList.remove(['is-succeeded'])
-                    target.classList.remove(['is-failed'])
-                    target.dataset['title'] = 'あとで見る'
+                case 201:{
+                    target.classList.add(['is-succeeded'])
+                    target.dataset['title'] = '「あとで見る」に追加しました'
+                    break
                 }
-                clearTimeout(waitFun)
-                setTimeout(waitFun,5000)
-            } else {
-                console.log('Failed. HttpStatus: ' + xhr.statusText)
+                default:{
+                    target.classList.add(['is-failed'])
+                    target.dataset['title'] = '「あとで見る」への追加に失敗'
+                    console.log('Failed. HttpStatus: ' + xhr.statusText)
+                }
             }
+            const waitFun = ()=>{
+                target.classList.remove(['is-succeeded'])
+                target.classList.remove(['is-failed'])
+                target.dataset['title'] = 'あとで見る'
+            }
+            clearTimeout(waitFun)
+            setTimeout(waitFun,5000)
         }
     }
     xhr.withCredentials = true
-    xhr.open('POST', 'https://www.nicovideo.jp/api/deflist/add')
-    const formData = new FormData()
-    formData.append('item_id', url)
-    formData.append('description', '')
-    formData.append('token', environment.csrfToken)
-    xhr.send(formData)
+    xhr.open('POST', 'https://nvapi.nicovideo.jp/v1/users/me/watch-later')
+    xhr.setRequestHeader('X-Frontend-Id','6')
+    xhr.setRequestHeader('X-Frontend-Version','0')
+    xhr.setRequestHeader('X-Niconico-Language','ja-jp')
+    xhr.setRequestHeader('X-Request-With','https://www.nicovideo.jp')
+    xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded;charset=UTF-8')
+
+    xhr.send('watchId={watchId}&memo='.replace('{watchId}',url))
 }

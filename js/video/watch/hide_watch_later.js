@@ -17,8 +17,12 @@ function setRemoveWatchLater() {
                 const target = mutation.target
                 if (target){
                     if (target.classList.contains('is-succeeded')) {
-                        wldButton.style.display = 'block'
-                        wlButton.style.display = 'none'
+                        const waitFun = () => {
+                            wldButton.style.display = 'block'
+                            wlButton.style.display = 'none'
+                        }
+                        clearTimeout(waitFun)
+                        setTimeout(waitFun, 5000)
                     }
                 }
             }
@@ -84,8 +88,6 @@ function onRemoveWatchLater(){
                 if (JSON.parse(xhr.response)['meta']['status'] === 200) {
                     wldButton.classList.add(['is-succeeded'])
                     wldButton.dataset['title'] = '「あとで見る」から削除しました'
-                    wldButton.style.display = 'none'
-                    wlButton.style.display = 'block'
                     //TODO session storageから消す
                 } else {
                     wldButton.classList.add(['is-failed'])
@@ -95,6 +97,8 @@ function onRemoveWatchLater(){
                     wldButton.classList.remove(['is-succeeded'])
                     wldButton.classList.remove(['is-failed'])
                     wldButton.dataset['title'] = '「あとで見る」から削除'
+                    wldButton.style.display = 'none'
+                    wlButton.style.display = 'block'
                 }
                 clearTimeout(waitFun)
                 setTimeout(waitFun, 5000)

@@ -55,8 +55,12 @@ function setCustomMyListButton() {
                 }
             }
         }
+        xhr.open('GET', 'https://nvapi.nicovideo.jp/v1/users/me/mylists')
         xhr.withCredentials = true
-        xhr.open('GET', 'https://flapi.nicovideo.jp/api/watch/mylists?thread_id='+apiData.thread_id)
+        xhr.setRequestHeader('X-Frontend-Id','6')
+        xhr.setRequestHeader('X-Frontend-Version','0')
+        xhr.setRequestHeader('X-Niconico-Language','ja-jp')
+        xhr.setRequestHeader('X-Request-With','https://www.nicovideo.jp')
         xhr.send()
     }
 }
@@ -75,39 +79,44 @@ function onClickCustomMyList(event) {
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 settingButton.classList.remove(['is-busy'])
-                if (xhr.status === 200) {
 
-                    settingButton.classList.remove(['is-succeeded'])
-                    settingButton.classList.remove(['is-failed'])
-                    if (JSON.parse(xhr.response)['status'] == 'ok'){
-                        settingButton.classList.add(['is-succeeded'])
-                        settingButton.dataset['title'] = '「'+CUSTOM_MYLIST_NAME+'」に追加しました'
-                    }else {
+                settingButton.classList.remove(['is-succeeded'])
+                settingButton.classList.remove(['is-failed'])
+                switch (xhr.status){
+                    case 200:{
                         settingButton.classList.add(['is-failed'])
                         settingButton.dataset['title'] = 'すでに「'+CUSTOM_MYLIST_NAME+'」に追加されています'
+                        break
                     }
-                    const waitFun = ()=>{
-                        settingButton.classList.remove(['is-succeeded'])
-                        settingButton.classList.remove(['is-failed'])
-                        settingButton.dataset['title'] = CUSTOM_MYLIST_NAME
+                    case 201:{
+                        settingButton.classList.add(['is-succeeded'])
+                        settingButton.dataset['title'] = '「'+CUSTOM_MYLIST_NAME+'」に追加しました'
+                        break
                     }
-                    clearTimeout(waitFun)
-                    setTimeout(waitFun,5000)
-                } else {
-                    console.log('Failed. HttpStatus: ' + xhr.statusText)
+                    default:{
+                        settingButton.classList.add(['is-failed'])
+                        settingButton.dataset['title'] = '「'+CUSTOM_MYLIST_NAME+'」へ追加に失敗'
+                        console.log('Failed. HttpStatus: ' + xhr.statusText)
+                    }
                 }
+                const waitFun = ()=>{
+                    settingButton.classList.remove(['is-succeeded'])
+                    settingButton.classList.remove(['is-failed'])
+                    settingButton.dataset['title'] = CUSTOM_MYLIST_NAME
+                }
+                clearTimeout(waitFun)
+                setTimeout(waitFun,5000)
             }
         }
         xhr.withCredentials = true
-        xhr.open('POST', 'https://www.nicovideo.jp/api/mylist/add')
-        const formData = new FormData()
-        formData.append('item_id', watchId())
-        formData.append('group_id', mylistId)
-        formData.append('item_type', 0)
-        formData.append('description', '')
-        formData.append('item_amc', '')
-        formData.append('token', apiData.csrfToken)
-        xhr.send(formData)
+        xhr.open('POST', 'https://nvapi.nicovideo.jp/v1/users/me/mylists/{myListId}/items?itemId={itemId}&description='
+            .replace('{myListId}',mylistId)
+            .replace('{itemId}',watchId()))
+        xhr.setRequestHeader('X-Frontend-Id','6')
+        xhr.setRequestHeader('X-Frontend-Version','0')
+        xhr.setRequestHeader('X-Niconico-Language','ja-jp')
+        xhr.setRequestHeader('X-Request-With','https://www.nicovideo.jp')
+        xhr.send()
     }
 }
 function setCustomMylistId() {

@@ -60,7 +60,8 @@ const watch = async function () {
 
     function onLoad(){
         setOptionView()
-        //TODO minLike
+        minimumLike()
+
         if (PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.ENABLE.pValue){
             setCustomMyListButton()
         }

@@ -69,12 +69,6 @@ const watch = async function () {
         if (PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.ENABLE.pValue){
             setCustomMyListButton()
         }
-        if (PARAMETER.VIDEO.WATCH.HIDE_WATCH_LATER.pValue){
-            hideWatchLater()
-        }
-        if (PARAMETER.VIDEO.WATCH.IS_HTTP_VIDEO.pValue){
-            httpVideo()
-        }
 
         adjustMylistArrow()
         let cwl = function (){}

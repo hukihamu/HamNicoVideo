@@ -113,3 +113,5 @@ function onRemoveWatchLater(){
     xhr.setRequestHeader('X-Request-With','https://www.nicovideo.jp')
     xhr.send()
 }
+
+//TODO あとでみるリスト playlist=eyJ0eXBlIjoid2F0Y2hsYXRlciIsImNvbnRleHQiOnsic29ydEtleSI6ImFkZGVkQXQiLCJzb3J0T3JkZXIiOiJkZXNjIn19

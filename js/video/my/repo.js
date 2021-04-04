@@ -7,7 +7,7 @@ const repo = async function () {
     document.head.appendChild(cssLink)
 
     let cl = function () {}
-    if (PARAMETER.VIDEO.REPO.CUSTOM_LAYOUT.ENABLE.pValue) cl = customLayout
+    if (PARAMETER.VIDEO.REPO.CUSTOM_LAYOUT.pValue) cl = customLayout
 
     let f = function () {}
     if (PARAMETER.VIDEO.REPO.FILTER.ENABLE.pValue) {

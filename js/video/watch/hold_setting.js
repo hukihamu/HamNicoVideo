@@ -132,7 +132,7 @@ function onHold() {
             f()
         }
     }
-    if (!nextVideo[0] || !watchId().match(nextVideo[0])) {
+    if (!nextVideo[0] || !location.pathname.replace('/watch/','').match(nextVideo[0])) {
         for (const f of next) {
             f()
         }

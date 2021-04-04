@@ -23,20 +23,12 @@
     },
     {
       "matches": [
-        "*://*.nicovideo.jp/watch/*"
-      ],
-      "js": [
-        "lib/storage_event.js"
-      ],
-      "run_at": "document_start"
-    },
-    {
-      "matches": [
         "*://*.nicovideo.jp/my/*",
         "*://*.nicovideo.jp/my?*"
       ],
       "js": [
         "js/util/watch_later.js",
+
         "js/video/my/custom_layout.js",
         "js/video/my/side_fold.js",
         "js/video/my/filter.js",
@@ -44,6 +36,7 @@
         "js/video/my/highlight.js",
         "js/video/my/repo.js"
       ],
+      "css": ["css/video/repo.css"],
       "run_at": "document_start"
     },
     {
@@ -51,11 +44,15 @@
         "*://*.nicovideo.jp/watch/*"
       ],
       "js": [
+        "lib/storage_event.js",
+        "js/util/watch_later.js",
+
         "js/video/watch/custom_my_list.js",
-        "js/video/watch/hide_watch_later.js",
+        "js/video/watch/remove_watch_later.js",
         "js/video/watch/hold_setting.js",
         "js/video/watch/watch.js"
       ],
+      "css": ["css/video/watch.css"],
       "run_at": "document_start"
     }
   ],

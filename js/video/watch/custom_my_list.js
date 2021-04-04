@@ -9,7 +9,7 @@ function setCustomMyListButton() {
 
     const div = document.createElement('div')
     div.className = 'ClickInterceptor LoginRequirer is-inline'
-    buttonContainer.prepend(div)
+    buttonContainer.insertBefore(div,buttonContainer.children[1])
 
     const myListIcon = document.getElementsByClassName('MylistIcon')[0]
     myListIcon.parentElement.id = 'add_my_list_button'
@@ -31,21 +31,21 @@ function setCustomMyListButton() {
     const customMyListSetting = document.createElement('button')
     customMyListSetting.id = 'custom_mylist_setting'
     customMyListSetting.innerText = 'カスタムマイリスト設定'
-    customMyListSetting.onclick = setCustomMylistId
+    customMyListSetting.onclick = setCustomMyListId
     document.getElementById('Ham-Card-main').appendChild(customMyListSetting)
 
-    const mylistId = PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.pValue
+    const myListId = PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.pValue
     //マイリスト名取得
-    if (mylistId !== PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.default){
+    if (myListId !== PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.default){
         const xhr = new XMLHttpRequest()
 
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
-                    const mylists = JSON.parse(xhr.response)['data']['mylists']
-                    for (let mylist of mylists){
-                        if (mylist['id'] == mylistId){
-                            CUSTOM_MYLIST_NAME = mylist['name']
+                    const myLists = JSON.parse(xhr.response)['data']['mylists']
+                    for (let myList of myLists){
+                        if (myList['id'].toString() === myListId.toString()){
+                            CUSTOM_MYLIST_NAME = myList['name']
                             button.dataset['title'] = CUSTOM_MYLIST_NAME
                             break
                         }
@@ -64,14 +64,15 @@ function setCustomMyListButton() {
         xhr.send()
     }
 }
+
 function onClickCustomMyList(event) {
 
 
     const settingButton = event.target
-    const mylistId = PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.pValue
-    if (mylistId === PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.default){
+    const myListId = PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.pValue.toString()
+    if (myListId === PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.default.toString()){
         //設定無し
-        setCustomMylistId()
+        setCustomMyListId()
     }else {
         settingButton.classList.add(['is-busy'])
         settingButton.dataset['title'] = '更新中'
@@ -110,7 +111,7 @@ function onClickCustomMyList(event) {
         }
         xhr.withCredentials = true
         xhr.open('POST', 'https://nvapi.nicovideo.jp/v1/users/me/mylists/{myListId}/items?itemId={itemId}&description='
-            .replace('{myListId}',mylistId)
+            .replace('{myListId}',myListId)
             .replace('{itemId}',watchId()))
         xhr.setRequestHeader('X-Frontend-Id','6')
         xhr.setRequestHeader('X-Frontend-Version','0')
@@ -119,33 +120,45 @@ function onClickCustomMyList(event) {
         xhr.send()
     }
 }
-function setCustomMylistId() {
+
+function setCustomMyListId() {
     const myList = document.getElementById('add_my_list_button')
     const panel = document.getElementsByClassName('MainContainer-floatingPanel')[0]
+    if (panel.firstChild && !panel.firstChild.firstChild.classList.contains('custom-mylist')){
+        myList.click()
+    }
+
     const callback = function (mutationsList, observer) {
         for (let mutation of mutationsList) {
             const addedNode = mutation.addedNodes[0]
             if (addedNode !== undefined) {
                 const panelEvent = (event) => {
-                    const mylistNode = event.target.parentElement.parentElement
-                    PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.pValue = mylistNode.dataset['mylistId']
-                    CUSTOM_MYLIST_NAME = mylistNode.dataset['mylistName']
+                    let myListNode = event.target
+                    let i
+                    for (i = 0; !myListNode.dataset['mylistId'] && i < 5; i++){
+                        myListNode = myListNode.parentElement
+                    }
+                    //TODO iで警告を？
+                    PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.MY_LIST_ID.pValue = myListNode.dataset['mylistId']
+                    CUSTOM_MYLIST_NAME = myListNode.dataset['mylistName']
                     document.getElementById('custom_mylist_button').dataset['title'] = CUSTOM_MYLIST_NAME
-                    //panel.firstChild.remove()
                     myList.click()
                     event.stopPropagation()
                 }
                 switch (addedNode.className) {
                     case 'FloatingPanelContainer is-visible':
-                        const panelHeader = addedNode.getElementsByClassName('AddingMylistPanelContainer-header')[0]
-                        panelHeader.innerText = panelHeader.innerText.replace('マイリストに登録', 'カスタムマイリストに設定')
+                        const panelHeader = addedNode.getElementsByClassName('AddVideoListPanelContainer-header')[0]
+                        panelHeader.innerText = panelHeader.innerText.replace('リストに登録', 'カスタムマイリストに設定')
                         panelHeader.parentElement.classList.add('custom-mylist')
-                        const panelItems = addedNode.getElementsByClassName('AddingMylistPanel-item')
+
+                        const inner = addedNode.getElementsByClassName('AddVideoListPanel-inner')[0]
+                        inner.firstChild.remove()
+                        const panelItems = inner.getElementsByClassName('AddVideoListPanel-item')
                         for (let item of panelItems) {
                             item.addEventListener('click', panelEvent, true)
                         }
                         break
-                    case 'AddingMylistPanel-item':
+                    case 'AddVideoListPanel-item':
                         addedNode.addEventListener('click', panelEvent, true)
                         break
                 }

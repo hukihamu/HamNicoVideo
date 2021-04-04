@@ -1,31 +1,8 @@
-
 const watch = async function () {
     await BStorage.init()
 
-    function adjustMylistArrow(){
-        //1: 12 2: 48 3: 84
-        const videoMenu = document.getElementsByClassName('GridCell col-fill VideoMenuContainer-areaLeft')[0]
-        let px = 12
-        let customIndex = -1
-        let index = 0
-        for (let i = 0; i < videoMenu.childElementCount;i++){
-            const child = videoMenu.childNodes[i]
-            if (child.firstChild.id === 'custom_mylist_button') customIndex = i
-            if (child.firstChild.dataset['title'] === 'マイリスト'){
-                index = i
-                break
-            }
-        }
-        const style = document.createElement('style')
-        let styleText = '.AddingMylistPanelContainer:not(.custom-mylist):before{left: '+(index * 36 + px)+'px;}'
-        if (customIndex !== -1){
-            styleText += '.custom-mylist:before{left: '+(customIndex * 36 + px)+'px;}'
-        }
-        style.textContent = styleText
-        videoMenu.appendChild(style)
-    }
+    //オプション欄
     function setOptionView(){
-
         const cardMain = document.createElement('div')
         cardMain.className = 'Card-main'
         cardMain.id = 'Ham-Card-main'
@@ -49,10 +26,26 @@ const watch = async function () {
         sideGrid.prepend(inView)
     }
 
-    const cssLink = document.createElement('link')
-    cssLink.rel = 'stylesheet'
-    cssLink.href = browserInstance.runtime.getURL("css/nicovideo.css");
-    document.head.appendChild(cssLink)
+    //マイリスト選択の矢印
+    function adjustMyListArrow(){
+        const style = document.createElement('style')
+        const videoMenu = document.getElementsByClassName('GridCell col-fill VideoMenuContainer-areaLeft')[0]
+        const videoMenuX = videoMenu.getBoundingClientRect().left + window.pageXOffset - 6
+
+        const myListButton = document.getElementById('add_my_list_button')
+        const myListButtonX = myListButton.getBoundingClientRect().left + window.pageXOffset
+        style.textContent = '.AddVideoListPanelContainer:not(.custom-mylist):before{left: '
+            +(myListButtonX - videoMenuX)+'px;}'
+
+        const customMyListButton = document.getElementById('custom_mylist_button')
+        if (customMyListButton){
+            const customMyListButtonX = customMyListButton.getBoundingClientRect().left + window.pageXOffset
+            style.textContent += '.custom-mylist:before{left: '
+                +(customMyListButtonX - videoMenuX)+'px;}'
+        }
+
+        videoMenu.appendChild(style)
+    }
 
 
     let oh = function (){}
@@ -60,32 +53,28 @@ const watch = async function () {
         holdSetting()
         oh = onHold
     }
+    let rwl = function (){}
+    if (PARAMETER.VIDEO.WATCH.REMOVE_WATCH_LATER.pValue){
+        rwl = removeWatchLater
+    }
 
-
-    function loadEvent() {
-
+    function onLoad(){
         setOptionView()
-
+        //TODO minLike
         if (PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.ENABLE.pValue){
             setCustomMyListButton()
         }
-
-        adjustMylistArrow()
-        let cwl = function (){}
-        if (PARAMETER.VIDEO.WATCH.REMOVE_WATCH_LATER.pValue){
-            setRemoveWatchLater()
-            cwl = checkWatchLater
-        }
-
-        //動画変更毎
+    }
+    //動画変更毎
+    function onVideoChange(){
         const thumbnail = document.getElementsByClassName('VideoPlayer')[0]
         if (thumbnail){
-            new MutationObserver((mutationsList,observer)=>{
+            new MutationObserver((mutationsList)=>{
                 for (const mutations of mutationsList){
-                    if(mutations.target.className === 'VideoPlayer'){
-                        cwl(1)
+                    const target = mutations.target
+                    if (target.className === 'VideoPlayer'){
                         oh()
-
+                        rwl()
                     }
                 }
             }).observe(thumbnail, {
@@ -93,23 +82,20 @@ const watch = async function () {
             })
         }
     }
-    //TODO 見つからないケースあり 例：えらー画面
-    const checkParentElement = document.getElementById('js-app')
 
     if (document.getElementsByClassName('VideoMenuContainer-areaLeft').length === 0){
         new MutationObserver((mutationsList,observer)=>{
             const areaLeft = document.getElementsByClassName('VideoMenuContainer-areaLeft')
             if (areaLeft.length > 0){
                 observer.disconnect()
-                loadEvent()
+                onVideoChange()
+                onLoad()
             }
-        }).observe(checkParentElement, {
+        }).observe(document.body, {
             subtree: true,
             childList: true
         })
     }
-
-
 }
 //TODO あとでみる表示？
 // playlist=eyJ0eXBlIjoid2F0Y2hsYXRlciIsImNvbnRleHQiOnsic29ydEtleSI6ImFkZGVkQXQiLCJzb3J0T3JkZXIiOiJkZXNjIn19

@@ -1,11 +1,6 @@
 const repo = async function () {
     await BStorage.init()
 
-    const cssLink = document.createElement('link')
-    cssLink.rel = 'stylesheet'
-    cssLink.href = browserInstance.runtime.getURL("css/nico_repo.css");
-    document.head.appendChild(cssLink)
-
     let cl = function () {}
     if (PARAMETER.VIDEO.REPO.CUSTOM_LAYOUT.pValue) cl = customLayout
     let ah = function () {}
@@ -36,7 +31,7 @@ const repo = async function () {
                     awl(target)
                     f(target)
                 }
-                if (!document.getElementById('nicorepo-filter')){
+                if (!document.getElementById('nicorepo-filter')){//TODO 他画面で実行される https://www.nicovideo.jp/my/watchlater?ref=pc_mypage_menu
                     setSideSetting()
                 }
             }

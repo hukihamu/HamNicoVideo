@@ -8,6 +8,10 @@ const repo = async function () {
 
     let cl = function () {}
     if (PARAMETER.VIDEO.REPO.CUSTOM_LAYOUT.pValue) cl = customLayout
+    let ah = function () {}
+    if (PARAMETER.VIDEO.REPO.HIGHLIGHT.ENABLE.pValue) ah = applyHighlight
+    let awl = function () {}
+    if (PARAMETER.VIDEO.REPO.ADD_WATCH_LATER.pValue) awl = addWatchLater
 
     let f = function () {}
     if (PARAMETER.VIDEO.REPO.FILTER.ENABLE.pValue) {
@@ -22,10 +26,14 @@ const repo = async function () {
                 if (target.className === 'NicorepoTimeline') {
                     for (const child of target.getElementsByClassName('SlideOut NicorepoItem NicorepoTimeline-item')) {
                         cl(child)
+                        ah(child)
+                        awl(child)
                         f(child)
                     }
                 } else if (target.className.match('SlideOut NicorepoItem NicorepoTimeline-item')) {
                     cl(target)
+                    ah(target)
+                    awl(target)
                     f(target)
                 }
                 if (!document.getElementById('nicorepo-filter')){

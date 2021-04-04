@@ -38,7 +38,10 @@
       "js": [
         "js/util/watch_later.js",
         "js/video/my/custom_layout.js",
+        "js/video/my/side_fold.js",
         "js/video/my/filter.js",
+        "js/video/my/add_watch_later.js",
+        "js/video/my/highlight.js",
         "js/video/my/repo.js"
       ],
       "run_at": "document_start"

@@ -48,19 +48,24 @@ const watch = async function () {
     }
 
 
-    // let oh = function (){} TODO
-    // if (PARAMETER.VIDEO.WATCH.HOLD_SETTING.ENABLE.pValue){
-    //     holdSetting()
-    //     oh = onHold
-    // }
+    let oh = function (){}
+    if (PARAMETER.VIDEO.WATCH.HOLD_SETTING.ENABLE.pValue){
+        holdSetting()
+        oh = onHold
+    }
     let rwl = function (){}
     if (PARAMETER.VIDEO.WATCH.REMOVE_WATCH_LATER.pValue){
         rwl = removeWatchLater
+    }
+    let scl = ()=>{}
+    if (PARAMETER.VIDEO.WATCH.SHOW_COMMENT_LIST.pValue){
+        scl = showCommentList
     }
 
     function onLoad(){
         setOptionView()
         minimumLike()
+        scl()
 
         if (PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.ENABLE.pValue){
             setCustomMyListButton()
@@ -68,13 +73,19 @@ const watch = async function () {
     }
     //動画変更毎
     function onVideoChange(){
+
+        // const contentTree = document.getElementsByClassName('Link ContentTreeContainer-guideLink')[0]
+        // console.log(contentTree.href)
+        // if (contentTree.href){
+        //
+        // }
         const thumbnail = document.getElementsByClassName('VideoPlayer')[0]
         if (thumbnail){
             new MutationObserver((mutationsList)=>{
                 for (const mutations of mutationsList){
                     const target = mutations.target
                     if (target.className === 'VideoPlayer'){
-                        // oh()
+                        oh()
                         rwl()
                     }
                 }
@@ -83,15 +94,29 @@ const watch = async function () {
             })
         }
     }
-
-    if (document.getElementsByClassName('VideoMenuContainer-areaLeft').length === 0){
-        new MutationObserver((mutationsList,observer)=>{
+    let isArea = true
+    let isTree = true
+    const element = document.documentElement
+    const y = element.scrollTop
+    if (document.getElementsByClassName('VideoMenuContainer-areaLeft').length === 0) {
+        new MutationObserver((mutationsList, observer) => {
             const areaLeft = document.getElementsByClassName('VideoMenuContainer-areaLeft')
-            if (areaLeft.length > 0){
+            if (areaLeft.length > 0 && isArea) {
                 observer.disconnect()
-                onVideoChange()
+                isArea = false
                 onLoad()
+                onVideoChange()
+
+                // element.scrollTop = element.scrollHeight - element.clientHeight;
             }
+            // const bottomMain = document.getElementsByClassName('Card ContentTreeContainer')
+            // if (bottomMain.length > 0 && isTree) {
+            //     isTree = false
+            //     onVideoChange()
+            //
+            //     element.scrollTop = y
+            // }
+            // if (!isArea && !isTree) observer.disconnect()
         }).observe(document.body, {
             subtree: true,
             childList: true

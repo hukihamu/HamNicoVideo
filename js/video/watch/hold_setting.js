@@ -11,9 +11,6 @@ const nicoStorage = {
             optButton.click()
         }
     },
-    get isContinuous() {
-        return localStorage.getItem('Player.isContinuous')
-    },
     setContinuous() {
         if (localStorage.getItem('Player.isContinuous') !== PARAMETER.VIDEO.WATCH.HOLD_SETTING.CONTINUOUS.HOLD_VALUE.pValue.toString()){
             const f = (c)=>{
@@ -39,11 +36,6 @@ const nicoStorage = {
                 tab[0].click()
             }
         }
-    },
-    setPlayerController() {
-        const holdValue = PARAMETER.VIDEO.WATCH.HOLD_SETTING.PLAYER_CONTROLLER.HOLD_VALUE
-        document.getElementsByClassName('PlayerPanelContainer-tabItem')[holdValue.pValue].click()
-
     },
     set isRepeating(value) {
         localStorage.setItem('Player.isRepeating', value)
@@ -83,7 +75,6 @@ function holdSetting() {
 
     setSetting(holdSettings.CONTINUOUS, nicoStorage.setContinuous)
     setSetting(holdSettings.PLAYBACK_RATE, nicoStorage.setPlaybackRate)
-    setSetting(holdSettings.PLAYER_CONTROLLER, nicoStorage.setPlayerController)
 
     const contInterval = setInterval(() => {
         const cont = document.getElementsByClassName('ControllerContainer-area ControllerContainer-centerArea')[0]
@@ -121,6 +112,7 @@ function holdSetting() {
 function onHold() {
     if (isFirst){
         isFirst = false
+        console.log('test')
         const thumbnail = document.getElementsByClassName('VideoBalloon-thumbnail')[0]
         if (thumbnail){
             const image = thumbnail.getAttribute('style')

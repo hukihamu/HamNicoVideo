@@ -1,6 +1,6 @@
 {
   "name": "Ham NicoVideo",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "manifest_version": 2,
   "description": "hamによるniconico便利機能",
   "options_ui": {
@@ -9,20 +9,9 @@
   },
   "permissions": [
     "storage",
-    "webRequest",
-    "webRequestBlocking",
     "*://*.nicovideo.jp/*"
   ],
   "content_scripts": [
-    {
-      "matches": [
-        "*://*.nicovideo.jp/watch/*"
-      ],
-      "js": [
-        "lib/storage_event.js"
-      ],
-      "run_at": "document_start"
-    },
     {
       "matches": [
         "*://*.nicovideo.jp/*"
@@ -32,6 +21,7 @@
         "lib/parameter.js",
         "lib/browser/storage.js"
       ],
+      "css": ["css/nico.css"],
       "run_at": "document_start"
     },
     {
@@ -40,10 +30,16 @@
         "*://*.nicovideo.jp/my?*"
       ],
       "js": [
+        "js/util/watch_later.js",
+
         "js/video/my/custom_layout.js",
+        "js/video/my/side_fold.js",
         "js/video/my/filter.js",
+        "js/video/my/add_watch_later.js",
+        "js/video/my/highlight.js",
         "js/video/my/repo.js"
       ],
+      "css": ["css/video/repo.css"],
       "run_at": "document_start"
     },
     {
@@ -51,12 +47,17 @@
         "*://*.nicovideo.jp/watch/*"
       ],
       "js": [
+        "lib/storage_event.js",
+        "js/util/watch_later.js",
+
+        "js/video/watch/minimum_like.js",
         "js/video/watch/custom_my_list.js",
-        "js/video/watch/hide_watch_later.js",
+        "js/video/watch/remove_watch_later.js",
+        "js/video/watch/show_comment_list.js",
         "js/video/watch/hold_setting.js",
-        "js/video/watch/http_video.js",
         "js/video/watch/watch.js"
       ],
+      "css": ["css/video/watch.css"],
       "run_at": "document_start"
     }
   ],

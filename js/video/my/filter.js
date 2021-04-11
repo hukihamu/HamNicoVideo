@@ -10,7 +10,7 @@ function setSideSetting() {
         header.id = 'nicorepo-filter'
         const headerTitle = document.createElement('h3')
         headerTitle.className = 'SubMenuHeader-title'
-        headerTitle.innerText = 'フィルター'
+        headerTitle.innerText = '非表示フィルター'
         header.appendChild(headerTitle)
         div.appendChild(header)
 

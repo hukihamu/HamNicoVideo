@@ -80,4 +80,28 @@ class WatchLater{
         xhr.setRequestHeader('X-Niconico-Language','ja-jp')
         xhr.send()
     }
+
+    static firstWatchLater(callback,page= 1){
+        const xhr = new XMLHttpRequest()
+        xhr.open('GET', 'https://nvapi.nicovideo.jp/v1/users/me/watch-later?sortKey=addedAt&sortOrder=desc&pageSize=100&page=1')
+        xhr.onreadystatechange = ()=>{
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const json = JSON.parse(xhr.response)
+                const watchLater = json['data']['watchLater']
+                for (const item of watchLater['items']){
+                    if (item['watchId'] === watchId){
+                        callback(item['itemId'])
+                    }
+                }
+                if (watchLater['hasNext'].toString() === 'true'){
+                    this.isWatchLater(callback,watchId,page + 1)
+                }
+            }
+        }
+        xhr.withCredentials = true
+        xhr.setRequestHeader('X-Frontend-Id','6')
+        xhr.setRequestHeader('X-Frontend-Version','0')
+        xhr.setRequestHeader('X-Niconico-Language','ja-jp')
+        xhr.send()
+    }
 }

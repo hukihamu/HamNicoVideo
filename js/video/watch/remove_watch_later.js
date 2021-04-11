@@ -53,5 +53,3 @@ function onRemoveWatchLater(event){
             target.dataset['title'] = '「あとで見る」から削除に失敗'
         })
 }
-
-//TODO あとでみるリスト playlist=eyJ0eXBlIjoid2F0Y2hsYXRlciIsImNvbnRleHQiOnsic29ydEtleSI6ImFkZGVkQXQiLCJzb3J0T3JkZXIiOiJkZXNjIn19

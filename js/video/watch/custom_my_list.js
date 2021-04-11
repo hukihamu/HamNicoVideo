@@ -112,7 +112,7 @@ function onClickCustomMyList(event) {
         xhr.withCredentials = true
         xhr.open('POST', 'https://nvapi.nicovideo.jp/v1/users/me/mylists/{myListId}/items?itemId={itemId}&description='
             .replace('{myListId}',myListId)
-            .replace('{itemId}',watchId()))
+            .replace('{itemId}',location.pathname.replace('/watch/','')))
         xhr.setRequestHeader('X-Frontend-Id','6')
         xhr.setRequestHeader('X-Frontend-Version','0')
         xhr.setRequestHeader('X-Niconico-Language','ja-jp')

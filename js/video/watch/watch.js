@@ -48,11 +48,11 @@ const watch = async function () {
     }
 
 
-    let oh = function (){}
-    if (PARAMETER.VIDEO.WATCH.HOLD_SETTING.ENABLE.pValue){
-        holdSetting()
-        oh = onHold
-    }
+    // let oh = function (){} TODO
+    // if (PARAMETER.VIDEO.WATCH.HOLD_SETTING.ENABLE.pValue){
+    //     holdSetting()
+    //     oh = onHold
+    // }
     let rwl = function (){}
     if (PARAMETER.VIDEO.WATCH.REMOVE_WATCH_LATER.pValue){
         rwl = removeWatchLater
@@ -74,7 +74,7 @@ const watch = async function () {
                 for (const mutations of mutationsList){
                     const target = mutations.target
                     if (target.className === 'VideoPlayer'){
-                        oh()
+                        // oh()
                         rwl()
                     }
                 }

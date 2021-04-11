@@ -61,11 +61,16 @@ const watch = async function () {
     if (PARAMETER.VIDEO.WATCH.SHOW_COMMENT_LIST.pValue){
         scl = showCommentList
     }
+    let wll = ()=>{}
+    if (true){
+        wll = watchLaterList
+    }
 
     function onLoad(){
         setOptionView()
         minimumLike()
         scl()
+        wll()
 
         if (PARAMETER.VIDEO.WATCH.CUSTOM_MY_LIST.ENABLE.pValue){
             setCustomMyListButton()
@@ -123,6 +128,4 @@ const watch = async function () {
         })
     }
 }
-//TODO あとでみる表示？
-// playlist=eyJ0eXBlIjoid2F0Y2hsYXRlciIsImNvbnRleHQiOnsic29ydEtleSI6ImFkZGVkQXQiLCJzb3J0T3JkZXIiOiJkZXNjIn19
 window.addEventListener('DOMContentLoaded', watch)

@@ -24,14 +24,17 @@ const repo = async function () {
                         ah(child)
                         awl(child)
                         f(child)
+                        createdAtNewColor(child)
                     }
                 } else if (target.className.match('SlideOut NicorepoItem NicorepoTimeline-item')) {
                     cl(target)
                     ah(target)
                     awl(target)
                     f(target)
+                    createdAtNewColor(target)
                 }
-                if (!document.getElementById('nicorepo-filter')){//TODO 他画面で実行される https://www.nicovideo.jp/my/watchlater?ref=pc_mypage_menu
+                if (!document.getElementById('nicorepo-filter')
+                        && document.getElementsByClassName('SideContainer NicorepoSideContainer')[0]){//TODO 他画面で実行される https://www.nicovideo.jp/my/watchlater?ref=pc_mypage_menu
                     setSideSetting()
                 }
             }

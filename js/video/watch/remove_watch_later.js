@@ -5,7 +5,7 @@ function removeWatchLater() {
     const watchId = location.pathname.replace('/watch/','')
 
     const oldRWL = document.getElementById(ElementId)
-    if (oldRWL) oldRWL.remove()
+    if (oldRWL) oldRWL.parentElement.remove()
 
     const callback = (itemId)=>{
         const buttonContainer = document.getElementsByClassName('VideoMenuContainer-areaLeft')[0]

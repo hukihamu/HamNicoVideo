@@ -112,7 +112,6 @@ function holdSetting() {
 function onHold() {
     if (isFirst){
         isFirst = false
-        console.log('test')
         const thumbnail = document.getElementsByClassName('VideoBalloon-thumbnail')[0]
         if (thumbnail){
             const image = thumbnail.getAttribute('style')

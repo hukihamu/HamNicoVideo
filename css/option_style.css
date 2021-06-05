@@ -91,10 +91,10 @@ body, html {
 
 }
 .td-input{
-    width: 1px;
+    width: 50%;
 }
 .td-default{
-
+    width: 15%;
 }
 a{
     color: var(--font-color);

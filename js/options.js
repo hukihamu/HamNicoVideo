@@ -34,11 +34,11 @@ function onClickInputImportOption(e) {
             alert('インポートに失敗しました')
             return
         }
-        for (const key in BStorage.defaults){
-            BStorage.set(key,BStorage.defaults[key])
+        for (const key in BStorage.defaults) {
+            BStorage.set(key, BStorage.defaults[key])
         }
-        for (const key in e){
-            BStorage.set(key,e[key])
+        for (const key in e) {
+            BStorage.set(key, e[key])
         }
         alert('インポートしました')
         window.location.reload()
@@ -96,31 +96,40 @@ function setMainView(param, level) {
             tdLabel.className = 'td-label'
             tdLabel.appendChild(label)
 
-            const input = pv.input
-            const tdInput = document.createElement('td')
-            tdInput.className = 'td-input'
-            tdInput.appendChild(input)
+            if (pv instanceof DynamicCommentReplacePValue) {
+                tdLabel.style.verticalAlign = 'top'
+                const tdInput = document.createElement('td')
+                tdInput.colSpan = 2
+                tdInput.appendChild(pv.input)
 
-            const button = document.createElement('button')
-            button.innerText = 'デフォルト'
-            button.dataset.id = pv.key
-            button.addEventListener('click', onClickDefault)
-            const tdDefault = document.createElement('td')
-            tdDefault.className = 'td-default'
-            tdDefault.appendChild(button)
-
-
-            if (p === 'ENABLE') {
-                tr.remove()
-                const hTR = document.getElementById('main').lastChild
-                hTR.firstChild.colSpan = 1
-                tdInput.addEventListener('change', onClickEnable)
-                hTR.appendChild(tdInput)
-                hTR.appendChild(tdDefault)
-            } else {
                 tr.appendChild(tdLabel)
                 tr.appendChild(tdInput)
-                tr.appendChild(tdDefault)
+            } else{
+                const input = pv.input
+                const tdInput = document.createElement('td')
+                tdInput.className = 'td-input'
+                tdInput.appendChild(input)
+
+                const button = document.createElement('button')
+                button.innerText = 'デフォルト'
+                button.dataset.id = pv.key
+                button.addEventListener('click', onClickDefault)
+                const tdDefault = document.createElement('td')
+                tdDefault.className = 'td-default'
+                tdDefault.appendChild(button)
+
+                if (p === 'ENABLE') {
+                    tr.remove()
+                    const hTR = document.getElementById('main').lastChild
+                    hTR.firstChild.colSpan = 1
+                    tdInput.addEventListener('change', onClickEnable)
+                    hTR.appendChild(tdInput)
+                    hTR.appendChild(tdDefault)
+                } else {
+                    tr.appendChild(tdLabel)
+                    tr.appendChild(tdInput)
+                    tr.appendChild(tdDefault)
+                }
             }
 
         } else {

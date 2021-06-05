@@ -3,8 +3,6 @@ function addWatchLater(item){
     if (item.getElementsByClassName('ContentLabel_video').length > 0){
         const button = document.createElement('button')
         button.className = 'WatchLaterButton-button'
-        button.style.width = '24px'
-        button.style.height = '24px'
         button.dataset.title = 'あとで見る'
         button.dataset.url = item.getElementsByClassName('NicorepoItem-content')[0].href
         button.addEventListener('click',onClickWatchLater)

@@ -7,6 +7,12 @@
 [data-title]:not([disabled]) {
     z-index: 1;
 }
+.WatchLaterButton-button{
+    width: 24px;
+    height: 24px;
+    background-color: rgba(0,0,0,0.6);
+    background-image: url(https://nicovideo.cdn.nimg.jp/web/images/icon/icon_watch_later.svg);
+}
 .WatchLaterButton-button.is-succeeded[data-title]:after {
     opacity: 1;
     background-color: #007cff;

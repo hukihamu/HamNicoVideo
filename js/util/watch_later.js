@@ -59,7 +59,7 @@ class WatchLater{
 
     static isWatchLater(callback,watchId,page= 1){
         const xhr = new XMLHttpRequest()
-        xhr.open('GET', 'https://nvapi.nicovideo.jp/v1/users/me/watch-later?sortKey=addedAt&sortOrder=desc&pageSize=100&page=1')
+        xhr.open('GET', `https://nvapi.nicovideo.jp/v1/users/me/watch-later?sortKey=addedAt&sortOrder=desc&pageSize=100&page=${page}`)
         xhr.onreadystatechange = ()=>{
             if (xhr.readyState === 4 && xhr.status === 200) {
                 const json = JSON.parse(xhr.response)
@@ -67,6 +67,7 @@ class WatchLater{
                 for (const item of watchLater['items']){
                     if (item['watchId'] === watchId){
                         callback(item['itemId'])
+                        return
                     }
                 }
                 if (watchLater['hasNext'].toString() === 'true'){

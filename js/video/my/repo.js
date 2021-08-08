@@ -14,11 +14,11 @@ const repo = async function () {
     }
 
     const userPageMain = document.getElementsByClassName('UserPage-main')[0]
-    const userPageMainCallback = function (mutationsList, observer) {
+    const userPageMainCallback = function (mutationsList, _) {
         if (location.pathname.match('^(/my/|/my|/my/nicorepo|/my/nicorepo/)')) for (let mutation of mutationsList) {
             const target = mutation.addedNodes[0]
             if (target !== undefined && target.className !== undefined) {
-                if (target.className === 'NicorepoTimeline') {
+                if (target.className === 'NicorepoTimeline' || target.className === 'NicorepoPage') {
                     for (const child of target.getElementsByClassName('SlideOut NicorepoItem NicorepoTimeline-item')) {
                         cl(child)
                         ah(child)
@@ -34,7 +34,7 @@ const repo = async function () {
                     createdAtNewColor(target)
                 }
                 if (!document.getElementById('nicorepo-filter')
-                        && document.getElementsByClassName('SideContainer NicorepoSideContainer')[0]){//TODO 他画面で実行される https://www.nicovideo.jp/my/watchlater?ref=pc_mypage_menu
+                        && document.getElementsByClassName('SideContainer NicorepoSideContainer')[0]){
                     setSideSetting()
                 }
             }

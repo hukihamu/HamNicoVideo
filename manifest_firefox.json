@@ -38,6 +38,7 @@
         "js/video/my/filter.js",
         "js/video/my/add_watch_later.js",
         "js/video/my/highlight.js",
+        "js/video/my/on_check_removed_video.js",
         "js/video/my/repo.js"
       ],
       "css": ["css/video/repo.css"],

@@ -7,6 +7,9 @@ const repo = async function () {
     if (PARAMETER.VIDEO.REPO.HIGHLIGHT.ENABLE.pValue) ah = applyHighlight
     let awl = function () {}
     if (PARAMETER.VIDEO.REPO.ADD_WATCH_LATER.pValue) awl = addWatchLater
+    let ocrv = function () {}
+    if (PARAMETER.VIDEO.REPO.ON_CHECK_REMOVED_VIDEO.pValue) ocrv = onCheckRemovedVideo
+
 
     let f = function () {}
     if (PARAMETER.VIDEO.REPO.FILTER.ENABLE.pValue) {
@@ -32,6 +35,11 @@ const repo = async function () {
                     awl(target)
                     f(target)
                     createdAtNewColor(target)
+                }else if (target.className.match('(VideoListEditMenu )|(WatchLaterPage)|(MylistPage)')){//あとでみる＆マイリスト
+                    const videoEditMenu = document.getElementsByClassName('VideoListEditMenu')
+                    if (videoEditMenu.length !== 0){
+                        ocrv(videoEditMenu[0])
+                    }
                 }
                 if (!document.getElementById('nicorepo-filter')
                         && document.getElementsByClassName('SideContainer NicorepoSideContainer')[0]){

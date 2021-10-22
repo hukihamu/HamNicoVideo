@@ -68,7 +68,7 @@ const watch = async function () {
 
     function onLoad(){
         setOptionView()
-        minimumLike()
+        // minimumLike()
         scl()
         wll()
 

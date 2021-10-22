@@ -1,16 +1,14 @@
 {
   "name": "Ham NicoVideo",
   "version": "0.5.2",
-  "manifest_version": 3,
+  "manifest_version": 2,
   "description": "hamによるniconico便利機能",
   "options_ui": {
     "page": "html/options.html",
     "open_in_tab": true
   },
   "permissions": [
-    "storage"
-  ],
-  "host_permissions": [
+    "storage",
     "*://*.nicovideo.jp/*"
   ],
   "content_scripts": [
@@ -66,9 +64,7 @@
     }
   ],
   "web_accessible_resources": [
-    {
-      "resources": ["css/*.css", "html/*.html"],
-      "matches": ["<all_urls>"]
-    }
+    "css/*.css",
+    "html/*.html"
   ]
 }

@@ -1,0 +1,8 @@
+.header{
+    display: table-header-group;
+}
+.header *{
+    display: table-cell;
+    padding: 2px;
+    border: 1px #1a1c21 solid;
+}

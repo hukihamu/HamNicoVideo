@@ -96,7 +96,7 @@ function setMainView(param, level) {
             tdLabel.className = 'td-label'
             tdLabel.appendChild(label)
 
-            if (pv instanceof DynamicCommentReplacePValue) {
+            if (pv instanceof DynamicPValue) {
                 tdLabel.style.verticalAlign = 'top'
                 const tdInput = document.createElement('td')
                 tdInput.colSpan = 2

@@ -1,0 +1,28 @@
+
+body {
+    width: 300px;
+    height: 100px;
+}
+
+.hidden {
+    display: none;
+}
+
+.target-interval-time {
+    height: 34px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.target-interval-time input {
+}
+
+.target-interval-week {
+    width: 14px;
+    display: table-cell;
+    padding: 2px;
+}
+
+.target-interval-week input {
+    margin: 0;
+}

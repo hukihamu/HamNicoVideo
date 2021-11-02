@@ -2,11 +2,25 @@
 <html lang="jp">
 <head>
     <meta charset="UTF-8">
+    <link href="/css/popup_series.css" rel="stylesheet" type="text/css">
     <link href="/css/popup.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="/lib/browser.js"></script>
+    <script type="text/javascript" src="/lib/parameter.js"></script>
+    <script type="text/javascript" src="/lib/browser/storage.js"></script>
+    <script type="text/javascript" src="/lib/uuid.js"></script>
+    <script type="text/javascript" src="/js/popup/popup.js"></script>
 </head>
 <body>
 <button id="notification_edit">通知追加</button>
-<button id="notification_list">通知一覧</button>
-<script type="text/javascript" src="/js/popup.js"></script>
+
+<div class="header">
+    <span class="target-type">通知対象</span>
+    <span class="target-interval">更新間隔</span>
+    <span class="target-lasted">最終確認</span>
+    <span class="target-operation">操作</span>
+</div>
+<div id="body">
+
+</div>
 </body>
 </html>

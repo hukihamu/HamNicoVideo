@@ -6,23 +6,23 @@
     <script type="text/javascript" src="/lib/browser.js"></script>
     <script type="text/javascript" src="/lib/parameter.js"></script>
     <script type="text/javascript" src="/lib/browser/storage.js"></script>
-    <script type="text/javascript" src="/js/notification/edit.js"></script>
+    <script type="text/javascript" src="/js/popup/notification_edit.js"></script>
 </head>
 <body>
 <form id="form">
     <p class="target-type">
         <label><input type="radio" name="target_type" value="series" checked required>シリーズ</label>
-        <label><input type="radio" name="target_type" value="tag" disabled required>タグ</label>
+        <label><input type="radio" name="target_type" value="tag" disabled>タグ</label>
     </p>
     <div class="target-value">
-        <div class="series">
+        <div id="series_value">
             <p>
                 <label>シリーズID<input type="number" name="series_id" required></label>
             </p>
         </div>
-        <div class="tag hidden">
+        <div id="tags_value" class="hidden">
             <p>
-                <label>検索タグ（複数）</label>
+                <label>検索タグ（複数可）<input type="text" name="tags_name"></label>
             </p>
         </div>
     </div>

@@ -1,15 +1,11 @@
-chrome.runtime.onMessage.addListener((msg, _, callback) => {
-    switch (msg.state) {
-        case 'add': {
-            chrome.storage.local.get(null, (items) => {
+await BStorage.init()
 
-                items['video/notification/list'] = []
-                chrome.storage.local.set(items, () => {
-                    console.log(items)
-                })
-            })
-            callback()
-            break
-        }
-    }
+chrome.alarms.onAlarm.addListener((alarm)=>{
+
 })
+
+let list = JSON.parse(PARAMETER.VIDEO.NOTIFICATION.LIST.pValue)
+list = list === null ? [] : list
+for (const v of list){
+
+}

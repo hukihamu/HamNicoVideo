@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         nextButton.dataset.id = tempID
         nextButton.addEventListener('click',(e)=>{
             v.lastVideoId = e.target.dataset.videoId
+            v._lastDatetime = Date.now()
             list[i] = v
             PARAMETER.VIDEO.NOTIFICATION.LIST.pValue = JSON.stringify(list)
             onNextVideo(v,document.getElementById(e.target.dataset.id).firstElementChild,e.target)
@@ -114,6 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         elm.target = '_blank'
                         elm.addEventListener('click',()=>{
                             v.lastVideoId = nextButton.dataset.videoId
+                            v._lastDatetime = Date.now()
                             list[i] = v
                             PARAMETER.VIDEO.NOTIFICATION.LIST.pValue = JSON.stringify(list)
                             onNextVideo(v,document.getElementById(nextButton.dataset.id).firstElementChild,nextButton)

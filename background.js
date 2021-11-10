@@ -34,7 +34,7 @@ browserInstance.runtime.onInstalled.addListener(async ()=>{
                 const nextDay = new Date()
                 nextDay.setDate(nowDayOfWeek + counter)
                 nextDay.setHours(v.targetIntervalTime.substring(0,1),v.targetIntervalTime.substring(3,4))
-                browserInstance.alarms.create(v.targetName,{
+                browserInstance.alarms.create(v.targetId,{
                     delayInMinutes: (nextDay.getTime() - Date.now()) / 60000
                 })
             }

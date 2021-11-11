@@ -1,0 +1,65 @@
+
+body {
+    width: 700px;
+    height: 600px;
+}
+#body{
+    overflow-y: scroll;
+    height: 550px;
+}
+.hidden {
+    display: none;
+}
+
+.target-interval-time {
+    height: 34px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.target-interval-time input {
+}
+
+.target-interval-week {
+    width: 14px;
+    display: table-cell;
+    padding: 2px;
+}
+
+.target-interval-week input {
+    margin: 0;
+}
+
+.header,.row{
+    display: table-header-group;
+}
+.header * {
+    font-weight: bold;
+}
+.header *, .target *{
+    display: table-cell;
+    padding: 2px;
+    border: 1px #1a1c21 solid;
+}
+.target * *{
+    border: 0;
+}
+.target-accordion{
+    width: 20px;
+}
+.target-type{
+    width: 400px;
+}
+.target-interval{
+    width: 84px;
+}
+.target-lasted{
+    width: 90px;
+}
+.target-operation{
+    width: 36px;
+}
+.notification{
+    margin-left: 8px;
+    width: 600px;
+}

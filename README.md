@@ -15,3 +15,9 @@ A.
 Q.こんな機能が欲しいんだけど　バグ・不具合・修正案がある  
 A.Issues、各拡張機能のレビューに書き込みをお願いします。  
   たまに生放送やってます。：https://www.nicovideo.jp/user/26267653
+
+
+利用API  
+- https://site.nicovideo.jp/search-api-docs/snapshot
+- https://github.com/uuidjs/uuid
+- https://github.com/EastDesire/jscolor

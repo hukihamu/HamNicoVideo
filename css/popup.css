@@ -1,11 +1,10 @@
 
 body {
     width: 700px;
-    height: 580px;
 }
 #body{
     overflow-y: scroll;
-    height: 550px;
+    height: 535px;
 }
 .hidden {
     display: none;
@@ -60,10 +59,25 @@ body {
     margin-left: 8px;
     width: 600px;
 }
+
+.title{
+    display: table-cell;
+    width: 400px;
+    font-size: 170%;
+    font-weight: bold;
+}
 #notification_edit{
     font-size: 130%;
     font-weight: bold;
     padding: 2px;
+    width: 210px;
+    background-color: lightsalmon;
+}
+#setting {
+    width: 46px;
+    font-size: 130%;
+    font-weight: bold;
+    background-color: gainsboro;
 }
 .target-highlight *{
     background-color: #ffa000;

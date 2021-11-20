@@ -22,7 +22,7 @@ const watch = async function () {
         inView.className = 'InView'
         inView.appendChild(card)
 
-        const sideGrid = document.getElementsByClassName('GridCell BottomSideContainer')[0]
+        const sideGrid = document.getElementsByClassName('BottomSideContainer')[0]
         sideGrid.prepend(inView)
     }
 

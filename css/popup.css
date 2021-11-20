@@ -1,7 +1,7 @@
 
 body {
     width: 700px;
-    height: 600px;
+    height: 580px;
 }
 #body{
     overflow-y: scroll;
@@ -59,4 +59,12 @@ body {
 .notification{
     margin-left: 8px;
     width: 600px;
+}
+#notification_edit{
+    font-size: 130%;
+    font-weight: bold;
+    padding: 2px;
+}
+.target-highlight *{
+    background-color: #ffa000;
 }

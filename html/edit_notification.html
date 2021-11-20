@@ -13,13 +13,13 @@
 <form id="form">
     <p class="target-type">
         <label><input type="radio" name="target_type" value="series" checked required>シリーズ</label>
-        <label><input type="radio" name="target_type" value="tag">タグ</label>
+        <label><input type="radio" name="target_type" value="tag" disabled>タグ</label>
     </p>
     <div class="target-value">
         <div id="series_value">
             <p>
                 <label>シリーズID<input type="number" name="series_id" required></label>
-                <button id="get_series-id">シリーズID取得</button>
+                <button id="get_series_id">シリーズID取得</button>
             </p>
         </div>
         <div id="tags_value" class="hidden">

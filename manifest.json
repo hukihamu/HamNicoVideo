@@ -62,7 +62,6 @@
       "js": [
         "js/util/watch_later.js",
 
-        "js/video/watch/minimum_like.js",
         "js/video/watch/custom_my_list.js",
         "js/video/watch/remove_watch_later.js",
         "js/video/watch/show_comment_list.js",

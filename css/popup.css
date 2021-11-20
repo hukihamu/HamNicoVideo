@@ -10,6 +10,9 @@ body {
 .hidden {
     display: none;
 }
+.invisible {
+    visibility: hidden;
+}
 
 .target-interval-time {
     height: 34px;
@@ -50,14 +53,8 @@ body {
 .target-type{
     width: 400px;
 }
-.target-interval{
-    width: 84px;
-}
-.target-lasted{
-    width: 90px;
-}
 .target-operation{
-    width: 36px;
+    width: 210px;
 }
 .notification{
     margin-left: 8px;

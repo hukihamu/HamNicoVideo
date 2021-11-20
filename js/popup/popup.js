@@ -80,6 +80,255 @@ document.addEventListener('DOMContentLoaded', async () => {
         row.dataset.videoId = child.lastVideoId
         return prevVideoId
     }
+    const emptyTagData = {
+        contentId: '',
+        title: '',
+        description: '',
+        viewCounter: '',
+        mylistCounter: '',
+        likeCounter: '',
+        lengthSeconds: null,
+        thumbnailUrl: '',
+        startTime: null,
+        lastResBody: '',
+        commentCounter: ''
+    }
+    const setDataTagView = (row, data) => {
+        if (data === emptyTagData) {
+            row.getElementsByClassName('NC-MediaObject NC-VideoMediaObject SeriesVideoListContainer-video')[0].classList.add('hidden')
+        } else {
+            row.getElementsByClassName('NC-MediaObject NC-VideoMediaObject SeriesVideoListContainer-video')[0].classList.remove('hidden')
+
+
+            row.getElementsByClassName('NC-Link NC-MediaObject-contents')[0]
+                .href = 'https://www.nicovideo.jp/watch/' + data.contentId
+
+            const thumbnailImage = row.getElementsByClassName('NC-Thumbnail-image')[0]
+            thumbnailImage.setAttribute('aria-label', data.title)
+            thumbnailImage.style = `background-image: url('${data.thumbnailUrl}.M');`//サムネ
+
+            if (data.lengthSeconds){
+                const videoLengthSecond = data.lengthSeconds % 60
+                const videoLengthMinute = Math.floor(data.lengthSeconds / 60)
+                const videoLengthHour = Math.floor(videoLengthMinute / 60)
+                const videoLengthText = videoLengthHour === 0 ? '' : videoLengthHour.toString().padStart(2, '0') + ':'
+                row.getElementsByClassName('NC-VideoLength')[0].innerText = `${videoLengthText}${videoLengthMinute.toString().padStart(2, '0')}:${videoLengthSecond.toString().padStart(2, '0')}` //動画時間
+            }
+
+            row.getElementsByClassName('NC-MediaObjectTitle NC-VideoMediaObject-title NC-MediaObjectTitle_fixed2Line')[0].innerText = data.title// タイトル
+
+            row.getElementsByClassName('NC-VideoMediaObject-description')[0].textContent = data.description//動画説明
+
+            if (data.startTime){
+                //TODO NC-VideoRegisteredAtText-text_new
+                const videoRegister = new Date(data.startTime)
+                row.getElementsByClassName('NC-VideoRegisteredAtText-text')[0].innerText = `${videoRegister.getFullYear().toString().padStart(4, '0')}/${videoRegister.getMonth().toString().padStart(2, '0')}/${videoRegister.getDate().toString().padStart(2, '0')} ${videoRegister.getHours().toString().padStart(2, '0')}:${videoRegister.getMinutes().toString().padStart(2, '0')}` //投稿時間
+            }
+
+            row.getElementsByClassName('NC-VideoMetaCount NC-VideoMetaCount_view')[0].innerText = data.viewCounter//再生数
+
+            row.getElementsByClassName('NC-VideoMetaCount NC-VideoMetaCount_comment')[0].innerText = data.commentCounter//コメント数
+
+            row.getElementsByClassName('NC-VideoMetaCount NC-VideoMetaCount_like')[0].innerText = data.likeCounter//いいね吸う
+
+            row.getElementsByClassName('NC-VideoMetaCount NC-VideoMetaCount_mylist')[0].innerText = data.mylistCounter//マイリス数
+        }
+    }
+    const initTagView = (notificationRow)=>{
+        const d0 = document.createElement('div')
+        d0.className = 'SeriesVideoListContainer'
+        notificationRow.appendChild(d0)
+
+        const d1 = document.createElement('div')
+        d1.className = 'NC-MediaObject NC-VideoMediaObject SeriesVideoListContainer-video'
+        d0.appendChild(d1)
+
+        const d2 = document.createElement('div')
+        d2.className = 'NC-MediaObject-main'
+        d1.appendChild(d2)
+
+        const a3 = document.createElement('a')
+        a3.className = 'NC-Link NC-MediaObject-contents'
+        a3.rel = 'noopener'
+        a3.target = '_blank'
+        a3.addEventListener('click',(e)=>{
+            NotificationDynamicChild.set(row.dataset.id,(child)=>{
+                child.lastVideoId = row.dataset.videoId
+                onNextTag(child,row)
+                return child
+            },false)
+        })
+        d2.appendChild(a3)
+
+        const d4_1 = document.createElement('div')
+        d4_1.className = 'NC-MediaObject-media'
+        a3.appendChild(d4_1)
+
+        const d5_1 = document.createElement('div')
+        d5_1.className = 'NC-MediaObject-media'
+        d4_1.appendChild(d5_1)
+
+        const d6_1 = document.createElement('div')
+        d6_1.className = 'NC-VideoMediaObject-thumbnail'
+        d5_1.appendChild(d6_1)
+
+        const d7_1 = document.createElement('div')
+        d7_1.className = 'NC-NicoadFrame SeriesVideoListContainer-video'
+        d6_1.appendChild(d7_1)
+
+        const d8_1 = document.createElement('div')
+        d8_1.className = 'NC-Thumbnail NC-VideoThumbnail NC-Thumbnail_sizeCover'
+        d7_1.appendChild(d8_1)
+
+        const d9_1 = document.createElement('div')
+        d9_1.className = 'NC-Thumbnail-image'
+        d9_1.role="img"
+        d8_1.appendChild(d9_1)
+
+        const d9_2 = document.createElement('div')
+        d9_2.className = 'NC-VideoPlaybackIndicator'
+        d8_1.appendChild(d9_2)
+        const d10_1 = document.createElement('div')
+        d10_1.className = 'NC-VideoPlaybackIndicator-inner'
+        d10_1.style.transform = 'scaleX(0)'
+        const d9_3 = document.createElement('div')
+        d9_3.className = 'NC-VideoLength'
+        d8_1.appendChild(d9_3)
+        const d9_4 = document.createElement('div')
+        d9_4.className = 'NC-VideoThumbnailComment'
+        d8_1.appendChild(d9_4)
+        //TODO コメント
+        // while (false){
+        //     const s10 = document.createElement('span')
+        //     s10.className = 'NC-VideoThumbnailComment-comment'
+        //     s10.style.transitionDelay = ''//TODO
+        //     const s11 = document.createElement('span')
+        //     s11.className = 'NC-VideoThumbnailComment-inner'
+        //     s11.style.transitionDelay = ''//TODO
+        //     s11.innerText //TODO コメント
+        // }
+
+
+        const d4_2 = document.createElement('div')
+        d4_2.className = 'NC-MediaObject-body'
+        a3.appendChild(d4_2)
+
+        const d5_2 = document.createElement('div')
+        d5_2.className = 'NC-MediaObject-bodyTitle'
+        d4_2.appendChild(d5_2)
+        const h6_1 = document.createElement('h2')
+        h6_1.className = 'NC-MediaObjectTitle NC-VideoMediaObject-title NC-MediaObjectTitle_fixed2Line'
+        d5_2.appendChild(h6_1)
+
+
+        const d5_3 = document.createElement('div')
+        d5_3.className = 'NC-MediaObject-bodySecondary'
+        d4_2.appendChild(d5_3)
+
+        const d6_2 = document.createElement('div')
+        d6_2.className = 'NC-VideoMediaObject-description'
+        d5_3.appendChild(d6_2)
+
+        const d6_3 = document.createElement('div')
+        d6_3.className = 'NC-VideoMediaObject-meta'
+        d5_3.appendChild(d6_3)
+
+        const d7_2 = document.createElement('div')
+        d7_2.className = 'NC-VideoMediaObject-metaAdditional'
+        d6_3.appendChild(d7_2)
+
+        const s8 = document.createElement('span')
+        s8.className = 'NC-VideoRegisteredAtText'
+        d7_2.appendChild(s8)
+        const s9 = document.createElement('span')
+        s9.className = 'NC-VideoRegisteredAtText-text'//TODO NC-VideoRegisteredAtText-text_new
+        s8.appendChild(s9)
+        const d8_2 = document.createElement('div')
+        d8_2.className = 'NC-VideoLabels'
+        d7_2.appendChild(d8_2)
+        // const d9_5 = document.createElement('div')
+        // d9_5.className = 'NC-VideoLabels-label NC-VideoLabels-channel'
+        // d9_5.innerText = 'CH'//TODO チャンネルとか
+        // d8_2.appendChild(d9_5)
+
+        const d7_3 = document.createElement('div')
+        d7_3.className = 'NC-VideoMediaObject-metaCount'
+        d6_3.appendChild(d7_3)
+
+        const d8_3 = document.createElement('div')
+        d8_3.className = 'NC-VideoMetaCount NC-VideoMetaCount_view'
+        d7_3.appendChild(d8_3)
+        const d8_4 = document.createElement('div')
+        d8_4.className = 'NC-VideoMetaCount NC-VideoMetaCount_comment'
+        d7_3.appendChild(d8_4)
+        const d8_5 = document.createElement('div')
+        d8_5.className = 'NC-VideoMetaCount NC-VideoMetaCount_like'
+        d7_3.appendChild(d8_5)
+        const d8_6 = document.createElement('div')
+        d8_6.className = 'NC-VideoMetaCount NC-VideoMetaCount_mylist'
+        d7_3.appendChild(d8_6)
+    }
+    const onNextTag = (child, row)=>{
+        const dataList = JSON.parse(row.dataset.data)
+        let index
+
+        index = Number.parseInt(row.dataset.index)
+        if (row.dataset.index < dataList.length) {
+            NotificationDynamicChild.set(child.notifyId, (c) => {
+                c.lastVideoId = dataList[index].contentId
+                return c
+            }, false)
+            row.getElementsByClassName('prev_button')[0].disabled = false
+        } else {
+            row.getElementsByClassName('prev_button')[0].disabled = true
+        }
+
+        const nextIndex = index - 1
+        if (nextIndex < 0) {
+            row.dataset.index = null
+            setDataTagView(row, emptyTagData)
+            row.getElementsByClassName('next_button')[0].disabled = true
+        } else {
+            row.dataset.index = nextIndex
+            setDataTagView(row, dataList[nextIndex])
+        }
+
+
+
+        //新着既読
+        if (child.isNotify){
+            row.getElementsByClassName('target')[0].classList.remove('target-highlight')
+            NotificationDynamicChild.set(child.notifyId,c=>{
+                c.isNotify = false
+                return c
+            },false)
+            //background通知
+            const msg = {key: 'decrement', value: child.notifyId}
+            browserInstance.runtime.sendMessage(msg)
+        }
+    }
+    const onPrevTag = (child, row)=>{
+        const dataList = JSON.parse(row.dataset.data)
+
+        let index = row.dataset.index === "null" ? 0
+            : Number.parseInt(row.dataset.index) + 1
+        if (index < dataList.length){
+            setDataTagView(row,dataList[index])
+            row.dataset.index = index
+        }
+        const prevIndex = index + 1
+        let lastVideoId = null
+        if (prevIndex < dataList.length ) {
+            lastVideoId = dataList[prevIndex].contentId
+        }else {
+            row.getElementsByClassName('prev_button')[0].disabled = true
+        }
+        NotificationDynamicChild.set(child.notifyId, (c) => {
+            c.lastVideoId = lastVideoId
+            return c
+        }, false)
+        row.getElementsByClassName('next_button')[0].disabled = false
+    }
 
     //シリーズ行
     const createSeriesRow = (notifyVideo)=>{
@@ -166,7 +415,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 child.lastVideoId = row.dataset.videoId
                                 onNextSeries(child,document.getElementById(row.dataset.id).firstElementChild,row)
                                 return child
-                            })
+                            },false)
                         })
                     }
                     for (const elm of tempBody.getElementsByClassName('NC-Thumbnail-image')) {
@@ -220,22 +469,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const nextButton = document.createElement('button')
         nextButton.innerText = 'Next'
         nextButton.className = 'next_button'
-        nextButton.addEventListener('click',()=>{//TODO
-            // NotificationDynamicChild.set(row.dataset.id,(child)=>{
-            //     child.lastVideoId = row.dataset.videoId
-            //     onNextSeries(child,document.getElementById(row.dataset.id).firstElementChild,row)
-            //     return child
-            // })
+        nextButton.addEventListener('click',()=>{
+            onNextTag(notifyVideo,row)
         })
         //prev
         const prevButton = document.createElement('button')
         prevButton.innerText = 'Prev'
         prevButton.className = 'prev_button'
-        prevButton.addEventListener('click',()=>{//TODO
-            // NotificationDynamicChild.set(row.dataset.id,(child)=>{
-            //     child.lastVideoId = onPrevSeries(child,document.getElementById(row.dataset.id).firstElementChild,row)
-            //     return child
-            // })
+        prevButton.addEventListener('click',()=>{
+            onPrevTag(notifyVideo,row)
         })
 
         //編集
@@ -270,164 +512,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
 
+
                 let dataIndex = 0
-                let currentData
-                for (const data of xhr.response.data){
-                    if (data.contentId === notifyVideo.lastVideoId){
-                        break
+                if (notifyVideo.lastVideoId){
+                    for (const data of xhr.response.data){
+                        if (data.contentId === notifyVideo.lastVideoId){
+                            break
+                        }
+                        dataIndex++
                     }
-                    dataIndex++
-                }
-                if (dataIndex === 0){
-                    return
                 }else{
-                    currentData = xhr.response.data[dataIndex - 1]
+                    dataIndex = xhr.response.data.length
                 }
-                const d0 = document.createElement('div')
-                d0.className = 'SeriesVideoListContainer'
-                notificationRow.appendChild(d0)
-
-                const d1 = document.createElement('div')
-                d1.className = 'NC-MediaObject NC-VideoMediaObject SeriesVideoListContainer-video'
-                d0.appendChild(d1)
-
-                const d2 = document.createElement('div')
-                d2.className = 'NC-MediaObject-main'
-                d1.appendChild(d2)
-
-                const a3 = document.createElement('a')
-                a3.className = 'NC-Link NC-MediaObject-contents'
-                a3.href = 'https://www.nicovideo.jp/watch/' + currentData.contentId //コンテンツID
-                a3.rel = 'noopener'
-                a3.target = '_blank'
-                d2.appendChild(a3)
-
-                const d4_1 = document.createElement('div')
-                d4_1.className = 'NC-MediaObject-media'
-                a3.appendChild(d4_1)
-
-                const d5_1 = document.createElement('div')
-                d5_1.className = 'NC-MediaObject-media'
-                d4_1.appendChild(d5_1)
-
-                const d6_1 = document.createElement('div')
-                d6_1.className = 'NC-VideoMediaObject-thumbnail'
-                d5_1.appendChild(d6_1)
-
-                const d7_1 = document.createElement('div')
-                d7_1.className = 'NC-NicoadFrame SeriesVideoListContainer-video'
-                d6_1.appendChild(d7_1)
-
-                const d8_1 = document.createElement('div')
-                d8_1.className = 'NC-Thumbnail NC-VideoThumbnail NC-Thumbnail_sizeCover'
-                d7_1.appendChild(d8_1)
-
-                const d9_1 = document.createElement('div')
-                d9_1.className = 'NC-Thumbnail-image'
-                d9_1.role="img"
-                d9_1.setAttribute('aria-label',"takt op.Destiny 第7話「真実-Noise-」")
-                d9_1.style=`background-image: url('${currentData.thumbnailUrl}');`//サムネ
-                d8_1.appendChild(d9_1)
-
-                const d9_2 = document.createElement('div')
-                d9_2.className = 'NC-VideoPlaybackIndicator'
-                d8_1.appendChild(d9_2)
-                const d10_1 = document.createElement('div')
-                d10_1.className = 'NC-VideoPlaybackIndicator-inner'
-                d10_1.style.transform = 'scaleX(0)'
-                const d9_3 = document.createElement('div')
-                d9_3.className = 'NC-VideoLength'
-                const videoLengthSecond = currentData.lengthSeconds % 60
-                const videoLengthMinute = Math.floor(currentData.lengthSeconds / 60)
-                const videoLengthHour = Math.floor(videoLengthMinute / 60)
-
-                const videoLengthText = videoLengthHour === 0 ? '' : videoLengthHour.toString().padStart(2, '0') + ':'
-                d9_3.innerText = `${videoLengthText}${videoLengthMinute.toString().padStart(2, '0')}:${videoLengthSecond.toString().padStart(2, '0')}` //動画時間
-                d8_1.appendChild(d9_3)
-                const d9_4 = document.createElement('div')
-                d9_4.className = 'NC-VideoThumbnailComment'
-                d8_1.appendChild(d9_4)
-                //TODO コメント
-                // while (false){
-                //     const s10 = document.createElement('span')
-                //     s10.className = 'NC-VideoThumbnailComment-comment'
-                //     s10.style.transitionDelay = ''//TODO
-                //     const s11 = document.createElement('span')
-                //     s11.className = 'NC-VideoThumbnailComment-inner'
-                //     s11.style.transitionDelay = ''//TODO
-                //     s11.innerText //TODO コメント
-                // }
-
-
-                const d4_2 = document.createElement('div')
-                d4_2.className = 'NC-MediaObject-body'
-                a3.appendChild(d4_2)
-
-                const d5_2 = document.createElement('div')
-                d5_2.className = 'NC-MediaObject-bodyTitle'
-                d4_2.appendChild(d5_2)
-                const h6_1 = document.createElement('h2')
-                h6_1.className = 'NC-MediaObjectTitle NC-VideoMediaObject-title NC-MediaObjectTitle_fixed2Line'
-                h6_1.innerText = currentData.title// タイトル
-                d5_2.appendChild(h6_1)
-
-
-                const d5_3 = document.createElement('div')
-                d5_3.className = 'NC-MediaObject-bodySecondary'
-                d4_2.appendChild(d5_3)
-
-                const d6_2 = document.createElement('div')
-                d6_2.className = 'NC-VideoMediaObject-description'
-                d6_2.textContent = currentData.description//動画説明
-                d5_3.appendChild(d6_2)
-
-                const d6_3 = document.createElement('div')
-                d6_3.className = 'NC-VideoMediaObject-meta'
-                d5_3.appendChild(d6_3)
-
-                const d7_2 = document.createElement('div')
-                d7_2.className = 'NC-VideoMediaObject-metaAdditional'
-                d6_3.appendChild(d7_2)
-
-                const s8 = document.createElement('span')
-                s8.className = 'NC-VideoRegisteredAtText'
-                d7_2.appendChild(s8)
-                const s9 = document.createElement('span')
-                s9.className = 'NC-VideoRegisteredAtText-text'//TODO NC-VideoRegisteredAtText-text_new
-                const videoRegister = new Date(currentData.startTime)
-                s9.innerText = `${videoRegister.getFullYear().toString().padStart(4, '0')}/${videoRegister.getMonth().toString().padStart(2, '0')}/${videoRegister.getDate().toString().padStart(2, '0')} ${videoRegister.getHours().toString().padStart(2, '0')}:${videoRegister.getMinutes().toString().padStart(2, '0')}` //投稿時間
-                s8.appendChild(s9)
-                const d8_2 = document.createElement('div')
-                d8_2.className = 'NC-VideoLabels'
-                d7_2.appendChild(d8_2)
-                // const d9_5 = document.createElement('div')
-                // d9_5.className = 'NC-VideoLabels-label NC-VideoLabels-channel'
-                // d9_5.innerText = 'CH'//TODO チャンネルとか
-                // d8_2.appendChild(d9_5)
-
-                const d7_3 = document.createElement('div')
-                d7_3.className = 'NC-VideoMediaObject-metaCount'
-                d6_3.appendChild(d7_3)
-
-                const d8_3 = document.createElement('div')
-                d8_3.className = 'NC-VideoMetaCount NC-VideoMetaCount_view'
-                d8_3.innerText = currentData.viewCounter//TODO 再生数
-                d7_3.appendChild(d8_3)
-                const d8_4 = document.createElement('div')
-                d8_4.className = 'NC-VideoMetaCount NC-VideoMetaCount_comment'
-                d8_4.innerText = currentData.commentCounter//TODO　コメント数
-                d7_3.appendChild(d8_4)
-                const d8_5 = document.createElement('div')
-                d8_5.className = 'NC-VideoMetaCount NC-VideoMetaCount_like'
-                d8_5.innerText = currentData.likeCounter//TODO　いいね吸う
-                d7_3.appendChild(d8_5)
-                const d8_6 = document.createElement('div')
-                d8_6.className = 'NC-VideoMetaCount NC-VideoMetaCount_mylist'
-                d8_6.innerText = currentData.mylistCounter//TODO　マイリス数
-                d7_3.appendChild(d8_6)
-                // const d8_7 = document.createElement('div')
-                // d8_7.className = 'NC-VideoMetaCount NC-VideoMetaCount_nicoad'
-                // d8_7.innerText//TODO　広告
+                row.dataset.data = JSON.stringify(xhr.response.data)
+                initTagView(notificationRow)
+                row.dataset.index = dataIndex
+                onNextTag(notifyVideo,row)
             }
         }
         xhr.onerror = () => {
@@ -438,6 +538,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         url.searchParams.set('targets','tags')
         url.searchParams.set('fields','contentId,title,description,viewCounter,mylistCounter,likeCounter,lengthSeconds,thumbnailUrl,startTime,lastResBody,commentCounter')
         url.searchParams.set('_sort','-startTime')
+        url.searchParams.set('_limit',50)// TODO サイズ
         url.searchParams.set('_context','HamNicoVideo')
         xhr.open('GET', url)
         xhr.responseType = 'json'

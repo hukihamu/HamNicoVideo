@@ -211,7 +211,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }else{
             editForm.tags_name.value = notifyVideo.notifyData
         }
-        console.log(notifyVideo.isInterval)
         if (!notifyVideo.isInterval){
             editForm.is_interval.click()
         }

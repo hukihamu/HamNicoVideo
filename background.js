@@ -27,7 +27,6 @@ browserInstance.runtime.onInstalled.addListener(async () => {
                             //〇〇前 APIで取得
                             const href = series.getElementsByClassName('NC-Link NC-MediaObject-contents')[0].href
                             const videoID = href.substring(href.lastIndexOf("/")+1)
-                            console.log(videoID)
                             const xhr = new XMLHttpRequest()
                             xhr.onreadystatechange = () => {
                                 if (xhr.readyState === 4 && xhr.status === 200) {

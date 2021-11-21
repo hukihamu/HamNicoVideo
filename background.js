@@ -2,6 +2,14 @@ let badgeCounter = 0 //通知カウンター
 browserInstance.runtime.onInstalled.addListener(async () => {
     await BStorage.init()
 
+    const setBadge = ()=>{
+        let details = {text: badgeCounter.toString()}
+        if (badgeCounter === 0){
+            details.text = ""
+        }
+        browserInstance.browserAction.setBadgeText(details)
+    }
+
     const onCheckSeries = (child)=>{
         const xhr = new XMLHttpRequest()
         xhr.onreadystatechange = () => {
@@ -9,44 +17,59 @@ browserInstance.runtime.onInstalled.addListener(async () => {
                 const tempBody = document.createElement('div')
                 tempBody.className = 'hidden'
                 document.body.appendChild(tempBody)
-                new MutationObserver((mutationsList, observer) => {//TODO APIのほうが良いと思う
+                new MutationObserver((mutationsList, observer) => {
 
                     const seriesList = tempBody.getElementsByClassName('SeriesVideoListContainer')[0]
-                    let isNew = false
-                    for (const series of seriesList.children){
+                    if (seriesList.children.length > 0){
+                        const series = seriesList.children[seriesList.children.length - 1]
                         const registeredElm = series.getElementsByClassName('NC-VideoRegisteredAtText-text')[0]
-                        let register
                         if (registeredElm.classList.contains('NC-VideoRegisteredAtText-text_new')){
-                            //〇〇前
-                            register = new Date()
-                            const hour = registeredElm.textContent.match(/\d+(?=時間前)/)
-                            const minute = registeredElm.textContent.match(/\d+(?=分前)/)
-                            if (hour){
-                                register.setHours(register.getHours() - hour)
-                            }else if (minute){
-                                register.setHours(register.getHours(),register.getMinutes() - minute)
-                            }else{
-                                isNew = true
-                                break
+                            //〇〇前 APIで取得
+                            const href = series.getElementsByClassName('NC-Link NC-MediaObject-contents')[0].href
+                            const videoID = href.substring(href.lastIndexOf("/")+1)
+                            console.log(videoID)
+                            const xhr = new XMLHttpRequest()
+                            xhr.onreadystatechange = () => {
+                                if (xhr.readyState === 4 && xhr.status === 200) {
+                                    const parser = new window.DOMParser();
+                                    let isNew = false
+                                    const xmlData = parser.parseFromString( xhr.response , "text/xml");
+                                    const first_retrieve = xmlData.getElementsByClassName('first_retrieve')[0]
+                                    if (new Date(first_retrieve) >= new Date(child.lastChild)){
+                                        badgeCounter++
+                                        setBadge()
+                                        isNew = true
+                                    }
+                                    NotificationDynamicChild.set(child.notifyId,child=>{
+                                        child.lastChild = Date.now()
+                                        child.isNotify = isNew
+                                        return child
+                                    },false)
+                                }
                             }
+                            xhr.onerror = () => {
+                                alert('タグ検索に失敗しました')
+                            }
+                            const url = new URL('https://ext.nicovideo.jp/api/getthumbinfo/' + videoID)
+                            xhr.open('GET', url)
 
-                        }else{
-                            register = new Date(registeredElm.textContent)
-                        }
-                        if (child.lastCheck < register){
-                            isNew = true
-                            break
+                            xhr.send()
+
+
+                        }else {
+                            let isNew = false
+                            if (new Date(child.lastCheck) < new Date(registeredElm.textContent)){
+                                badgeCounter++
+                                setBadge()
+                                isNew = true
+                            }
+                            NotificationDynamicChild.set(child.notifyId,child=>{
+                                child.lastChild = Date.now()
+                                child.isNotify = isNew
+                                return child
+                            },false)
                         }
                     }
-                    if (isNew){
-                        badgeCounter++
-                        browserInstance.browserAction.setBadgeText({text: badgeCounter.toString()})
-                    }
-                    NotificationDynamicChild.set(child.notifyId,child=>{
-                        child.lastChild = Date.now()
-                        child.isNotify = isNew
-                        return child
-                    },false)
 
 
                     tempBody.remove()
@@ -69,10 +92,57 @@ browserInstance.runtime.onInstalled.addListener(async () => {
         xhr.responseType = 'document'
         xhr.send()
     }
+    const onCheckTag = (child)=>{
+        const xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const dataList = xhr.response.data
+                let isNew = false
+                if (child.lastVideoId){
+                    if (dataList.length > 0){
+                        const data = dataList[0]
+                        if (new Date(data.startTime) >= new Date(child.lastChild)){
+                            isNew = true
+                        }
+                    }
+                }else if (dataList.length > 0){
+                    //通知
+                    isNew = true
+                }
+
+                if (isNew){
+                    badgeCounter++
+                    setBadge()
+                }
+                NotificationDynamicChild.set(child.notifyId,child=>{
+                    child.lastChild = Date.now()
+                    child.isNotify = isNew
+                    return child
+                },false)
+            }
+        }
+        xhr.onerror = () => {
+            alert('タグ検索に失敗しました')
+        }
+        const url = new URL('https://api.search.nicovideo.jp/api/v2/snapshot/video/contents/search')
+        url.searchParams.set('q',child.notifyData)
+        url.searchParams.set('targets','tags')
+        url.searchParams.set('fields','contentId,startTime')
+        url.searchParams.set('_sort','-startTime')
+        url.searchParams.set('_limit',50)// TODO サイズ
+        url.searchParams.set('_context','HamNicoVideo')
+        xhr.open('GET', url)
+        xhr.responseType = 'json'
+
+        xhr.send()
+    }
     const onCheck = (child) => {
         switch (child.flag) {
             case 'series':
                 onCheckSeries(child)
+                break
+            case 'tag':
+                onCheckTag(child)
                 break
         }
     }
@@ -133,7 +203,7 @@ browserInstance.runtime.onInstalled.addListener(async () => {
                 break
             case 'decrement':
                 badgeCounter--
-                browserInstance.browserAction.setBadgeText({text: badgeCounter.toString()})
+                setBadge()
                 break
         }
     })

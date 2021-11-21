@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     await BStorage.init()
 
-    const onNextSeries = (child, seriesList, row)=>{
+    const onNextSeries = (child, seriesList, row,isInit)=>{
         for (const series of seriesList.children){
             series.style.display = "none"
         }
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             row.getElementsByClassName('prev_button')[0].disabled = false
         }
         //新着既読
-        if (child.isNotify){
+        if (child.isNotify && !isInit){
             row.getElementsByClassName('target')[0].classList.remove('target-highlight')
             NotificationDynamicChild.set(child.notifyId,c=>{
                 c.isNotify = false
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         d8_6.className = 'NC-VideoMetaCount NC-VideoMetaCount_mylist'
         d7_3.appendChild(d8_6)
     }
-    const onNextTag = (child, row)=>{
+    const onNextTag = (child, row,isInit)=>{
         const dataList = JSON.parse(row.dataset.data)
         let index
 
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
         //新着既読
-        if (child.isNotify){
+        if (child.isNotify && !isInit){
             row.getElementsByClassName('target')[0].classList.remove('target-highlight')
             NotificationDynamicChild.set(child.notifyId,c=>{
                 c.isNotify = false
@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     const seriesList = tempBody.getElementsByClassName('SeriesVideoListContainer')[0]
 
-                    onNextSeries(notifyVideo,seriesList,row)
+                    onNextSeries(notifyVideo,seriesList,row,true)
                     notificationRow.appendChild(seriesList)
 
                     tempBody.remove()
@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 row.dataset.data = JSON.stringify(xhr.response.data)
                 initTagView(notificationRow)
                 row.dataset.index = dataIndex
-                onNextTag(notifyVideo,row)
+                onNextTag(notifyVideo,row,true)
             }
         }
         xhr.onerror = () => {

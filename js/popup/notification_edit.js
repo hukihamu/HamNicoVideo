@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 child.intervalWeek = weekList
                 child.intervalTime = intervalTime
                 return child
-            })
+            },true)
             window.location.href = '/html/popup.html'
         }else {
             //追加
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 child.intervalWeek = weekList
                 child.intervalTime = intervalTime
                 return child
-            })
+            },true)
         }else{
             //追加
             const child = new NotificationVideo(

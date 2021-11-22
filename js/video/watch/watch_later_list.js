@@ -6,5 +6,3 @@ function watchLaterList() {
     a.rel = 'noopener'
     parent.appendChild(a)
 }
-//TODO あとでみる表示？
-//

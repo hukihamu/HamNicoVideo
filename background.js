@@ -10,7 +10,8 @@ browserInstance.runtime.onInstalled.addListener(async () => {
         browserInstance.browserAction.setBadgeText(details)
     }
 
-    const onCheckSeries = (child)=>{
+    const onCheckSeries = (childList,index)=>{
+        const child = index === undefined ?childList : childList[index]
         const xhr = new XMLHttpRequest()
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -31,19 +32,20 @@ browserInstance.runtime.onInstalled.addListener(async () => {
                             xhr.onreadystatechange = () => {
                                 if (xhr.readyState === 4 && xhr.status === 200) {
                                     const parser = new window.DOMParser();
-                                    let isNew = false
                                     const xmlData = parser.parseFromString( xhr.response , "text/xml");
                                     const first_retrieve = xmlData.getElementsByClassName('first_retrieve')[0]
-                                    if (new Date(first_retrieve) >= new Date(child.lastChild)){
+                                    if (new Date(first_retrieve) >= new Date(child.lastCheck)){
                                         badgeCounter++
                                         setBadge()
-                                        isNew = true
+                                        NotificationDynamicChild.set(child.notifyId,child=>{
+                                            child.lastCheck = Date.now()
+                                            child.isNotify = true
+                                            return child
+                                        })
                                     }
-                                    NotificationDynamicChild.set(child.notifyId,child=>{
-                                        child.lastChild = Date.now()
-                                        child.isNotify = isNew
-                                        return child
-                                    },false)
+                                    if (index !== undefined){
+                                        onCheck(childList,index + 1)
+                                    }
                                 }
                             }
                             xhr.onerror = () => {
@@ -56,24 +58,24 @@ browserInstance.runtime.onInstalled.addListener(async () => {
 
 
                         }else {
-                            let isNew = false
                             if (new Date(child.lastCheck) < new Date(registeredElm.textContent)){
                                 badgeCounter++
                                 setBadge()
-                                isNew = true
+                                NotificationDynamicChild.set(child.notifyId,child=>{
+                                    child.lastCheck = Date.now()
+                                    child.isNotify = true
+                                    return child
+                                })
                             }
-                            NotificationDynamicChild.set(child.notifyId,child=>{
-                                child.lastChild = Date.now()
-                                child.isNotify = isNew
-                                return child
-                            },false)
+                            if (index !== undefined){
+                                onCheck(childList,index + 1)
+                            }
                         }
                     }
 
 
                     tempBody.remove()
                     observer.disconnect()
-
                 }).observe(tempBody, {
                     subtree: true,
                     childList: true
@@ -91,7 +93,8 @@ browserInstance.runtime.onInstalled.addListener(async () => {
         xhr.responseType = 'document'
         xhr.send()
     }
-    const onCheckTag = (child)=>{
+    const onCheckTag = (childList,index)=>{//TODO タグ検索を
+        const child = index === undefined ?childList : childList[index]
         const xhr = new XMLHttpRequest()
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -100,7 +103,7 @@ browserInstance.runtime.onInstalled.addListener(async () => {
                 if (child.lastVideoId){
                     if (dataList.length > 0){
                         const data = dataList[0]
-                        if (new Date(data.startTime) >= new Date(child.lastChild)){
+                        if (new Date(data.startTime) >= new Date(child.lastCheck)){
                             isNew = true
                         }
                     }
@@ -112,12 +115,15 @@ browserInstance.runtime.onInstalled.addListener(async () => {
                 if (isNew){
                     badgeCounter++
                     setBadge()
+                    NotificationDynamicChild.set(child.notifyId,child=>{
+                        child.lastCheck = Date.now()
+                        child.isNotify = isNew
+                        return child
+                    })
                 }
-                NotificationDynamicChild.set(child.notifyId,child=>{
-                    child.lastChild = Date.now()
-                    child.isNotify = isNew
-                    return child
-                },false)
+                if (index !== undefined){
+                    onCheck(childList,index + 1)
+                }
             }
         }
         xhr.onerror = () => {
@@ -127,21 +133,24 @@ browserInstance.runtime.onInstalled.addListener(async () => {
         url.searchParams.set('q',child.notifyData)
         url.searchParams.set('targets','tags')
         url.searchParams.set('fields','contentId,startTime')
+        // url.searchParams.set('filters[startTime][gte]',new Date(child.lastCheck).toISOString())
         url.searchParams.set('_sort','-startTime')
-        url.searchParams.set('_limit',50)// TODO サイズ
+        url.searchParams.set('_limit',1)
         url.searchParams.set('_context','HamNicoVideo')
         xhr.open('GET', url)
         xhr.responseType = 'json'
 
         xhr.send()
     }
-    const onCheck = (child) => {
+    const onCheck = (childList,index) => {
+        if (index !== undefined && index >= childList.length) return
+        const child = index === undefined ?childList : childList[index]
         switch (child.flag) {
             case 'series':
-                onCheckSeries(child)
+                onCheckSeries(childList,index)
                 break
             case 'tag':
-                onCheckTag(child)
+                onCheckTag(childList,index)
                 break
         }
     }
@@ -149,9 +158,9 @@ browserInstance.runtime.onInstalled.addListener(async () => {
     const onCreateAlarm = (child) => {
         const dayOfWeekList = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
-        const nowDay = new Date()
-        const nowDayOfWeek = nowDay.getDate()
-        const nowHour = `${nowDay.getHours().toString().padStart(2, '0')}:${nowDay.getMinutes().toString().padStart(2, '0')}`
+        const nowDate = new Date()
+        const nowDayOfWeek = nowDate.getDay()
+        const nowHour = `${nowDate.getHours().toString().padStart(2, '0')}:${nowDate.getMinutes().toString().padStart(2, '0')}`
         let dayOfWeek = nowDayOfWeek
         let counter
         for (counter = 0; counter < 7; counter++) {
@@ -173,29 +182,33 @@ browserInstance.runtime.onInstalled.addListener(async () => {
             }
         }
         const nextDay = new Date()
-        nextDay.setDate(nowDayOfWeek + counter)
+        nextDay.setDate(nextDay.getDate() + counter)
         nextDay.setHours(child.intervalTime.substring(0, 2), child.intervalTime.substring(3, 5),0,0)
         browserInstance.alarms.create(child.notifyId, {
-            delayInMinutes: (nextDay.getTime() - Date.now()) / 60000
+            when: nextDay.getTime()
         })
     }
 
     browserInstance.alarms.onAlarm.addListener((alarm) => {
-        const child = NotificationDynamicChild.get(alarm.name)
-        //次のAlarm算出
-        onCreateAlarm(child)
-        //該当データの確認
-        onCheck(child)
+        browserInstance.storage.local.get(PARAMETER.VIDEO.NOTIFICATION.LIST.key,(items)=>{
+            let childList = JSON.parse(items[PARAMETER.VIDEO.NOTIFICATION.LIST.key])
+            childList = Array.isArray(childList) ? childList : []
+            const child = childList.find(item=>{return item.notifyId === alarm.name})
+            //次のAlarm算出
+            onCreateAlarm(child)
+            //該当データの確認
+            onCheck(child)
+        })
     })
 
     browserInstance.runtime.onMessage.addListener((msg) => {
         switch (msg.key) {
             case 'add':
-                onCreateAlarm(NotificationDynamicChild.get(msg.value))
+                onCreateAlarm(msg.value)
                 break
-            case 'edit':
-                browserInstance.alarms.clear(msg.value)
-                onCreateAlarm(NotificationDynamicChild.get(msg.value))
+            case 'set':
+                browserInstance.alarms.clear(msg.value.notifyId)
+                onCreateAlarm(msg.value)
                 break
             case 'remove':
                 browserInstance.alarms.clear(msg.value)
@@ -207,14 +220,14 @@ browserInstance.runtime.onInstalled.addListener(async () => {
         }
     })
 
-
-    for (const child of NotificationDynamicChild.getAll()){
+    const childList = NotificationDynamicChild.getAll()
+    for (const child of childList){
         if (child.isInterval){
             //アラーム作成
             onCreateAlarm(child)
             //初期通知確認
-            onCheck(child)
         }
     }
+    onCheck(childList,0)
 })
 

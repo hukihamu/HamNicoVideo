@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return c
             }, false)
             //background通知
-            const msg = {key: 'decrement', value: child.notifyId}
+            const msg = {key: 'decrement', value: child}
             browserInstance.runtime.sendMessage(msg)
         }
         row.dataset.videoId = nextVideoId
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 child.lastVideoId = row.dataset.videoId
                 onNextTag(child, row)
                 return child
-            }, false)
+            })
         })
         d2.appendChild(a3)
 
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const d9_4 = document.createElement('div')
         d9_4.className = 'NC-VideoThumbnailComment'
         d8_1.appendChild(d9_4)
-        //TODO コメント
+        //コメント
         // while (false){
         //     const s10 = document.createElement('span')
         //     s10.className = 'NC-VideoThumbnailComment-comment'
@@ -289,7 +289,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         d7_3.appendChild(d8_6)
     }
     const onNextTag = (child, row, isInit) => {
-        const dataList = JSON.parse(row.dataset.data)
+        let dataList = JSON.parse(row.dataset.data)
+        dataList = Array.isArray(dataList) ? dataList : []
         let index
 
         index = Number.parseInt(row.dataset.index)
@@ -324,12 +325,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return c
             }, false)
             //background通知
-            const msg = {key: 'decrement', value: child.notifyId}
+            const msg = {key: 'decrement', value: child}
             browserInstance.runtime.sendMessage(msg)
         }
     }
     const onPrevTag = (child, row) => {
-        const dataList = JSON.parse(row.dataset.data)
+        let dataList = JSON.parse(row.dataset.data)
+        dataList = Array.isArray(dataList) ? dataList : []
 
         let index = row.dataset.index === 'null' ? 0
             : Number.parseInt(row.dataset.index) + 1
@@ -443,7 +445,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     child.lastVideoId = row.dataset.videoId
                                     onNextSeries(child, document.getElementById(row.dataset.id).firstElementChild, row)
                                     return child
-                                }, false)
+                                })
                             })
                         }
                         for (const elm of tempBody.getElementsByClassName('NC-Thumbnail-image')) {
@@ -559,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         //更新内容
         const createTarget = () => {
-            const xhr = new XMLHttpRequest()
+            const xhr = new XMLHttpRequest()//TODO タグ検索を利用
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4 && xhr.status === 200) {
 
@@ -590,7 +592,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             url.searchParams.set('targets', 'tags')
             url.searchParams.set('fields', 'contentId,title,description,viewCounter,mylistCounter,likeCounter,lengthSeconds,thumbnailUrl,startTime,lastResBody,commentCounter')
             url.searchParams.set('_sort', '-startTime')
-            url.searchParams.set('_limit', 50)// TODO サイズ
+            url.searchParams.set('_limit', 50)
             url.searchParams.set('_context', 'HamNicoVideo')
             xhr.open('GET', url)
             xhr.responseType = 'json'

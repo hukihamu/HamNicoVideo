@@ -19,5 +19,6 @@ A.Issues、各拡張機能のレビューに書き込みをお願いします。
 
 利用API  
 - https://site.nicovideo.jp/search-api-docs/snapshot
+- "https://ext.nicovideo.jp/api/getthumbinfo/動画ID"
 - https://github.com/uuidjs/uuid
 - https://github.com/EastDesire/jscolor

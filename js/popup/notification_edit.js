@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const notifyVideo = NotificationDynamicChild.get(usp.get('edit'))
         const flagIndex = notifyVideo.flag === 'series' ? 0: 1
         const targetType = document.getElementsByName('target_type')
-        targetType[flagIndex].checked = true
+        targetType[flagIndex].click()
         for (const type of targetType){
             type.disabled = true
         }

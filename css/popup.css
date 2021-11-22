@@ -82,3 +82,13 @@ body {
 .target-highlight *{
     background-color: #ffa000;
 }
+.target-index::before{
+    content: attr(data-index);
+    font-weight: bold;
+}
+.target-index[data-index='00']{
+    visibility: hidden;
+}
+.target-index{
+    display: inline-block;
+}

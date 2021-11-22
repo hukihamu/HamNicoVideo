@@ -1,78 +1,98 @@
 document.addEventListener('DOMContentLoaded', async () => {
     await BStorage.init()
 
-    const onNextSeries = (child, seriesList, row,isInit)=>{
-        for (const series of seriesList.children){
-            series.style.display = "none"
+    //Body作成
+    const createBody = (childList, index) => {
+        if (childList.length <= index) return
+        const listBody = document.getElementById('body')
+        let row
+        const notifyVideo = childList[index]
+        switch (notifyVideo.flag) {
+            case 'series':
+                row = createSeriesRow(childList, index)
+                break
+            case 'tag':
+                row = createTagRow(childList, index)
+                break
+        }
+        listBody.appendChild(row)
+    }
+
+    const onNextSeries = (child, seriesList, row, isInit) => {
+        for (const series of seriesList.children) {
+            series.style.display = 'none'
         }
         let nextVideoId = null
-        if (child.lastVideoId == null){
-            seriesList.firstElementChild.style.display = ""
+        if (child.lastVideoId == null) {
+            seriesList.firstElementChild.style.display = ''
             const href = seriesList.firstElementChild.getElementsByClassName('NC-Link NC-MediaObject-contents')[0].href
-            nextVideoId = href.substring(href.lastIndexOf("/")+1)
+            nextVideoId = href.substring(href.lastIndexOf('/') + 1)
+            row.getElementsByClassName('target-index')[0].dataset.index = '01'
             row.getElementsByClassName('prev_button')[0].disabled = true
         } else {
             let lastIndex = 0
-            for (const series of seriesList.children){
+            for (const series of seriesList.children) {
                 const href = series.getElementsByClassName('NC-Link NC-MediaObject-contents')[0].href
-                const videoID = href.substring(href.lastIndexOf("/")+1)
-                if (videoID === child.lastVideoId){
+                const videoID = href.substring(href.lastIndexOf('/') + 1)
+                if (videoID === child.lastVideoId) {
                     break
                 }
                 lastIndex++
             }
             lastIndex++ //次の動画参照のため1追加
             const nextVideo = seriesList.children[lastIndex]
-            if (nextVideo){
-                nextVideo.style.display = ""
+            if (nextVideo) {
+                nextVideo.style.display = ''
                 const href = nextVideo.getElementsByClassName('NC-Link NC-MediaObject-contents')[0].href
-                nextVideoId = href.substring(href.lastIndexOf("/")+1)
-                // row.getElementsByClassName('next_button')[0].disabled = false
-            }else{
+                nextVideoId = href.substring(href.lastIndexOf('/') + 1)
+                row.getElementsByClassName('target-index')[0].dataset.index = (lastIndex + 1).toString().padStart(2,'0')
+            } else {
                 row.getElementsByClassName('next_button')[0].disabled = true
+                row.getElementsByClassName('target-index')[0].dataset.index = '00'
             }
             row.getElementsByClassName('prev_button')[0].disabled = false
         }
         //新着既読
-        if (child.isNotify && !isInit){
+        if (child.isNotify && !isInit) {
             row.getElementsByClassName('target')[0].classList.remove('target-highlight')
-            NotificationDynamicChild.set(child.notifyId,c=>{
+            NotificationDynamicChild.set(child.notifyId, c => {
                 c.isNotify = false
                 return c
-            },false)
+            }, false)
             //background通知
             const msg = {key: 'decrement', value: child.notifyId}
             browserInstance.runtime.sendMessage(msg)
         }
         row.dataset.videoId = nextVideoId
     }
-    const onPrevSeries = (child, seriesList, row)=>{
-        for (const series of seriesList.children){
-            series.style.display = "none"
+    const onPrevSeries = (child, seriesList, row) => {
+        for (const series of seriesList.children) {
+            series.style.display = 'none'
         }
         let prevVideoId = null
-        if (child.lastVideoId == null){
-            seriesList.firstElementChild.style.display = ""
+        if (child.lastVideoId == null) {
+            seriesList.firstElementChild.style.display = ''
         } else {
             let lastIndex = 0
-            for (const series of seriesList.children){
+            for (const series of seriesList.children) {
                 const href = series.getElementsByClassName('NC-Link NC-MediaObject-contents')[0].href
-                const videoID = href.substring(href.lastIndexOf("/")+1)
-                if (videoID === child.lastVideoId){
+                const videoID = href.substring(href.lastIndexOf('/') + 1)
+                if (videoID === child.lastVideoId) {
                     break
                 }
                 lastIndex++
             }
             const lastVideo = seriesList.children[lastIndex]
-            if (lastVideo){
-                lastVideo.style.display = ""
-                if (lastIndex === 0){
+            if (lastVideo) {
+                lastVideo.style.display = ''
+                if (lastIndex === 0) {
                     prevVideoId = null
                     row.getElementsByClassName('prev_button')[0].disabled = true
-                }else{
-                    const href = seriesList.children[lastIndex-1].getElementsByClassName('NC-Link NC-MediaObject-contents')[0].href
-                    prevVideoId = href.substring(href.lastIndexOf("/")+1)
+                } else {
+                    const href = seriesList.children[lastIndex - 1].getElementsByClassName('NC-Link NC-MediaObject-contents')[0].href
+                    prevVideoId = href.substring(href.lastIndexOf('/') + 1)
                 }
+                row.getElementsByClassName('target-index')[0].dataset.index = (lastIndex + 1).toString().padStart(2,'0')
                 row.getElementsByClassName('next_button')[0].disabled = false
             }
 
@@ -107,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             thumbnailImage.setAttribute('aria-label', data.title)
             thumbnailImage.style = `background-image: url('${data.thumbnailUrl}.M');`//サムネ
 
-            if (data.lengthSeconds){
+            if (data.lengthSeconds) {
                 const videoLengthSecond = data.lengthSeconds % 60
                 const videoLengthMinute = Math.floor(data.lengthSeconds / 60)
                 const videoLengthHour = Math.floor(videoLengthMinute / 60)
@@ -119,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             row.getElementsByClassName('NC-VideoMediaObject-description')[0].textContent = data.description//動画説明
 
-            if (data.startTime){
+            if (data.startTime) {
                 //TODO NC-VideoRegisteredAtText-text_new
                 const videoRegister = new Date(data.startTime)
                 row.getElementsByClassName('NC-VideoRegisteredAtText-text')[0].innerText = `${videoRegister.getFullYear().toString().padStart(4, '0')}/${videoRegister.getMonth().toString().padStart(2, '0')}/${videoRegister.getDate().toString().padStart(2, '0')} ${videoRegister.getHours().toString().padStart(2, '0')}:${videoRegister.getMinutes().toString().padStart(2, '0')}` //投稿時間
@@ -134,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             row.getElementsByClassName('NC-VideoMetaCount NC-VideoMetaCount_mylist')[0].innerText = data.mylistCounter//マイリス数
         }
     }
-    const initTagView = (notificationRow)=>{
+    const initTagView = (notificationRow) => {
         const d0 = document.createElement('div')
         d0.className = 'SeriesVideoListContainer'
         notificationRow.appendChild(d0)
@@ -151,12 +171,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         a3.className = 'NC-Link NC-MediaObject-contents'
         a3.rel = 'noopener'
         a3.target = '_blank'
-        a3.addEventListener('click',(e)=>{
-            NotificationDynamicChild.set(row.dataset.id,(child)=>{
+        a3.addEventListener('click', (e) => {
+            NotificationDynamicChild.set(row.dataset.id, (child) => {
                 child.lastVideoId = row.dataset.videoId
-                onNextTag(child,row)
+                onNextTag(child, row)
                 return child
-            },false)
+            }, false)
         })
         d2.appendChild(a3)
 
@@ -182,7 +202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const d9_1 = document.createElement('div')
         d9_1.className = 'NC-Thumbnail-image'
-        d9_1.role="img"
+        d9_1.role = 'img'
         d8_1.appendChild(d9_1)
 
         const d9_2 = document.createElement('div')
@@ -268,7 +288,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         d8_6.className = 'NC-VideoMetaCount NC-VideoMetaCount_mylist'
         d7_3.appendChild(d8_6)
     }
-    const onNextTag = (child, row,isInit)=>{
+    const onNextTag = (child, row, isInit) => {
         const dataList = JSON.parse(row.dataset.data)
         let index
 
@@ -288,41 +308,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             row.dataset.index = null
             setDataTagView(row, emptyTagData)
             row.getElementsByClassName('next_button')[0].disabled = true
+            row.getElementsByClassName('target-index')[0].dataset.index = '00'
         } else {
             row.dataset.index = nextIndex
             setDataTagView(row, dataList[nextIndex])
+            row.getElementsByClassName('target-index')[0].dataset.index = (dataList.length - nextIndex).toString().padStart(2,'0')
         }
 
 
-
         //新着既読
-        if (child.isNotify && !isInit){
+        if (child.isNotify && !isInit) {
             row.getElementsByClassName('target')[0].classList.remove('target-highlight')
-            NotificationDynamicChild.set(child.notifyId,c=>{
+            NotificationDynamicChild.set(child.notifyId, c => {
                 c.isNotify = false
                 return c
-            },false)
+            }, false)
             //background通知
             const msg = {key: 'decrement', value: child.notifyId}
             browserInstance.runtime.sendMessage(msg)
         }
     }
-    const onPrevTag = (child, row)=>{
+    const onPrevTag = (child, row) => {
         const dataList = JSON.parse(row.dataset.data)
 
-        let index = row.dataset.index === "null" ? 0
+        let index = row.dataset.index === 'null' ? 0
             : Number.parseInt(row.dataset.index) + 1
-        if (index < dataList.length){
-            setDataTagView(row,dataList[index])
+        if (index < dataList.length) {
+            setDataTagView(row, dataList[index])
             row.dataset.index = index
         }
         const prevIndex = index + 1
         let lastVideoId = null
-        if (prevIndex < dataList.length ) {
+        if (prevIndex < dataList.length) {
             lastVideoId = dataList[prevIndex].contentId
-        }else {
+        } else {
             row.getElementsByClassName('prev_button')[0].disabled = true
         }
+        row.getElementsByClassName('target-index')[0].dataset.index = (dataList.length - index).toString().padStart(2,'0')
         NotificationDynamicChild.set(child.notifyId, (c) => {
             c.lastVideoId = lastVideoId
             return c
@@ -331,7 +353,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     //シリーズ行
-    const createSeriesRow = (notifyVideo)=>{
+    const createSeriesRow = (childList, index) => {
+        const notifyVideo = childList[index]
         const row = document.createElement('div')
         row.dataset.id = notifyVideo.notifyId
 
@@ -352,39 +375,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         const nextButton = document.createElement('button')
         nextButton.innerText = 'Next'
         nextButton.className = 'next_button'
-        nextButton.addEventListener('click',()=>{
-            NotificationDynamicChild.set(row.dataset.id,(child)=>{
+        nextButton.addEventListener('click', () => {
+            NotificationDynamicChild.set(row.dataset.id, (child) => {
                 child.lastVideoId = row.dataset.videoId
-                onNextSeries(child,document.getElementById(row.dataset.id).firstElementChild,row)
+                onNextSeries(child, document.getElementById(row.dataset.id).firstElementChild, row)
                 return child
             })
         })
+        const targetIndex = document.createElement('div')
+        targetIndex.className = 'target-index'
         //prev
         const prevButton = document.createElement('button')
         prevButton.innerText = 'Prev'
         prevButton.className = 'prev_button'
-        prevButton.addEventListener('click',()=>{
-            NotificationDynamicChild.set(row.dataset.id,(child)=>{
-                child.lastVideoId = onPrevSeries(child,document.getElementById(row.dataset.id).firstElementChild,row)
+        prevButton.addEventListener('click', () => {
+            NotificationDynamicChild.set(row.dataset.id, (child) => {
+                child.lastVideoId = onPrevSeries(child, document.getElementById(row.dataset.id).firstElementChild, row)
                 return child
             })
         })
 
         //編集
-        const deleteButton = document.createElement('button')
-        deleteButton.innerText = '編集'
-        deleteButton.dataset.id = notifyVideo.notifyId
-        deleteButton.addEventListener('click',(e)=>{
-            window.location.href = '/html/edit_notification.html?edit='+notifyVideo.notifyId
+        const editButton = document.createElement('button')
+        editButton.innerText = '編集'
+        editButton.className = 'edit_button'
+        editButton.dataset.id = notifyVideo.notifyId
+        editButton.addEventListener('click', (e) => {
+            window.location.href = '/html/edit_notification.html?edit=' + notifyVideo.notifyId
         })
         targetOperation.appendChild(nextButton)
+        targetOperation.appendChild(targetIndex)
         targetOperation.appendChild(prevButton)
-        targetOperation.appendChild(deleteButton)
+        targetOperation.appendChild(editButton)
 
 
         const target = document.createElement('div')
         target.className = 'target'
-        if (notifyVideo.isNotify){
+        if (notifyVideo.isNotify) {
             target.classList.add('target-highlight')
         }
         target.appendChild(targetTypeDiv)
@@ -392,63 +419,81 @@ document.addEventListener('DOMContentLoaded', async () => {
         row.appendChild(target)
 
 
-        //更新内容
         const notificationRow = document.createElement('div')
         notificationRow.className = 'notification'
         notificationRow.id = notifyVideo.notifyId
 
         row.appendChild(notificationRow)
 
-        const xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                const tempBody = document.createElement('div')
-                tempBody.className = 'hidden'
-                notificationRow.appendChild(tempBody)
-                new MutationObserver((mutationsList, observer) => {
+        //更新内容
+        const createTarget = () => {
+            const xhr = new XMLHttpRequest()
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const tempBody = document.createElement('div')
+                    tempBody.className = 'hidden'
+                    notificationRow.appendChild(tempBody)
+                    new MutationObserver((mutationsList, observer) => {
 
-                    for (const elm of tempBody.getElementsByClassName('NC-Link NC-MediaObject-contents')) {
-                        elm.href = 'https://www.nicovideo.jp' + elm.href.match(/\/watch.*$/)[0]
-                        elm.target = '_blank'
-                        elm.addEventListener('click',(e)=>{
-                            NotificationDynamicChild.set(row.dataset.id,(child)=>{
-                                child.lastVideoId = row.dataset.videoId
-                                onNextSeries(child,document.getElementById(row.dataset.id).firstElementChild,row)
-                                return child
-                            },false)
-                        })
-                    }
-                    for (const elm of tempBody.getElementsByClassName('NC-Thumbnail-image')) {
-                        elm.style.backgroundImage = `url("${elm.dataset.backgroundImage}")`
-                    }
-                    const seriesList = tempBody.getElementsByClassName('SeriesVideoListContainer')[0]
+                        for (const elm of tempBody.getElementsByClassName('NC-Link NC-MediaObject-contents')) {
+                            elm.href = 'https://www.nicovideo.jp' + elm.href.match(/\/watch.*$/)[0]
+                            elm.target = '_blank'
+                            elm.addEventListener('click', (e) => {
+                                NotificationDynamicChild.set(row.dataset.id, (child) => {
+                                    child.lastVideoId = row.dataset.videoId
+                                    onNextSeries(child, document.getElementById(row.dataset.id).firstElementChild, row)
+                                    return child
+                                }, false)
+                            })
+                        }
+                        for (const elm of tempBody.getElementsByClassName('NC-Thumbnail-image')) {
+                            elm.style.backgroundImage = `url("${elm.dataset.backgroundImage}")`
+                        }
+                        const seriesList = tempBody.getElementsByClassName('SeriesVideoListContainer')[0]
 
-                    onNextSeries(notifyVideo,seriesList,row,true)
-                    notificationRow.appendChild(seriesList)
+                        onNextSeries(notifyVideo, seriesList, row, true)
+                        notificationRow.appendChild(seriesList)
 
-                    tempBody.remove()
-                    observer.disconnect()
-                }).observe(tempBody, {
-                    subtree: true,
-                    childList: true
-                })
+                        tempBody.remove()
+                        observer.disconnect()
+                        createBody(childList, index + 1)
+                    }).observe(tempBody, {
+                        subtree: true,
+                        childList: true
+                    })
 
-                const respDOM = xhr.response
-                tempBody.appendChild(respDOM.head)
-                tempBody.appendChild(respDOM.body)
+                    const respDOM = xhr.response
+                    tempBody.appendChild(respDOM.head)
+                    tempBody.appendChild(respDOM.body)
+                }
             }
+            xhr.onerror = () => {
+                alert('記入のseriesはありませんでした')
+            }
+            xhr.open('GET', 'https://www.nicovideo.jp/series/' + notifyVideo.notifyData)
+            xhr.responseType = 'document'
+            xhr.send()
         }
-        xhr.onerror = () => {
-            alert('記入のseriesはありませんでした')
-        }
-        xhr.open('GET', 'https://www.nicovideo.jp/series/' + notifyVideo.notifyData)
-        xhr.responseType = 'document'
-        xhr.send()
+        const observe = new IntersectionObserver((entries)=>{
+            for (const entry of entries){
+                if (entry.isIntersecting){
+                    createTarget()
+                    observe.disconnect()
+                }
+            }
+
+        }, {
+            root: document.getElementById('body'),
+            rootMargin: '50% 0px',
+            threshold: 0.0
+        })
+        observe.observe(row)
 
         return row
     }
     //タグ行
-    const createTagRow = (notifyVideo)=>{
+    const createTagRow = (childList, index) => {
+        const notifyVideo = childList[index]
         const row = document.createElement('div')
         row.dataset.id = notifyVideo.notifyId
 
@@ -458,8 +503,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const nameSpan = document.createElement('a')
         nameSpan.innerText = notifyVideo.dataName
         nameSpan.href = 'https://www.nicovideo.jp/tag/' + notifyVideo.notifyData
-        nameSpan.target = '_blank'/
-        targetTypeDiv.appendChild(nameSpan)
+        nameSpan.target = '_blank' /
+            targetTypeDiv.appendChild(nameSpan)
 
         //操作
         const targetOperation = document.createElement('div')
@@ -469,32 +514,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         const nextButton = document.createElement('button')
         nextButton.innerText = 'Next'
         nextButton.className = 'next_button'
-        nextButton.addEventListener('click',()=>{
-            onNextTag(notifyVideo,row)
+        nextButton.addEventListener('click', () => {
+            onNextTag(notifyVideo, row)
         })
+        const targetIndex = document.createElement('div')
+        targetIndex.className = 'target-index'
         //prev
         const prevButton = document.createElement('button')
         prevButton.innerText = 'Prev'
         prevButton.className = 'prev_button'
-        prevButton.addEventListener('click',()=>{
-            onPrevTag(notifyVideo,row)
+        prevButton.addEventListener('click', () => {
+            onPrevTag(notifyVideo, row)
         })
 
         //編集
         const deleteButton = document.createElement('button')
         deleteButton.innerText = '編集'
+        deleteButton.className = 'edit_button'
         deleteButton.dataset.id = notifyVideo.notifyId
-        deleteButton.addEventListener('click',(e)=>{
-            window.location.href = '/html/edit_notification.html?edit='+notifyVideo.notifyId
+        deleteButton.addEventListener('click', (e) => {
+            window.location.href = '/html/edit_notification.html?edit=' + notifyVideo.notifyId
         })
         targetOperation.appendChild(nextButton)
+        targetOperation.appendChild(targetIndex)
         targetOperation.appendChild(prevButton)
         targetOperation.appendChild(deleteButton)
 
 
         const target = document.createElement('div')
         target.className = 'target'
-        if (notifyVideo.isNotify){
+        if (notifyVideo.isNotify) {
             target.classList.add('target-highlight')
         }
         target.appendChild(targetTypeDiv)
@@ -508,61 +557,61 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         row.appendChild(notificationRow)
 
-        const xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
+        //更新内容
+        const createTarget = () => {
+            const xhr = new XMLHttpRequest()
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4 && xhr.status === 200) {
 
 
-                let dataIndex = 0
-                if (notifyVideo.lastVideoId){
-                    for (const data of xhr.response.data){
-                        if (data.contentId === notifyVideo.lastVideoId){
-                            break
+                    let dataIndex = 0
+                    if (notifyVideo.lastVideoId) {
+                        for (const data of xhr.response.data) {
+                            if (data.contentId === notifyVideo.lastVideoId) {
+                                break
+                            }
+                            dataIndex++
                         }
-                        dataIndex++
+                    } else {
+                        dataIndex = xhr.response.data.length
                     }
-                }else{
-                    dataIndex = xhr.response.data.length
+                    row.dataset.data = JSON.stringify(xhr.response.data)
+                    initTagView(notificationRow)
+                    row.dataset.index = dataIndex
+                    onNextTag(notifyVideo, row, true)
+                    createBody(childList, index + 1)
                 }
-                row.dataset.data = JSON.stringify(xhr.response.data)
-                initTagView(notificationRow)
-                row.dataset.index = dataIndex
-                onNextTag(notifyVideo,row,true)
             }
-        }
-        xhr.onerror = () => {
-            alert('タグ検索に失敗しました')
-        }
-        const url = new URL('https://api.search.nicovideo.jp/api/v2/snapshot/video/contents/search')
-        url.searchParams.set('q',notifyVideo.notifyData)
-        url.searchParams.set('targets','tags')
-        url.searchParams.set('fields','contentId,title,description,viewCounter,mylistCounter,likeCounter,lengthSeconds,thumbnailUrl,startTime,lastResBody,commentCounter')
-        url.searchParams.set('_sort','-startTime')
-        url.searchParams.set('_limit',50)// TODO サイズ
-        url.searchParams.set('_context','HamNicoVideo')
-        xhr.open('GET', url)
-        xhr.responseType = 'json'
+            xhr.onerror = () => {
+                alert('タグ検索に失敗しました')
+            }
+            const url = new URL('https://api.search.nicovideo.jp/api/v2/snapshot/video/contents/search')
+            url.searchParams.set('q', notifyVideo.notifyData)
+            url.searchParams.set('targets', 'tags')
+            url.searchParams.set('fields', 'contentId,title,description,viewCounter,mylistCounter,likeCounter,lengthSeconds,thumbnailUrl,startTime,lastResBody,commentCounter')
+            url.searchParams.set('_sort', '-startTime')
+            url.searchParams.set('_limit', 50)// TODO サイズ
+            url.searchParams.set('_context', 'HamNicoVideo')
+            xhr.open('GET', url)
+            xhr.responseType = 'json'
 
-        xhr.send()
+            xhr.send()
+        }
+
+        const observe = new IntersectionObserver(()=>{
+            createTarget()
+            observe.disconnect()
+        }, {
+            root: document.getElementById('body'),
+            rootMargin: '50% 0px',
+            threshold: 1.0
+        })
+        observe.observe(row)
+
         return row
     }
 
-    //Body作成
-    const listBody = document.getElementById('body')
-    for (let notifyVideo of NotificationDynamicChild.getAll()) {
-        //通知対象
-        let row
-        switch (notifyVideo.flag){
-            case 'series':
-                row = createSeriesRow(notifyVideo)
-                break
-            case 'tag':
-                row = createTagRow(notifyVideo)
-                break
-        }
-
-        listBody.appendChild(row)
-    }
+    createBody(NotificationDynamicChild.getAll(), 0)
 
     //ボタン初期化
     document.getElementById('notification_edit').addEventListener('click', () => {

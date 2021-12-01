@@ -55,15 +55,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         //新着既読
         if (child.isNotify && !isInit) {
             row.getElementsByClassName('target')[0].classList.remove('target-highlight')
-            NotificationDynamicChild.set(child.notifyId, c => {
-                c.isNotify = false
-                return c
-            }, false)
+            child.isNotify = false
             //background通知
             const msg = {key: 'decrement', value: child}
             browserInstance.runtime.sendMessage(msg)
         }
         row.dataset.videoId = nextVideoId
+        return child
     }
     const onPrevSeries = (child, seriesList, row) => {
         for (const series of seriesList.children) {
@@ -174,7 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         a3.addEventListener('click', (e) => {
             NotificationDynamicChild.set(row.dataset.id, (child) => {
                 child.lastVideoId = row.dataset.videoId
-                onNextTag(child, row)
+                child = onNextTag(child, row)
                 return child
             })
         })
@@ -295,10 +293,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         index = Number.parseInt(row.dataset.index)
         if (row.dataset.index < dataList.length) {
-            NotificationDynamicChild.set(child.notifyId, (c) => {
-                c.lastVideoId = dataList[index].contentId
-                return c
-            }, false)
+            child.lastVideoId = dataList[index].contentId
             row.getElementsByClassName('prev_button')[0].disabled = false
         } else {
             row.getElementsByClassName('prev_button')[0].disabled = true
@@ -320,14 +315,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         //新着既読
         if (child.isNotify && !isInit) {
             row.getElementsByClassName('target')[0].classList.remove('target-highlight')
-            NotificationDynamicChild.set(child.notifyId, c => {
-                c.isNotify = false
-                return c
-            }, false)
+            child.isNotify = false
             //background通知
             const msg = {key: 'decrement', value: child}
             browserInstance.runtime.sendMessage(msg)
         }
+        return child
     }
     const onPrevTag = (child, row) => {
         let dataList = JSON.parse(row.dataset.data)
@@ -380,7 +373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         nextButton.addEventListener('click', () => {
             NotificationDynamicChild.set(row.dataset.id, (child) => {
                 child.lastVideoId = row.dataset.videoId
-                onNextSeries(child, document.getElementById(row.dataset.id).firstElementChild, row)
+                child = onNextSeries(child, document.getElementById(row.dataset.id).firstElementChild, row)
                 return child
             })
         })
@@ -443,7 +436,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             elm.addEventListener('click', (e) => {
                                 NotificationDynamicChild.set(row.dataset.id, (child) => {
                                     child.lastVideoId = row.dataset.videoId
-                                    onNextSeries(child, document.getElementById(row.dataset.id).firstElementChild, row)
+                                    child = onNextSeries(child, document.getElementById(row.dataset.id).firstElementChild, row)
                                     return child
                                 })
                             })
@@ -453,7 +446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                         const seriesList = tempBody.getElementsByClassName('SeriesVideoListContainer')[0]
 
-                        onNextSeries(notifyVideo, seriesList, row, true)
+                        NotificationDynamicChild.set(notifyVideo.notifyId,()=>onNextSeries(notifyVideo, seriesList, row, true))
                         notificationRow.appendChild(seriesList)
 
                         tempBody.remove()
@@ -483,7 +476,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     observe.disconnect()
                 }
             }
-
         }, {
             root: document.getElementById('body'),
             rootMargin: '50% 0px',
@@ -517,7 +509,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         nextButton.innerText = 'Next'
         nextButton.className = 'next_button'
         nextButton.addEventListener('click', () => {
-            onNextTag(notifyVideo, row)
+            NotificationDynamicChild.set(notifyVideo.notifyId,()=>onNextTag(notifyVideo, row))
         })
         const targetIndex = document.createElement('div')
         targetIndex.className = 'target-index'
@@ -580,7 +572,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     row.dataset.data = JSON.stringify(xhr.response.data)
                     initTagView(notificationRow)
                     row.dataset.index = dataIndex
-                    onNextTag(notifyVideo, row, true)
+                    NotificationDynamicChild.set(notifyVideo.notifyId,()=>onNextTag(notifyVideo, row, true))
                     createBody(childList, index + 1)
                 }
             }

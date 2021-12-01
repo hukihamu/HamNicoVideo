@@ -4,8 +4,9 @@ browserInstance.runtime.onInstalled.addListener(async () => {
 
     const setBadge = ()=>{
         let details = {text: badgeCounter.toString()}
-        if (badgeCounter === 0){
+        if (badgeCounter <= 0){
             details.text = ""
+            badgeCounter = 0
         }
         browserInstance.browserAction.setBadgeText(details)
     }
@@ -194,10 +195,7 @@ browserInstance.runtime.onInstalled.addListener(async () => {
             let childList = JSON.parse(items[PARAMETER.VIDEO.NOTIFICATION.LIST.key])
             childList = Array.isArray(childList) ? childList : []
             const child = childList.find(item=>{return item.notifyId === alarm.name})
-            //次のAlarm算出
-            onCreateAlarm(child)
-            //該当データの確認
-            onCheck(child)
+            browserInstance.runtime.sendMessage({key: 'notify',value: child})
         })
     })
 
@@ -217,6 +215,12 @@ browserInstance.runtime.onInstalled.addListener(async () => {
                 badgeCounter--
                 setBadge()
                 break
+            case 'notify' :
+                //次のAlarm算出
+                onCreateAlarm(msg.value)
+                //該当データの確認
+                onCheck(msg.value)
+                break
         }
     })
 
@@ -226,8 +230,12 @@ browserInstance.runtime.onInstalled.addListener(async () => {
             //アラーム作成
             onCreateAlarm(child)
             //初期通知確認
+            if (child.isNotify){
+                badgeCounter++
+            }
         }
     }
+    setBadge()
     onCheck(childList,0)
 })
 

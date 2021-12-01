@@ -2,11 +2,10 @@ const nicoStorage = {
     setPlaybackRate() {
         const holdValue = PARAMETER.VIDEO.WATCH.HOLD_SETTING.PLAYBACK_RATE.HOLD_VALUE
         if (localStorage.getItem('Player.playbackRate') !== holdValue.options[holdValue.pValue].value){
-            const optButton = document.getElementsByClassName('ActionButton ControllerButton PlayerOptionButton')[0]
+            const optButton = document.getElementsByClassName('ActionButton PlaybackRateButton')[0]
             optButton.click()
 
-            document.getElementsByClassName('PlayerOptionMenuItem PlaybackRateMenuItem')[0]
-                .getElementsByClassName('PlayerOptionDropdownItem-inner')[7 - Number.parseInt(holdValue.pValue)]
+            document.getElementsByClassName('PlaybackRateMenuItem')[7 - Number.parseInt(holdValue.pValue)]
                 .click()
             optButton.click()
         }

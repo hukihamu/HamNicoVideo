@@ -15,6 +15,7 @@
       "lib/browser.js",
       "lib/parameter.js",
       "lib/browser/storage.js",
+      "js/util/video_data.js",
       "background.js"
     ],
     "persistent": false

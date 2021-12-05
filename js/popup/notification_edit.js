@@ -1,13 +1,11 @@
+let editChild
 document.addEventListener('DOMContentLoaded', async () => {
-    await BStorage.init()
 
 
     const editForm = document.getElementById('form')
 
     //登録か編集家判別
     const usp = new URLSearchParams(location.search)
-
-
 
 
     //targetType切り替え
@@ -54,13 +52,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (usp.has('edit')){
             //変更
-            NotificationDynamicChild.set(usp.get('edit'),child=>{
-                child.isInterval = editForm.is_interval.checked
-                child.intervalWeek = weekList
-                child.intervalTime = intervalTime
-                return child
-            },true)
-            window.location.href = '/html/popup.html'
+            editChild.isInterval = editForm.is_interval.checked
+            editChild.intervalWeek = weekList
+            editChild.intervalTime = intervalTime
+            browserInstance.runtime.sendMessage({key: 'notify-set',value: editChild},()=>{
+                window.location.href = '/html/popup.html'
+            })
         }else {
             //追加
             const xhr = new XMLHttpRequest()
@@ -77,8 +74,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         editForm.is_interval.checked,
                         weekList,
                         intervalTime).getNotificationDynamicChild()
-                    NotificationDynamicChild.add(child)
-                    window.location.href = '/html/popup.html'
+                    browserInstance.runtime.sendMessage({key: 'notify-add',value: child},()=>{
+                        window.location.href = '/html/popup.html'
+                    })
                 }
             }
             xhr.onerror = () => {
@@ -97,14 +95,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (usp.has('edit')){
             //変更
-            NotificationDynamicChild.set(usp.get('edit'),child=>{
-                child.notifyData = editForm.tags_name.value
-                child.dataName = editForm.tags_name.value
-                child.isInterval = editForm.is_interval.checked
-                child.intervalWeek = weekList
-                child.intervalTime = intervalTime
-                return child
-            },true)
+            editChild.notifyData = editForm.tags_name.value
+            editChild.dataName = editForm.tags_name.value
+            editChild.isInterval = editForm.is_interval.checked
+            editChild.intervalWeek = weekList
+            editChild.intervalTime = intervalTime
+            browserInstance.runtime.sendMessage({key: 'notify-set',value: editChild},()=>{
+                window.location.href = '/html/popup.html'
+            })
         }else{
             //追加
             const child = new NotificationVideo(
@@ -116,9 +114,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 editForm.is_interval.checked,
                 weekList,
                 intervalTime).getNotificationDynamicChild()
-            NotificationDynamicChild.add(child)
+            browserInstance.runtime.sendMessage({key: 'notify-add',value: child},()=>{
+                window.location.href = '/html/popup.html'
+            })
         }
-        window.location.href = '/html/popup.html'
     }
 
     //サブミット
@@ -189,62 +188,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     //削除
     document.getElementById('delete').addEventListener('click', () => {
         if (confirm('削除しますか？')){
-            window.location.href = '/html/popup.html'
-            NotificationDynamicChild.remove(usp.get('edit'))
+            browserInstance.runtime.sendMessage({key: 'notify-remove',value: usp.get('edit')},()=>{
+                window.location.href = '/html/popup.html'
+            })
         }
     })
 
     if (usp.has('edit')){
         document.getElementById('add').className = 'hidden'
-
-        const notifyVideo = NotificationDynamicChild.get(usp.get('edit'))
-        const flagIndex = notifyVideo.flag === 'series' ? 0: 1
-        const targetType = document.getElementsByName('target_type')
-        targetType[flagIndex].click()
-        for (const type of targetType){
-            type.disabled = true
-        }
-        if (flagIndex === 0){
-            editForm.series_id.value = notifyVideo.notifyData
-            editForm.series_id.disabled = true
-            document.getElementById('get_series_id').disabled = true
-        }else{
-            editForm.tags_name.value = notifyVideo.notifyData
-        }
-        if (!notifyVideo.isInterval){
-            editForm.is_interval.click()
-        }
-        const weekIndex = []
-        for (const week of notifyVideo.intervalWeek){
-            switch (week){
-                case 'mon':
-                    weekIndex.push(0)
-                    break
-                case 'tue':
-                    weekIndex.push(1)
-                    break
-                case 'wed':
-                    weekIndex.push(2)
-                    break
-                case 'thu':
-                    weekIndex.push(3)
-                    break
-                case 'fri':
-                    weekIndex.push(4)
-                    break
-                case 'sat':
-                    weekIndex.push(5)
-                    break
-                case 'sun':
-                    weekIndex.push(6)
-                    break
+        browserInstance.runtime.sendMessage({key: 'get-child',value: usp.get('edit')},(child)=>{
+            const flagIndex = child.flag === 'series' ? 0: 1
+            const targetType = document.getElementsByName('target_type')
+            targetType[flagIndex].click()
+            for (const type of targetType){
+                type.disabled = true
             }
-        }
-        const targetIntervalWeek = document.getElementsByName('target_interval_week')
-        for (const i of weekIndex){
-            targetIntervalWeek[i].click()
-        }
-        editForm.target_interval_time.value = notifyVideo.intervalTime
+            if (flagIndex === 0){
+                editForm.series_id.value = child.notifyData
+                editForm.series_id.disabled = true
+                document.getElementById('get_series_id').disabled = true
+            }else{
+                editForm.tags_name.value = child.notifyData
+            }
+            if (!child.isInterval){
+                editForm.is_interval.click()
+            }
+            const weekIndex = []
+            for (const week of child.intervalWeek){
+                switch (week){
+                    case 'mon':
+                        weekIndex.push(0)
+                        break
+                    case 'tue':
+                        weekIndex.push(1)
+                        break
+                    case 'wed':
+                        weekIndex.push(2)
+                        break
+                    case 'thu':
+                        weekIndex.push(3)
+                        break
+                    case 'fri':
+                        weekIndex.push(4)
+                        break
+                    case 'sat':
+                        weekIndex.push(5)
+                        break
+                    case 'sun':
+                        weekIndex.push(6)
+                        break
+                }
+            }
+            const targetIntervalWeek = document.getElementsByName('target_interval_week')
+            for (const i of weekIndex){
+                targetIntervalWeek[i].click()
+            }
+            editForm.target_interval_time.value = child.intervalTime
+            editChild = child
+        })
     }else{
         document.getElementById('edit').className = 'hidden'
     }

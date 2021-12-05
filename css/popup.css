@@ -92,3 +92,6 @@ body {
 .target-index{
     display: inline-block;
 }
+.target{
+    margin-bottom: 8px;
+}

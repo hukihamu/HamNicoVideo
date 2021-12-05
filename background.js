@@ -240,6 +240,7 @@ browserInstance.runtime.onMessage.addListener((msg, _, sendResponse) => {
                 const child = getChild(msg.value)
                 child.isNotify = false
                 setChild(child)
+                sendResponse()
                 break
             case 'get-child'://編集用
                 sendResponse(getChild(msg.value))

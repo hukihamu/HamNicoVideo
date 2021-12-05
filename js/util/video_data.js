@@ -100,7 +100,9 @@ class VideoView {
         a3.rel = 'noopener'
         a3.target = '_blank'
         a3.addEventListener('click', () => {
-            browserInstance.runtime.sendMessage({key: 'notify-read',value: this.child.notifyId})
+            browserInstance.runtime.sendMessage({key: 'notify-read',value: this.child.notifyId},()=>{
+                browserInstance.runtime.sendMessage({key: 'video-next',value: this.child.notifyId})
+            })
         })
         d2.appendChild(a3)
 

@@ -345,7 +345,7 @@ class VideoData {
                 videoId,
                 a.title,
                 item.getElementsByClassName('itemDescription')[0].textContent,
-                'https://www.nicovideo.jp' + a.href,
+                a.href,
                 item.getElementsByClassName('time')[0].textContent,
                 item.getElementsByClassName('videoLength')[0].textContent,
                 item.getElementsByClassName('count view')[0].children[0].textContent,

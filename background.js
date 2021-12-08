@@ -1,13 +1,3 @@
-/*
-*バックグラウンドでデータを管理
-*更新ボタンをつける
-*初回時、更新時にデータチェックをし、値を返す
-*バックグラウンドのデータをもとに画面を生成
-*シリーズなら先頭、タグならラスト
-*データ追加編集はバックグラウンドが返るまで待機
-*バックグラウンド該当データのみ更新
-*更新時に新着があればデータに追記
-* */
 
 const onCreateAlarm = (child) => {
     if (!child.isInterval) return
@@ -137,31 +127,7 @@ const checkNewVideo = (child) => {
     return videoData ? videoData.videoId !== child.lastVideoId : false
 }
 
-const init = async () => {
-    await BStorage.init()
-
-    children = NotificationDynamicChild.getAll()
-
-    const initVideoData = async (child) => {
-        await refreshVideo(child)
-        child.isNotify = checkNewVideo(child)
-        setChild(child)
-        setBadge()
-        onCreateAlarm(child)
-    }
-
-    browserInstance.alarms.onAlarm.addListener(async (alarm) => {
-        const child = getChild(alarm.name)
-        initVideoData(child).then()
-    })
-    for (const child of children) {
-        initVideoData(child).then()
-    }
-}
-browserInstance.runtime.onInstalled.addListener(init)
-browserInstance.runtime.onStartup.addListener(init)
-
-browserInstance.runtime.onMessage.addListener((msg, _, sendResponse) => {
+const onMassage =  (msg, _, sendResponse) => {
     new Promise((resolve) => {
         const interval = setInterval(() => {
             if (children.length === isInitVideoHashMap.length) {
@@ -252,5 +218,30 @@ browserInstance.runtime.onMessage.addListener((msg, _, sendResponse) => {
         }
     })
     return true
-})
+}
+
+const init = async () => {
+    await BStorage.init()
+
+    children = NotificationDynamicChild.getAll()
+
+    const initVideoData = async (child) => {
+        await refreshVideo(child)
+        child.isNotify = checkNewVideo(child)
+        setChild(child)
+        setBadge()
+        onCreateAlarm(child)
+    }
+
+    browserInstance.alarms.onAlarm.addListener(async (alarm) => {
+        const child = getChild(alarm.name)
+        initVideoData(child).then()
+    })
+    for (const child of children) {
+        initVideoData(child).then()
+    }
+    browserInstance.runtime.onMessage.addListener(onMassage)
+}
+browserInstance.runtime.onInstalled.addListener(init)
+browserInstance.runtime.onStartup.addListener(init)
 

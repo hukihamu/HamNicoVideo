@@ -1,6 +1,6 @@
 {
   "name": "Ham NicoVideo",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "manifest_version": 2,
   "description": "hamによるniconico便利機能",
   "options_ui": {
@@ -11,6 +11,19 @@
     "storage",
     "*://*.nicovideo.jp/*"
   ],
+  "background": {
+    "scripts":[
+      "lib/browser.js",
+      "lib/parameter.js",
+      "lib/browser/storage.js",
+      "js/util/video_data.js",
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_popup": "html/popup.html"
+  },
   "content_scripts": [
     {
       "matches": [

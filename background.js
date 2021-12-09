@@ -1,4 +1,3 @@
-
 const onCreateAlarm = (child) => {
     if (!child.isInterval) return
     const dayOfWeekList = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
@@ -57,9 +56,9 @@ const removeChild = (id) => {
 const findVideoDataIndex = async (child, type) => {
     const list = videoHashMap[child.notifyId]
     const nextDirection = child.flag === 'series' ? 1 : -1
-    const isError = ()=>new Promise((resolve) => {
+    const isError = () => new Promise((resolve) => {
         const xhr = new XMLHttpRequest()
-        const url = new URL('https://ext.nicovideo.jp/api/getthumbinfo/' + child.lastVideoId.replace(':back',''))
+        const url = new URL('https://ext.nicovideo.jp/api/getthumbinfo/' + child.lastVideoId.replace(':back', ''))
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 resolve(xhr.responseXML.getElementsByTagName('error')[0] !== undefined)
@@ -68,7 +67,7 @@ const findVideoDataIndex = async (child, type) => {
         xhr.open('GET', url)
         xhr.send()
     })
-    const lastIndex = ()=> {
+    const lastIndex = () => {
         return child.lastVideoId.match(/:back/)
             ? list.length
             : list.findIndex(value => value.videoId === child.lastVideoId)
@@ -98,7 +97,7 @@ const findVideoDataIndex = async (child, type) => {
 const setBadge = () => {
     let counter = 0
     children.forEach(v => v.isNotify ? counter++ : 0)
-    browserInstance.browserAction.setBadgeText({text: counter.toString()})
+    browserInstance.browserAction.setBadgeText({text: counter === 0 ? '' : counter.toString()})
 }
 const refreshVideo = async (child) => {
     isInitVideoHashMap.pop()
@@ -124,10 +123,21 @@ const checkNewVideo = (child) => {
             videoData = videoList[0]
             break
     }
-    return videoData ? videoData.videoId !== child.lastVideoId : false
+
+
+    return videoData
+        ? videoData.videoId !== child.lastVideoId && new Date(videoData.uploadDate).getTime() > child.lastCheck
+        : false
+}
+const initVideoData = async (child) => {
+    await refreshVideo(child)
+    child.isNotify = checkNewVideo(child)
+    setChild(child)
+    setBadge()
+    onCreateAlarm(child)
 }
 
-const onMassage =  (msg, _, sendResponse) => {
+const onMassage = (msg, _, sendResponse) => {
     new Promise((resolve) => {
         const interval = setInterval(() => {
             if (children.length === isInitVideoHashMap.length) {
@@ -196,25 +206,36 @@ const onMassage =  (msg, _, sendResponse) => {
                     const prevIndex = await findVideoDataIndex(child, 'prev')
                     const videoData = 0 <= prevIndex && prevIndex < list.length ? list[prevIndex] : null
                     const lastIndex = prevIndex - (1 * nextDirection)
-                    child.lastVideoId =  0 <= lastIndex && lastIndex < list.length ? list[lastIndex].videoId : child.lastVideoId.replace(":back",'') + ":back"
+                    child.lastVideoId = 0 <= lastIndex && lastIndex < list.length ? list[lastIndex].videoId : child.lastVideoId.replace(':back', '') + ':back'
                     setChild(child)
                     resolve(new VideoView(child, videoData))
                 }).then(sendResponse)
                 break
             }
-            case 'notify-read' ://isNotifyを消す
+            case 'notify-read' : {//isNotifyを消す
                 const child = getChild(msg.value)
+
                 child.isNotify = false
+                child.lastCheck = Date.now()
                 setChild(child)
+                setBadge()
                 sendResponse()
                 break
+            }
             case 'get-child'://編集用
                 sendResponse(getChild(msg.value))
                 break
-            case 'refresh'://特定のvideoListを更新
+            case 'refresh': {//特定のvideoListを更新
+                const child = getChild(msg.value)
+                new Promise(async (resolve) => {
+                    await refreshVideo(child)
+                    const nowIndex = await findVideoDataIndex(child, 'now')
+                    const list = videoHashMap[child.notifyId]
+                    const videoData = 0 <= nowIndex && nowIndex < list.length ? list[nowIndex] : null
+                    resolve(new VideoView(child, videoData))
+                }).then(sendResponse)
                 break
-            case 'refresh-all'://すべてのvideoListを更新
-                break
+            }
         }
     })
     return true
@@ -224,14 +245,6 @@ const init = async () => {
     await BStorage.init()
 
     children = NotificationDynamicChild.getAll()
-
-    const initVideoData = async (child) => {
-        await refreshVideo(child)
-        child.isNotify = checkNewVideo(child)
-        setChild(child)
-        setBadge()
-        onCreateAlarm(child)
-    }
 
     browserInstance.alarms.onAlarm.addListener(async (alarm) => {
         const child = getChild(alarm.name)

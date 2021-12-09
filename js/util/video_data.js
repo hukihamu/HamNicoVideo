@@ -18,16 +18,22 @@ class VideoView {
 
     createHeader(parent) {
 
+        const target = document.createElement('div')
+        target.className = 'target'
+        if (this.child.isNotify) {
+            target.classList.add('target-highlight')
+        }
+
         //タイトル
         const targetTypeDiv = document.createElement('div')
         targetTypeDiv.className = 'target-type'
-        const nameSpan = document.createElement('a')
-        nameSpan.innerText = this.child.dataName
-        nameSpan.href = this.child.flag === 'series'
+        const nameA = document.createElement('a')
+        nameA.innerText = this.child.dataName
+        nameA.href = this.child.flag === 'series'
             ? 'https://www.nicovideo.jp/series/' + this.child.notifyData
             : 'https://www.nicovideo.jp/tag/'  + this.child.notifyData
-        nameSpan.target = '_blank'
-        targetTypeDiv.appendChild(nameSpan)
+        nameA.target = '_blank'
+        targetTypeDiv.appendChild(nameA)
 
         //操作
         const targetOperation = document.createElement('div')
@@ -48,8 +54,7 @@ class VideoView {
         nextButton.addEventListener('click', () => {
             browserInstance.runtime.sendMessage({key: 'video-next',value: this.child.notifyId},reload)
         })
-        const targetIndex = document.createElement('div')
-        targetIndex.className = 'target-index'
+
         //prev
         const prevButton = document.createElement('button')
         prevButton.innerText = 'Prev'
@@ -58,6 +63,24 @@ class VideoView {
             browserInstance.runtime.sendMessage({key: 'video-prev',value: this.child.notifyId},reload)
         })
 
+        //既読
+        const notifyRead = document.createElement('button')
+        notifyRead.innerText = '既読'
+        notifyRead.className = 'notify-read'
+        notifyRead.addEventListener('click', () => {
+            browserInstance.runtime.sendMessage({key: 'notify-read',value: this.child.notifyId},()=>{
+                target.classList.remove('target-highlight')
+            })
+        })
+        //リフレッシュ
+        const refreshButton = document.createElement('button')
+        refreshButton.innerText = 'リフレッシュ'
+        refreshButton.className = 'refresh'
+        refreshButton.addEventListener('click', () => {
+            browserInstance.runtime.sendMessage({key: 'refresh',value: this.child.notifyId},reload)
+        })
+
+
         //編集
         const editButton = document.createElement('button')
         editButton.innerText = '編集'
@@ -65,17 +88,31 @@ class VideoView {
         editButton.addEventListener('click', (e) => {
             window.location.href = '/html/edit_notification.html?edit=' + this.child.notifyId
         })
-        targetOperation.appendChild(nextButton)
-        targetOperation.appendChild(targetIndex)
-        targetOperation.appendChild(prevButton)
-        targetOperation.appendChild(editButton)
+
+        const row1 = document.createElement('ul')
+        row1.className = 'operation-row'
+        const cell1 = document.createElement('li')
+        cell1.appendChild(nextButton)
+        const cell2 = document.createElement('li')
+        cell2.appendChild(prevButton)
+        row1.appendChild(cell1)
+        row1.appendChild(cell2)
+        const row2 = document.createElement('ul')
+        row2.className = 'operation-row'
+        const cell3 = document.createElement('li')
+        cell3.appendChild(notifyRead)
+        const cell4 = document.createElement('li')
+        cell4.appendChild(refreshButton)
+        const cell5 = document.createElement('li')
+        cell5.appendChild(editButton)
+        row2.appendChild(cell3)
+        row2.appendChild(cell4)
+        row2.appendChild(cell5)
+
+        targetOperation.appendChild(row1)
+        targetOperation.appendChild(row2)
 
 
-        const target = document.createElement('div')
-        target.className = 'target'
-        if (this.child.isNotify) {
-            target.classList.add('target-highlight')
-        }
         target.appendChild(targetTypeDiv)
         target.appendChild(targetOperation)
         parent.appendChild(target)

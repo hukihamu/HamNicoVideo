@@ -251,11 +251,12 @@ const onMassage = (msg, _, sendResponse) => {
                 new Promise(async (resolve) => {
                     await refreshVideo(child)
                     child.isNotify = checkNewVideo(child)
-                    setChild(child)
                     const nowIndex = await findVideoDataIndex(child, 'now')
                     const list = videoHashMap[child.notifyId]
                     const videoData = 0 <= nowIndex && nowIndex < list.length ? list[nowIndex] : null
                     resolve(new VideoView(child, videoData))
+                    setChild(child)
+                    setBadge()
                 }).then(sendResponse)
                 break
             }

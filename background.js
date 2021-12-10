@@ -1,5 +1,6 @@
 const onCreateAlarm = (child) => {
     if (!child.isInterval) return
+    browserInstance.alarms.clear(child.notifyId)
     const dayOfWeekList = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
     const nowDate = new Date()
@@ -47,10 +48,12 @@ const setChild = (child) => {
 const addChild = (child) => {
     NotificationDynamicChild.add(child)
     children.push(child)
+    isInitVideoHashMap.push(true)
 }
 const removeChild = (id) => {
     NotificationDynamicChild.remove(id)
     children = children.filter((value => value.notifyId !== id))
+    isInitVideoHashMap.pop()
 }
 
 const findVideoDataIndex = async (child, type) => {
@@ -68,9 +71,9 @@ const findVideoDataIndex = async (child, type) => {
         xhr.send()
     })
     const lastIndex = () => {
-        return child.lastVideoId.match(/:back/)
-            ? list.length
-            : list.findIndex(value => value.videoId === child.lastVideoId)
+        return child.lastVideoId
+            ? list.findIndex(value => value.videoId === child.lastVideoId)
+            : nextDirection * -1
     }
     let index = -1
     switch (type) {
@@ -83,13 +86,14 @@ const findVideoDataIndex = async (child, type) => {
             index = lastIndex() + (2 * nextDirection)
             break
         case 'prev':
-            if (!child.lastVideoId || await isError()) return 0
+            if (child.lastVideoId && await isError()) return 0
             const li = lastIndex()
             if (child.flag === 'tag' && li === list.length) {
                 //TODO 追加で取りに行く必要あり https://site.nicovideo.jp/search-api-docs/snapshot
                 return list.length - 1//仮
             }
             index = li
+            if (index < 0 ) index = 0
             break
     }
     return index
@@ -112,7 +116,6 @@ const refreshVideo = async (child) => {
     isInitVideoHashMap.push(true)
 }
 const checkNewVideo = (child) => {
-    if (!child.isInterval) return false
     const videoList = videoHashMap[child.notifyId]
     let videoData
     switch (child.flag) {
@@ -149,12 +152,20 @@ const onMassage = (msg, _, sendResponse) => {
         msg.value
         switch (msg.key) {
             case 'notify-add'://childを追加
-                addChild(msg.value)
-                sendResponse()
+                new Promise(async resolve => {
+                    addChild(msg.value)
+                    resolve()
+                    await refreshVideo(msg.value)
+                    onCreateAlarm(msg.value)
+                }).then(sendResponse)
                 break
             case 'notify-set'://childを更新
-                setChild(msg.value)
-                sendResponse()
+                new Promise(async resolve => {
+                    setChild(msg.value)
+                    resolve()
+                    await refreshVideo(msg.value)
+                    onCreateAlarm(msg.value)
+                }).then(sendResponse)
                 break
             case 'notify-remove'://childを削除
                 removeChild(msg.value)
@@ -190,9 +201,13 @@ const onMassage = (msg, _, sendResponse) => {
                     const nextDirection = child.flag === 'series' ? 1 : -1
                     const list = videoHashMap[child.notifyId]
                     const nextIndex = await findVideoDataIndex(child, 'next')
-                    const videoData = 0 <= nextIndex && nextIndex < list.length ? list[nextIndex] : null
+                    const videoData = nextIndex < list.length
+                        ? list[nextIndex]
+                        : null//例外
                     const lastIndex = nextIndex - (1 * nextDirection)
-                    child.lastVideoId = 0 <= lastIndex && lastIndex < list.length ? list[lastIndex].videoId : child.lastVideoId
+                    child.lastVideoId = 0 <= lastIndex && lastIndex < list.length
+                        ? list[lastIndex].videoId
+                        : child.lastVideoId
                     setChild(child)
                     resolve(new VideoView(child, videoData))
                 }).then(sendResponse)
@@ -204,9 +219,14 @@ const onMassage = (msg, _, sendResponse) => {
                     const nextDirection = child.flag === 'series' ? 1 : -1
                     const list = videoHashMap[child.notifyId]
                     const prevIndex = await findVideoDataIndex(child, 'prev')
-                    const videoData = 0 <= prevIndex && prevIndex < list.length ? list[prevIndex] : null
+                    const videoData = prevIndex < list.length
+                        ? list[prevIndex]
+                        : null //例外
                     const lastIndex = prevIndex - (1 * nextDirection)
-                    child.lastVideoId = 0 <= lastIndex && lastIndex < list.length ? list[lastIndex].videoId : child.lastVideoId.replace(':back', '') + ':back'
+                    child.lastVideoId = 0 <= lastIndex && lastIndex < list.length
+                        ? list[lastIndex].videoId
+                        : null
+                    //:backはtag child.lastVideoId.replace(':back', '') + ':back'
                     setChild(child)
                     resolve(new VideoView(child, videoData))
                 }).then(sendResponse)
@@ -229,6 +249,8 @@ const onMassage = (msg, _, sendResponse) => {
                 const child = getChild(msg.value)
                 new Promise(async (resolve) => {
                     await refreshVideo(child)
+                    child.isNotify = checkNewVideo(child)
+                    setChild(child)
                     const nowIndex = await findVideoDataIndex(child, 'now')
                     const list = videoHashMap[child.notifyId]
                     const videoData = 0 <= nowIndex && nowIndex < list.length ? list[nowIndex] : null

@@ -43,8 +43,14 @@ class VideoView {
             const videoView = VideoView.importVideoView(object)
             const notifyElm = parent.getElementsByClassName('notification')[0]
             if (notifyElm) notifyElm.remove()
+            this.child = videoView.child
             this.videoData = videoView.videoData
-            this.createBody(parent)
+            if (videoView.videoData){
+                this.createBody(parent)
+                if (this.child.isNotify) {
+                    target.classList.add('target-highlight')
+                }
+            }
         }
 
         //Next

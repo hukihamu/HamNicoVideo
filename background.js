@@ -72,7 +72,7 @@ const findVideoDataIndex = async (child, type) => {
     })
     const lastIndex = () => {
         return child.lastVideoId
-            ? list.findIndex(value => value.videoId === child.lastVideoId)
+            ? list.findIndex(value => value.videoId === child.lastVideoId)// || list.length
             : nextDirection * -1
     }
     let index = -1
@@ -225,8 +225,9 @@ const onMassage = (msg, _, sendResponse) => {
                     const lastIndex = prevIndex - (1 * nextDirection)
                     child.lastVideoId = 0 <= lastIndex && lastIndex < list.length
                         ? list[lastIndex].videoId
-                        : null
-                    //:backはtag child.lastVideoId.replace(':back', '') + ':back'
+                        // : nextDirection === -1
+                        //     ? child.lastVideoId.replace(':back', '') + ':back'
+                            : null
                     setChild(child)
                     resolve(new VideoView(child, videoData))
                 }).then(sendResponse)

@@ -53,6 +53,7 @@ const addChild = (child) => {
 const removeChild = (id) => {
     NotificationDynamicChild.remove(id)
     children = children.filter((value => value.notifyId !== id))
+    browserInstance.alarms.clear(id)
     isInitVideoHashMap.pop()
 }
 

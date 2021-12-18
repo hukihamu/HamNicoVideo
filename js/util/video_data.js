@@ -51,6 +51,7 @@ class VideoView {
                     target.classList.add('target-highlight')
                 }
             }
+            parent.classList.remove('child-loading')
         }
 
         //Next
@@ -66,6 +67,7 @@ class VideoView {
         prevButton.innerText = 'Prev'
         prevButton.className = 'prev_button'
         prevButton.addEventListener('click', () => {
+            parent.classList.add('child-loading')
             browserInstance.runtime.sendMessage({key: 'video-prev',value: this.child.notifyId},reload)
         })
 
@@ -83,6 +85,7 @@ class VideoView {
         refreshButton.innerText = 'リフレッシュ'
         refreshButton.className = 'refresh'
         refreshButton.addEventListener('click', () => {
+            parent.classList.add('child-loading')
             browserInstance.runtime.sendMessage({key: 'refresh',value: this.child.notifyId},reload)
         })
 
@@ -349,13 +352,23 @@ class VideoData {
         return result
     }
 
-    static async getTags(tag, lastVideoId,page) {
-        if (!page) page = 1
+    static async getTags(tag, lastVideoId, _result, page, isLastLoop) {
         return new Promise((resolve) => {
             const xhr = new XMLHttpRequest()
             xhr.onreadystatechange = async () => {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    resolve(await this.tagDocToInstance(xhr.response,tag,lastVideoId?.replace(':back',''),page))
+                    let {allVideoCount,result,isLastVideo} = await this.tagDocToInstance(xhr.response,tag,lastVideoId,_result)
+                    const isFullSearch = allVideoCount <= result.length
+                    const isFindLast = result[result.length - 1].videoId === lastVideoId
+                    if (!isFullSearch){
+                        if (lastVideoId && !isLastVideo && !isLastLoop){
+                            result = await this.getTags(tag,lastVideoId,result,page + 1)
+                        }
+                        if (isFindLast){
+                            result = await this.getTags(tag,lastVideoId,result,page + 1,true)
+                        }
+                    }
+                    resolve(result)
                 }
             }
             xhr.open('get', 'https://www.nicovideo.jp/tag/'  + tag + '?sort=f&page=' + page)
@@ -363,8 +376,7 @@ class VideoData {
             xhr.send()
         })
     }
-    static async tagDocToInstance(document, tag, lastVideoId, page){
-        const result = []
+    static async tagDocToInstance(document, tag, lastVideoId, result){
 
         const allVideoCount = document.getElementsByClassName('tagFollowArea')[0].parentElement.getElementsByClassName('num')[0].innerText
         const contentBody = document.getElementsByClassName('contentBody video uad videoList videoList01')[0]
@@ -403,10 +415,11 @@ class VideoData {
                 detail.getElementsByTagName('thumbnail_url')[0].textContent
             ))
         }
-        if (lastVideoId && !isLastVideo && result.length < allVideoCount){
-            result.concat(await this.getTags(tag, lastVideoId, page + 1))
+        return {
+            result,
+            isLastVideo,
+            allVideoCount
         }
-        return result
     }
 
     static async getDetail(videoId) {

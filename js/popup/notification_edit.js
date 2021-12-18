@@ -120,6 +120,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    //シリーズID　入力条件
+    document.getElementById('series_id').addEventListener('input',(e)=>{
+        e.target.value = e.target.value.replace(/[^0-9]/g, '')
+    })
+
     //サブミット
     editForm.addEventListener('submit', (event) => {
         const weekList = []
@@ -175,7 +180,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('get_series_id').addEventListener('click',()=>{
         browserInstance.tabs.query({ active: true, currentWindow: true }, (e) => {
             const url = e[0].url;
-            if (!url.match(/www.nicovideo.jp\/series/)) return
+            if (!url.match(/www.nicovideo.jp\/series/)) {
+                alert('シリーズ一覧を表示しているタブで実行して下さい\n例：https://www.nicovideo.jp/series/シリーズID')
+                return
+            }
             editForm.series_id.value = url.match(/\d+/)[0]
         });
     })

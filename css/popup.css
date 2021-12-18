@@ -100,3 +100,39 @@ body {
 .operation-row *:hover{
     color: #0080ff;
 }
+.loading{
+    width: 610px;
+    height: 100vh;
+    position: fixed;
+    background-color: #7c7c7c88;
+    top: 35px;
+    left: 0;
+    z-index: 9999;
+}
+.child-loading{
+    position: relative;
+}
+.child-loading:before{
+    animation-name: child-loading-anime;
+    animation-duration:0s;
+    animation-fill-mode: forwards;
+    animation-delay: 0.2s;
+    width: 610px;
+    height: 188px;
+    position: absolute;
+    z-index: 9999;
+    content: '';
+}
+@keyframes child-loading-anime{
+    100%{
+        background-color: #7c7c7c88;
+    }
+}
+.notify-read{
+    pointer-events: none;
+    color: rgba(16, 16, 16, 0.3);
+}
+.target-highlight .notify-read{
+    pointer-events: all;
+    color: black;
+}

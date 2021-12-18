@@ -57,12 +57,12 @@ const removeChild = (id) => {
     isInitVideoHashMap.pop()
 }
 
-const findVideoDataIndex = async (child, type) => {
+const findVideoData = async (child, type) => {
     const list = videoHashMap[child.notifyId]
     const nextDirection = child.flag === 'series' ? 1 : -1
     const isError = () => new Promise((resolve) => {
         const xhr = new XMLHttpRequest()
-        const url = new URL('https://ext.nicovideo.jp/api/getthumbinfo/' + child.lastVideoId.replace(':back', ''))
+        const url = new URL('https://ext.nicovideo.jp/api/getthumbinfo/' + child.lastVideoId.replace(':back',''))
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 resolve(xhr.responseXML.getElementsByTagName('error')[0] !== undefined)
@@ -71,37 +71,92 @@ const findVideoDataIndex = async (child, type) => {
         xhr.open('GET', url)
         xhr.send()
     })
-    const lastIndex = () => {
-        return child.lastVideoId
-            ? list.findIndex(value => value.videoId === child.lastVideoId.replace(':back',''))
-            : nextDirection * -1
+    const getLastIndex = () => {
+        return list.findIndex(value => value.videoId === child.lastVideoId)
     }
-    let index = -1
+    const result = {
+        videoData: null,
+        lastVideoId: null
+    }
     switch (type) {
-        case 'now':
-            if (!child.lastVideoId || await isError()) return 0
-            if (child.lastVideoId.match(':back')) return list.length - 1
-            index = lastIndex() + (1 * nextDirection)
-            break
-        case 'next':
-            if (child.lastVideoId && await isError()) return 0
-            if (!child.lastVideoId) return nextDirection
-            if (child.lastVideoId.match(':back')) return list.length - 2
-            index = lastIndex() + (2 * nextDirection)
-            break
-        case 'prev':
-            if (child.lastVideoId && await isError()) return 0
-            if (!child.lastVideoId) return nextDirection > 0 ? 0 : 1
-            const li = lastIndex()
-            if (child.lastVideoId.match(':back') && li === list.length - 1){
-                //TODO 追加で取りに行く必要あり https://site.nicovideo.jp/search-api-docs/snapshot
-                return list.length - 1
+        case 'now': {
+            if (!child.lastVideoId || await isError()) {
+                result.videoData = list[0]
+                break
             }
-            index = li
-            if (index < 0 ) index = 0
+            if (child.lastVideoId.match(':back')){
+                result.videoData = list[list.length - 1]
+                result.lastVideoId = child.lastVideoId
+                break
+            }
+            const index = getLastIndex() + nextDirection
+            result.videoData = 0 <= index && index < list.length ? list[index] : null
             break
+        }
+        case 'next': {
+            if (child.lastVideoId && await isError()) {
+                result.videoData = list[0]
+                result.lastVideoId = null
+                break
+            }
+            if (child.lastVideoId && child.lastVideoId.match(':back')){
+                result.videoData = list[list.length - 2]
+                result.lastVideoId = child.lastVideoId.replace(':back','')
+                break
+            }
+            const index = child.lastVideoId ? getLastIndex() + 2 * nextDirection : nextDirection
+            result.videoData = 0 <= index && index < list.length ? list[index] : null
+            const lastIndex = index - 1 * nextDirection
+
+            result.lastVideoId = 0 <= lastIndex && lastIndex < list.length
+                ? list[lastIndex].videoId
+                : list[lastIndex - 1 * nextDirection]
+                    ? list[lastIndex - 1 * nextDirection].videoId
+                    : null
+
+            break
+        }
+        case 'prev': {
+            if (!child.lastVideoId && nextDirection === -1){
+                result.videoData = list[1]
+                result.lastVideoId = list[2]
+                    ? list[2].videoId
+                    : list[1] ? list[1].videoId + ':back' : null
+                break
+            }
+            if (!child.lastVideoId || await isError()) {
+                result.videoData = list[0]
+                result.lastVideoId = null
+                break
+            }
+            if (child.lastVideoId.match(':back')){
+                await refreshVideo(child) //TODO 投稿日をもとにこれにする https://site.nicovideo.jp/search-api-docs/snapshot
+                const updateList = videoHashMap[child.notifyId]
+                if (list.length < updateList.length){
+                    result.videoData = updateList[list.length]
+                    result.lastVideoId = updateList[list.length + 1]
+                        ? updateList[list.length + 1].videoId
+                        : updateList[list.length].videoId + 'back'
+                }else{
+                    result.videoData = list[list.length - 1]
+                    result.lastVideoId = child.lastVideoId
+                }
+                break
+            }
+            const index = getLastIndex()
+            result.videoData = 0 <= index && index < list.length ? list[index] : null
+            const lastIndex = index - 1 * nextDirection
+            if (list.length <= lastIndex) {
+                result.lastVideoId = child.lastVideoId + ':back'
+            } else if (lastIndex < 0) {
+                result.lastVideoId = null
+            } else {
+                result.lastVideoId = list[lastIndex].videoId
+            }
+            break
+        }
     }
-    return index
+    return result
 }
 const setBadge = () => {
     let counter = 0
@@ -115,7 +170,7 @@ const refreshVideo = async (child) => {
             videoHashMap[child.notifyId] = await VideoData.getSeries(child.notifyData)
             break
         case 'tag':
-            videoHashMap[child.notifyId] = await VideoData.getTags(child.notifyData, child.lastVideoId)
+            videoHashMap[child.notifyId] = await VideoData.getTags(child.notifyData, child.lastVideoId ? child.lastVideoId.replace(':back', '') : null, [], 1)
             break
     }
     isInitVideoHashMap.push(true)
@@ -183,13 +238,10 @@ const onMassage = (msg, _, sendResponse) => {
 
                 children.forEach((child, index) => {
                     new Promise(async (resolve) => {
-                        let list = videoHashMap[child.notifyId]
-                        if (!list) {
+                        if (!videoHashMap[child.notifyId]) {
                             await refreshVideo(child)
-                            list = videoHashMap[child.notifyId]
                         }
-                        const nowIndex = await findVideoDataIndex(child, 'now')
-                        const videoData = 0 <= nowIndex && nowIndex < list.length ? list[nowIndex] : null
+                        const {videoData} = await findVideoData(child, 'now')
                         videoViews[index] = new VideoView(child, videoData)
                         resolve()
                     }).then(() => {
@@ -209,16 +261,8 @@ const onMassage = (msg, _, sendResponse) => {
             case 'video-next': {//次表示する動画(lastVideoの次の次)
                 const child = getChild(msg.value)
                 new Promise(async (resolve) => {
-                    const nextDirection = child.flag === 'series' ? 1 : -1
-                    const list = videoHashMap[child.notifyId]
-                    const nextIndex = await findVideoDataIndex(child, 'next')
-                    const videoData = nextIndex < list.length
-                        ? list[nextIndex]
-                        : null//例外
-                    const lastIndex = nextIndex - (1 * nextDirection)
-                    child.lastVideoId = 0 <= lastIndex && lastIndex < list.length
-                        ? list[lastIndex].videoId
-                        : child.lastVideoId
+                    const {videoData, lastVideoId} = await findVideoData(child, 'next')
+                    child.lastVideoId = lastVideoId
                     setChild(child)
                     resolve(new VideoView(child, videoData))
                 }).then(sendResponse)
@@ -227,18 +271,8 @@ const onMassage = (msg, _, sendResponse) => {
             case 'video-prev' : {//前表示する動画(lastVideo)
                 const child = getChild(msg.value)
                 new Promise(async (resolve) => {
-                    const nextDirection = child.flag === 'series' ? 1 : -1
-                    const list = videoHashMap[child.notifyId]
-                    const prevIndex = await findVideoDataIndex(child, 'prev')
-                    const videoData = prevIndex < list.length
-                        ? list[prevIndex]
-                        : null //例外
-                    const lastIndex = prevIndex - (1 * nextDirection)
-                    child.lastVideoId = 0 <= lastIndex && lastIndex < list.length
-                        ? list[lastIndex].videoId
-                        : nextDirection === -1
-                            ? child.lastVideoId.replace(':back', '') + ':back'
-                            : null
+                    const {videoData, lastVideoId} = await findVideoData(child, 'prev')
+                    child.lastVideoId = lastVideoId
                     setChild(child)
                     resolve(new VideoView(child, videoData))
                 }).then(sendResponse)
@@ -262,9 +296,7 @@ const onMassage = (msg, _, sendResponse) => {
                 new Promise(async (resolve) => {
                     await refreshVideo(child)
                     child.isNotify = checkNewVideo(child)
-                    const nowIndex = await findVideoDataIndex(child, 'now')
-                    const list = videoHashMap[child.notifyId]
-                    const videoData = 0 <= nowIndex && nowIndex < list.length ? list[nowIndex] : null
+                    const {videoData} = await findVideoData(child, 'now')
                     resolve(new VideoView(child, videoData))
                     setChild(child)
                     setBadge()

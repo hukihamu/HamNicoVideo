@@ -12,7 +12,7 @@ class VideoView {
         const div = document.createElement('div')
         div.id = this.child.notifyId
         this.createHeader(div)
-        if (this.videoData) this.createBody(div)
+        this.createBody(div)
         parent.appendChild(div)
     }
 
@@ -45,8 +45,8 @@ class VideoView {
             if (notifyElm) notifyElm.remove()
             this.child = videoView.child
             this.videoData = videoView.videoData
+            this.createBody(parent)
             if (videoView.videoData){
-                this.createBody(parent)
                 if (this.child.isNotify) {
                     target.classList.add('target-highlight')
                 }
@@ -91,7 +91,7 @@ class VideoView {
         const editButton = document.createElement('button')
         editButton.innerText = '編集'
         editButton.className = 'edit_button'
-        editButton.addEventListener('click', (e) => {
+        editButton.addEventListener('click', () => {
             window.location.href = '/html/edit_notification.html?edit=' + this.child.notifyId
         })
 
@@ -128,6 +128,8 @@ class VideoView {
         const row = document.createElement('div')
         row.className = 'notification'
         parent.appendChild(row)
+
+        if (!this.videoData) return
 
         const d1 = document.createElement('div')
         d1.className = 'NC-MediaObject NC-VideoMediaObject SeriesVideoListContainer-video'
@@ -353,7 +355,7 @@ class VideoData {
             const xhr = new XMLHttpRequest()
             xhr.onreadystatechange = async () => {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    resolve(await this.tagDocToInstance(xhr.response,tag,lastVideoId,page))
+                    resolve(await this.tagDocToInstance(xhr.response,tag,lastVideoId?.replace(':back',''),page))
                 }
             }
             xhr.open('get', 'https://www.nicovideo.jp/tag/'  + tag + '?sort=f&page=' + page)
@@ -374,7 +376,7 @@ class VideoData {
         let isLastVideo = false
         for (const item of dataVideoList.children){
             const videoId = item.dataset.videoId
-            isLastVideo = isLastVideo || videoId === lastVideoId
+            isLastVideo = isLastVideo || (videoId === lastVideoId)
             const detail = await this.getDetail(videoId)
             const a = item.getElementsByClassName('itemTitle')[0].children[0]
             let isPremium = false

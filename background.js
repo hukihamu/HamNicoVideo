@@ -73,25 +73,29 @@ const findVideoDataIndex = async (child, type) => {
     })
     const lastIndex = () => {
         return child.lastVideoId
-            ? list.findIndex(value => value.videoId === child.lastVideoId)// || list.length
+            ? list.findIndex(value => value.videoId === child.lastVideoId.replace(':back',''))
             : nextDirection * -1
     }
     let index = -1
     switch (type) {
         case 'now':
             if (!child.lastVideoId || await isError()) return 0
+            if (child.lastVideoId.match(':back')) return list.length - 1
             index = lastIndex() + (1 * nextDirection)
             break
         case 'next':
             if (child.lastVideoId && await isError()) return 0
+            if (!child.lastVideoId) return nextDirection
+            if (child.lastVideoId.match(':back')) return list.length - 2
             index = lastIndex() + (2 * nextDirection)
             break
         case 'prev':
             if (child.lastVideoId && await isError()) return 0
+            if (!child.lastVideoId) return nextDirection > 0 ? 0 : 1
             const li = lastIndex()
-            if (child.flag === 'tag' && li === list.length) {
+            if (child.lastVideoId.match(':back') && li === list.length - 1){
                 //TODO 追加で取りに行く必要あり https://site.nicovideo.jp/search-api-docs/snapshot
-                return list.length - 1//仮
+                return list.length - 1
             }
             index = li
             if (index < 0 ) index = 0
@@ -175,10 +179,16 @@ const onMassage = (msg, _, sendResponse) => {
             case 'popup': {//初回表示用データ
                 const videoViews = []
                 const isSuccess = []
+                if (!children.length) children = NotificationDynamicChild.getAll()
+
                 children.forEach((child, index) => {
                     new Promise(async (resolve) => {
+                        let list = videoHashMap[child.notifyId]
+                        if (!list) {
+                            await refreshVideo(child)
+                            list = videoHashMap[child.notifyId]
+                        }
                         const nowIndex = await findVideoDataIndex(child, 'now')
-                        const list = videoHashMap[child.notifyId]
                         const videoData = 0 <= nowIndex && nowIndex < list.length ? list[nowIndex] : null
                         videoViews[index] = new VideoView(child, videoData)
                         resolve()
@@ -226,8 +236,8 @@ const onMassage = (msg, _, sendResponse) => {
                     const lastIndex = prevIndex - (1 * nextDirection)
                     child.lastVideoId = 0 <= lastIndex && lastIndex < list.length
                         ? list[lastIndex].videoId
-                        // : nextDirection === -1
-                        //     ? child.lastVideoId.replace(':back', '') + ':back'
+                        : nextDirection === -1
+                            ? child.lastVideoId.replace(':back', '') + ':back'
                             : null
                     setChild(child)
                     resolve(new VideoView(child, videoData))

@@ -108,6 +108,18 @@ body {
     top: 35px;
     left: 0;
     z-index: 9999;
+    text-align: center;
+}
+.loading span{
+    top: 45%;
+    position: relative;
+    font-size: large;
+    color: black;
+    background-color: beige;
+}
+#loading_text{
+    font-size: large;
+    color: black;
 }
 .child-loading{
     position: relative;

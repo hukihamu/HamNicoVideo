@@ -15,6 +15,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         loading.classList.add('hidden')
     })
+    //読込中のカウント表示
+    const intervalCounter = setInterval(()=>{
+        browserInstance.runtime.sendMessage({key: 'load-count'},(result)=>{
+            if (result.size === result.count) {
+                clearInterval(intervalCounter)
+                return
+            }
+            document.getElementById('loading_text').textContent = `${result.count}/${result.size}`
+        })
+    },10)
+
     //ボタン初期化
     document.getElementById('notification_edit').addEventListener('click', () => {
         window.location.href = '/html/edit_notification.html?add'

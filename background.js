@@ -62,7 +62,7 @@ const findVideoData = async (child, type) => {
     const nextDirection = child.flag === 'series' ? 1 : -1
     const isError = () => new Promise((resolve) => {
         const xhr = new XMLHttpRequest()
-        const url = new URL('https://ext.nicovideo.jp/api/getthumbinfo/' + child.lastVideoId.replace(':back',''))
+        const url = new URL('https://ext.nicovideo.jp/api/getthumbinfo/' + child.lastVideoId.replace(':back', ''))
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 resolve(xhr.responseXML.getElementsByTagName('error')[0] !== undefined)
@@ -84,7 +84,7 @@ const findVideoData = async (child, type) => {
                 result.videoData = list[0]
                 break
             }
-            if (child.lastVideoId.match(':back')){
+            if (child.lastVideoId.match(':back')) {
                 result.videoData = list[list.length - 1]
                 result.lastVideoId = child.lastVideoId
                 break
@@ -99,9 +99,9 @@ const findVideoData = async (child, type) => {
                 result.lastVideoId = null
                 break
             }
-            if (child.lastVideoId && child.lastVideoId.match(':back')){
+            if (child.lastVideoId && child.lastVideoId.match(':back')) {
                 result.videoData = list[list.length - 2]
-                result.lastVideoId = child.lastVideoId.replace(':back','')
+                result.lastVideoId = child.lastVideoId.replace(':back', '')
                 break
             }
             const index = child.lastVideoId ? getLastIndex() + 2 * nextDirection : nextDirection
@@ -117,7 +117,7 @@ const findVideoData = async (child, type) => {
             break
         }
         case 'prev': {
-            if (!child.lastVideoId && nextDirection === -1){
+            if (!child.lastVideoId && nextDirection === -1) {
                 result.videoData = list[1]
                 result.lastVideoId = list[2]
                     ? list[2].videoId
@@ -129,15 +129,15 @@ const findVideoData = async (child, type) => {
                 result.lastVideoId = null
                 break
             }
-            if (child.lastVideoId.match(':back')){
+            if (child.lastVideoId.match(':back')) {
                 await refreshVideo(child) //TODO 投稿日をもとにこれにする https://site.nicovideo.jp/search-api-docs/snapshot
                 const updateList = videoHashMap[child.notifyId]
-                if (list.length < updateList.length){
+                if (list.length < updateList.length) {
                     result.videoData = updateList[list.length]
                     result.lastVideoId = updateList[list.length + 1]
                         ? updateList[list.length + 1].videoId
                         : updateList[list.length].videoId + 'back'
-                }else{
+                } else {
                     result.videoData = list[list.length - 1]
                     result.lastVideoId = child.lastVideoId
                 }
@@ -201,7 +201,12 @@ const initVideoData = async (child) => {
 }
 
 const onMassage = (msg, _, sendResponse) => {
-    new Promise((resolve) => {
+    if (msg.key === 'load-count') {
+        sendResponse({
+            size: children.length,
+            count: isInitVideoHashMap.length
+        })
+    } else new Promise((resolve) => {
         const interval = setInterval(() => {
             if (children.length === isInitVideoHashMap.length) {
                 clearInterval(interval)

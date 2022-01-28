@@ -1,6 +1,6 @@
 {
   "name": "Ham NicoVideo",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "manifest_version": 2,
   "description": "hamによるniconico便利機能",
   "options_ui": {
@@ -24,6 +24,7 @@
     "persistent": true
   },
   "browser_action": {
+    "default_icon": "images/icon_32.png",
     "default_popup": "html/popup.html"
   },
   "content_scripts": [

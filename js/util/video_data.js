@@ -378,7 +378,7 @@ class VideoData {
     }
     static async tagDocToInstance(document, tag, lastVideoId, result){
 
-        const allVideoCount = document.getElementsByClassName('tagFollowArea')[0].parentElement.getElementsByClassName('num')[0].innerText
+        const allVideoCount = document.getElementsByClassName('tagFollowArea')[0].parentElement.getElementsByClassName('num')[0].innerText.replace(',','')
         const contentBody = document.getElementsByClassName('contentBody video uad videoList videoList01')[0]
         const dataVideoList = contentBody.children[1]
         const adList = dataVideoList.getElementsByClassName('item nicoadVideoItem')

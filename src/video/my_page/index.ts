@@ -1,11 +1,11 @@
 import storage from '@/storage';
-import {onSetAddWatchLater} from '@/video/my_page/nico_repo/add_watch_later';
+import {onSetAddWatchLater} from '@/video/my_page/add_watch_later';
 import {OnSetRepoItem, OnSetRepoSidebar} from '@/type_on_set/type_on_set';
-import {onSetSlimItem} from '@/video/my_page/nico_repo/slim_item';
-import {onSetHighlightNewRange} from '@/video/my_page/nico_repo/highlight_new_range';
-import {onSetHighlight} from '@/video/my_page/nico_repo/highlight';
-import {onSetFilter} from '@/video/my_page/nico_repo/filter';
-import {onSetHideSideBar} from '@/video/my_page/nico_repo/hide_side_bar';
+import {onSetSlimItem} from '@/video/my_page/slim_item';
+import {onSetHighlightNewRange} from '@/video/my_page/highlight_new_range';
+import {onSetHighlight} from '@/video/my_page/highlight';
+import {onSetFilter} from '@/video/my_page/filter';
+import {onSetHideSideBar} from '@/video/my_page/hide_side_bar';
 
 
 export default () => {

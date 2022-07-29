@@ -18,10 +18,10 @@ export default class {
             })
         })
     }
-    static get<T extends ParametersType, U extends keyof ParametersType>(key: U): T[U]  {
+    static get<U extends keyof ParametersType>(key: U): ParametersType[U]  {
         return storage_cache[key]
     }
-    static set<T extends ParametersType, U extends keyof ParametersType>(key: U, value: T[U]) {
+    static set<U extends keyof ParametersType>(key: U, value: ParametersType[U]) {
         storage_cache[key] = value
         chrome.storage.local.set({[STORAGE_KEY]: storage_cache}).then()
     }

@@ -1,21 +1,61 @@
+// 汎用Value
+import {nicoRepoMatcher, NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
 
-export interface ParameterBaseValue {
+interface ParameterBaseValue {
     enable: boolean
 }
-export interface ParameterSelectValue extends ParameterBaseValue{
+interface ParameterSelectValue extends ParameterBaseValue{
     selectIndex: number
     selectList: {
         name: string,
         value: string
     }[]
 }
+interface ParameterDynamicValue<T> extends ParameterBaseValue{
+    values: T[]
+}
 
+
+
+
+// param登録
 export type ParametersType = {
     Video_MyPage_NicoRepo_AddWatchLater: ParameterBaseValue,
     Video_MyPage_NicoRepo_SlimItem: ParameterBaseValue,
-    Video_MyPage_NicoRepo_HighlightNewRange: ParameterSelectValue
+    Video_MyPage_NicoRepo_HighlightNewRange: ParameterSelectValue,
+    Video_MyPage_NicoRepo_Highlight: ParameterDynamicValue<{enable: boolean, color: string} & NicoRepoMatcherType>,
+    Video_MyPage_NicoRepo_HiddenFilter: ParameterDynamicValue<{ enable: boolean } & NicoRepoMatcherType>
 }
+// default設定
 export const parameterDefault: ParametersType = {
+    Video_MyPage_NicoRepo_HiddenFilter: {
+        enable: true,
+        values: [
+            Object.assign({enable: false}, nicoRepoMatcher.AD),
+            Object.assign({enable: false}, nicoRepoMatcher.LIKE),
+            Object.assign({enable: false}, nicoRepoMatcher.KIRI),
+            Object.assign({enable: false}, nicoRepoMatcher.MY_LIST),
+            Object.assign({enable: false}, nicoRepoMatcher.LIVE),
+            Object.assign({enable: false}, nicoRepoMatcher.LIVE_PLAN),
+            Object.assign({enable: false}, nicoRepoMatcher.VIDEO_UP),
+            Object.assign({enable: false}, nicoRepoMatcher.VIDEO_LIVE),
+            Object.assign({enable: false}, nicoRepoMatcher.VIDEO_LIVE_PLAN),
+            Object.assign({enable: false}, nicoRepoMatcher.IMAGE),
+            Object.assign({enable: false}, nicoRepoMatcher.IMAGE_CLIP),
+            Object.assign({enable: false}, nicoRepoMatcher.BLOG),
+            Object.assign({enable: false}, nicoRepoMatcher.MANGA),
+            Object.assign({enable: false}, nicoRepoMatcher.MODEL),
+            Object.assign({enable: false}, nicoRepoMatcher.FOLLOW),
+        ]
+    },
+    Video_MyPage_NicoRepo_Highlight: {
+        enable: true,
+        values: [
+            Object.assign({enable: true, color: '#A5D17814'}, nicoRepoMatcher.LIKE),
+            Object.assign({enable: true, color: '#76B3F914'}, nicoRepoMatcher.MY_LIST),
+            Object.assign({enable: true, color: '#d0021b14'}, nicoRepoMatcher.VIDEO_UP),
+        ]
+    },
     Video_MyPage_NicoRepo_AddWatchLater: {enable: true},
     Video_MyPage_NicoRepo_SlimItem: {enable: true},
     Video_MyPage_NicoRepo_HighlightNewRange: {

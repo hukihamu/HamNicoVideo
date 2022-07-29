@@ -1,10 +1,9 @@
-import {OnSetRepoItem} from '@/type_on_set/repo_item';
+import {OnSetRepoItem} from '@/type_on_set/type_on_set';
 import {WatchLater} from '@/nico_client/WatchLater';
 
 
 export const onSetAddWatchLater: OnSetRepoItem = itemElement => {
     if (itemElement.getElementsByClassName('ContentLabel_video').length > 0){
-        console.log('z')
         const button = document.createElement('button')
         button.className = 'WatchLaterButton-button'
         button.dataset.title = 'あとで見る'

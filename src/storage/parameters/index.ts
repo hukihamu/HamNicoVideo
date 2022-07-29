@@ -27,9 +27,18 @@ export type ParametersType = {
     Video_MyPage_NicoRepo_HighlightNewRange: ParameterSelectValue,
     Video_MyPage_NicoRepo_Highlight: ParameterDynamicValue<{enable: boolean, color: string} & NicoRepoMatcherType>,
     Video_MyPage_NicoRepo_HiddenFilter: ParameterCheckBoxValue<{ enable: boolean } & NicoRepoMatcherType>
+    Video_MyPage_NicoRepo_HideSideBar: ParameterCheckBoxValue<{ enable: boolean, name: string }>
 }
 // default設定
 export const parameterDefault: ParametersType = {
+    Video_MyPage_NicoRepo_HideSideBar: {
+        enable: true,
+        values: [
+            {name: "タイプ", enable: false},
+            {name: "表示対象", enable: false},
+            {name: "非表示フィルター", enable: true}
+        ]
+    },
     Video_MyPage_NicoRepo_HiddenFilter: {
         enable: true,
         values: [

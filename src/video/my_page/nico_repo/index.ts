@@ -5,6 +5,7 @@ import {onSetSlimItem} from '@/video/my_page/nico_repo/slim_item';
 import {onSetHighlightNewRange} from '@/video/my_page/nico_repo/highlight_new_range';
 import {onSetHighlight} from '@/video/my_page/nico_repo/highlight';
 import {onSetFilter} from '@/video/my_page/nico_repo/filter';
+import {onSetHideSideBar} from '@/video/my_page/nico_repo/hide_side_bar';
 
 
 export default () => {
@@ -19,6 +20,7 @@ export default () => {
         repoItemList.push(onSetFilter.item)
         sideBarList.push(onSetFilter.sideBar)
     }
+    if (storage.get('Video_MyPage_NicoRepo_HideSideBar').enable)sideBarList.push(onSetHideSideBar)
     // TODO 適時追加
 
     // 各画面要素の処理を呼び出し

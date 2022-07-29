@@ -1,0 +1,1 @@
+export type OnSetRepoItem = (itemElement: HTMLDivElement)=>void

@@ -1,5 +1,6 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const path = require('path')
+const {TsconfigPathsPlugin} = require('tsconfig-paths-webpack-plugin')
 
 
 module.exports = {
@@ -17,14 +18,15 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(ts|tsx)$/i,
+                test: /\.ts$/i,
                 loader: "ts-loader",
                 exclude: /node_modules/
             }
         ]
     },
     resolve: {
-        extensions: [".ts"]
+        extensions: [".ts"],
+        plugins: [new TsconfigPathsPlugin({ configFile: path.join(__dirname, "tsconfig.json") })]
     },
     plugins: [
         new CopyWebpackPlugin({

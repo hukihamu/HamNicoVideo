@@ -1,6 +1,6 @@
 import storage from '@/storage';
 import {onSetAddWatchLater} from '@/video/my_page/add_watch_later';
-import {OnSetRepoItem, OnSetRepoSidebar} from '@/type_on_set/type_on_set';
+import {OnSetRepoItem, OnSetRepoSidebar} from '@/video/type_on_set';
 import {onSetSlimItem} from '@/video/my_page/slim_item';
 import {onSetHighlightNewRange} from '@/video/my_page/highlight_new_range';
 import {onSetHighlight} from '@/video/my_page/highlight';

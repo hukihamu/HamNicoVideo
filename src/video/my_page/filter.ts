@@ -1,4 +1,4 @@
-import {OnSetNicoRepo} from '@/type_on_set/type_on_set';
+import {OnSetNicoRepo} from '@/video/type_on_set';
 import storage from '@/storage';
 import {NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
 

@@ -1,4 +1,4 @@
-import {OnSetRepoSidebar} from '@/type_on_set/type_on_set';
+import {OnSetRepoSidebar} from '@/video/type_on_set';
 import storage from '@/storage';
 
 export const onSetHideSideBar: OnSetRepoSidebar = ()=>{

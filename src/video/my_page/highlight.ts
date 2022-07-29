@@ -1,4 +1,4 @@
-import {OnSetNicoRepo, OnSetRepoItem} from '@/type_on_set/type_on_set'
+import {OnSetNicoRepo, OnSetRepoItem} from '@/video/type_on_set'
 import storage from '@/storage';
 
 export const onSetHighlight: OnSetRepoItem = itemElement => {

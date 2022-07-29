@@ -1,4 +1,4 @@
-import {OnSetRepoItem} from '@/type_on_set/type_on_set';
+import {OnSetRepoItem} from '@/video/type_on_set';
 import storage from '@/storage';
 
 export const onSetHighlightNewRange: OnSetRepoItem = itemElement => {

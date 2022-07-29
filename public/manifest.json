@@ -1,30 +1,37 @@
 {
   "manifest_version": 3,
-  "name": "HamNicoVideo VerT",
+  "name": "HamNicoVideo Ver2",
   "description": "",
   "version": "0.1.0",
   "options_page": "html/options.html",
   "icons": {
     "32": "img/icon_32.png"
   },
+  "permissions": [
+    "storage",
+    "tabs",
+    "alarms"
+  ],
   "background": {
     "service_worker": "background.js"
   },
   "host_permissions": [
-    "https://www.nicovideo.jp/"
+    "https://www.nicovideo.jp/*"
   ],
   "action": {
     "default_popup": "html/main_popup.html"
   },
-  "content_scripts": {
-    "js": ["contents.js"],
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content_script.js"],
     "css": [],
     "run_at": "document_start"
-  },
-  "web_accessible_resources":{
+  }],
+  "web_accessible_resources":[{
     "resources": [
       "css/*.css",
       "html/*.html"
-    ]
-  }
+    ],
+    "matches": ["<all_urls>"]
+  }]
 }

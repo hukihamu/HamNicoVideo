@@ -5,7 +5,9 @@ const STORAGE_KEY = "ham-nico-video"
 export default class {
     static async init(){
         const localToParameter = (local: any): ParametersType => {
-            return Object.assign(parameterDefault, (local || {}))
+            const temp = {}
+            Object.assign(temp, parameterDefault)
+            return Object.assign(temp, (local || {}))
         }
 
         chrome.storage.onChanged.addListener(changes => {

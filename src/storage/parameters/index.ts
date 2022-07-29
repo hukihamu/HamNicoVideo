@@ -11,9 +11,11 @@ interface ParameterSelectValue extends ParameterBaseValue{
         value: string
     }[]
 }
-interface ParameterDynamicValue<T> extends ParameterBaseValue{
+interface ParameterListValue<T> extends ParameterBaseValue{
     values: T[]
 }
+interface ParameterCheckBoxValue<T extends {enable: boolean, name: string}> extends ParameterListValue<T>{}
+interface ParameterDynamicValue<T> extends ParameterListValue<T>{}
 
 
 
@@ -24,7 +26,7 @@ export type ParametersType = {
     Video_MyPage_NicoRepo_SlimItem: ParameterBaseValue,
     Video_MyPage_NicoRepo_HighlightNewRange: ParameterSelectValue,
     Video_MyPage_NicoRepo_Highlight: ParameterDynamicValue<{enable: boolean, color: string} & NicoRepoMatcherType>,
-    Video_MyPage_NicoRepo_HiddenFilter: ParameterDynamicValue<{ enable: boolean } & NicoRepoMatcherType>
+    Video_MyPage_NicoRepo_HiddenFilter: ParameterCheckBoxValue<{ enable: boolean } & NicoRepoMatcherType>
 }
 // default設定
 export const parameterDefault: ParametersType = {

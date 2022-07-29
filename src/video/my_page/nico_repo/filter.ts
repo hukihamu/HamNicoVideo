@@ -37,7 +37,7 @@ export const onSetFilter: OnSetNicoRepo =  {
         div.appendChild(ul)
         //各フィルターセット
         const filters = storage.get("Video_MyPage_NicoRepo_HiddenFilter").values
-        for (let i = 1; i < filters.length; i++) {
+        for (let i = 0; i < filters.length; i++) {
             const element = createCheckBox(filters[i].name,filters[i].enable)
             ul.appendChild(element)
         }

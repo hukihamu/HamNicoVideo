@@ -13,7 +13,6 @@ export default class {
         })
         return new Promise<void>((resolve) =>{
             chrome.storage.local.get(null,(items) =>{
-
                 storage_cache = localToParameter(items[STORAGE_KEY])
                 resolve()
             })

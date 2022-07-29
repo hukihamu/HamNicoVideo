@@ -2,17 +2,15 @@ import storage from '@/storage';
 import {onSetAddWatchLater} from '@/video/my_page/nico_repo/add_watch_later';
 import {OnSetRepoItem} from '@/type_on_set/repo_item';
 import {onSetSlimItem} from '@/video/my_page/nico_repo/slim_item';
+import {onSetHighlightNewRange} from '@/video/my_page/nico_repo/highlight_new_range';
 
 
 export default () => {
     // enable確認
     const repoItemList: OnSetRepoItem[] = []
-    if (storage.get('Video_MyPage_NicoRepo_AddWatchLater').enable) {
-        repoItemList.push(onSetAddWatchLater)
-    }
-    if (storage.get('Video_MyPage_NicoRepo_SlimItem').enable){
-        repoItemList.push(onSetSlimItem)
-    }
+    if (storage.get('Video_MyPage_NicoRepo_AddWatchLater').enable) repoItemList.push(onSetAddWatchLater)
+    if (storage.get('Video_MyPage_NicoRepo_SlimItem').enable) repoItemList.push(onSetSlimItem)
+    if (storage.get('Video_MyPage_NicoRepo_HighlightNewRange').enable) repoItemList.push(onSetHighlightNewRange)
     // TODO 適時追加
 
     // 各画面要素の処理を呼び出し

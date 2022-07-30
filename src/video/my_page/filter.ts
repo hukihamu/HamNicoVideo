@@ -6,7 +6,7 @@ export const onSetFilter: OnSetNicoRepo =  {
     item: itemElement => {
         const activityDescriptionText = itemElement.getElementsByClassName('NicorepoItem-activityDescription')[0].textContent
         let result: boolean|undefined = undefined
-        for (const v of storage.get('Video_MyPage_NicoRepo_HiddenFilter').values) {
+        for (const v of storage.get('Video_MyPage_HiddenFilter').values) {
             if (activityDescriptionText.match(v.matcher)) {
                 result = v.enable
                 break
@@ -36,7 +36,7 @@ export const onSetFilter: OnSetNicoRepo =  {
         ul.className = 'SubMenuLinkList'
         div.appendChild(ul)
         //各フィルターセット
-        const filters = storage.get("Video_MyPage_NicoRepo_HiddenFilter").values
+        const filters = storage.get("Video_MyPage_HiddenFilter").values
         for (let i = 0; i < filters.length; i++) {
             const element = createCheckBox(filters[i].name,filters[i].enable)
             ul.appendChild(element)
@@ -54,10 +54,10 @@ function createCheckBox(name: string, enable: boolean) {
     checkBox.className = 'SubMenuLink-icon'
     subMenuItemLink.addEventListener('click',  (event) =>{
         checkBox.checked = !checkBox.checked
-        const filters = storage.get("Video_MyPage_NicoRepo_HiddenFilter")
+        const filters = storage.get("Video_MyPage_HiddenFilter")
         const index = filters.values.findIndex(v =>v.name === name)
         filters.values[index].enable = checkBox.checked
-        storage.set("Video_MyPage_NicoRepo_HiddenFilter", filters)
+        storage.set("Video_MyPage_HiddenFilter", filters)
         for (const child of Array.from(document.getElementsByClassName('SlideOut NicorepoItem NicorepoTimeline-item'))) {
             onSetFilter.item(child as HTMLDivElement)
         }

@@ -4,3 +4,6 @@ export interface OnSetNicoRepo {
     item: OnSetRepoItem,
     sideBar: OnSetRepoSidebar
 }
+export type OnSetCardGrid = (grid: HTMLDivElement, createGridCell: (grid: HTMLDivElement, isFill?: boolean)
+    => HTMLDivElement)=>void
+

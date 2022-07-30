@@ -2,7 +2,7 @@ import {OnSetRepoSidebar} from '@/video/type_on_set';
 import storage from '@/storage';
 
 export const onSetHideSideBar: OnSetRepoSidebar = ()=>{
-    const params = storage.get("Video_MyPage_NicoRepo_HideSideBar")
+    const params = storage.get("Video_MyPage_HideSideBar")
     const subMenuClasses: {[key: string]: boolean} = {
         'RadioGroup NicorepoPageSubMenu-types': params.values[0].enable,
         'RadioGroup NicorepoPageSubMenu-target': params.values[1].enable,

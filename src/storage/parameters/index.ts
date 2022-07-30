@@ -22,16 +22,30 @@ interface ParameterDynamicValue<T> extends ParameterListValue<T>{}
 
 // param登録
 export type ParametersType = {
-    Video_MyPage_NicoRepo_AddWatchLater: ParameterBaseValue,
-    Video_MyPage_NicoRepo_SlimItem: ParameterBaseValue,
-    Video_MyPage_NicoRepo_HighlightNewRange: ParameterSelectValue,
-    Video_MyPage_NicoRepo_Highlight: ParameterDynamicValue<{enable: boolean, color: string} & NicoRepoMatcherType>,
-    Video_MyPage_NicoRepo_HiddenFilter: ParameterCheckBoxValue<{ enable: boolean } & NicoRepoMatcherType>
-    Video_MyPage_NicoRepo_HideSideBar: ParameterCheckBoxValue<{ enable: boolean, name: string }>
+    Video_MyPage_AddWatchLater: ParameterBaseValue,
+    Video_MyPage_SlimItem: ParameterBaseValue,
+    Video_MyPage_HighlightNewRange: ParameterSelectValue,
+    Video_MyPage_Highlight: ParameterDynamicValue<{enable: boolean, color: string} & NicoRepoMatcherType>,
+    Video_MyPage_HiddenFilter: ParameterCheckBoxValue<{ enable: boolean } & NicoRepoMatcherType>
+    Video_MyPage_HideSideBar: ParameterCheckBoxValue<{ enable: boolean, name: string }>,
+    Video_Watch_ChangeVideoList: ParameterBaseValue,
+    Video_Watch_RemoveWatchLater: ParameterBaseValue,
+    Video_Watch_MinimizeLike: ParameterSelectValue,
 }
 // default設定
 export const parameterDefault: ParametersType = {
-    Video_MyPage_NicoRepo_HideSideBar: {
+    Video_Watch_MinimizeLike: {
+        enable: true,
+        selectIndex: 1,
+        selectList: [
+            {name: "最小化", value: "MinimizeLike"},
+            {name: "小型化", value: "SmallLike"},
+            {name: "通常", value: ""}
+        ]
+    },
+    Video_Watch_RemoveWatchLater: {enable: true},
+    Video_Watch_ChangeVideoList: {enable: true},
+    Video_MyPage_HideSideBar: {
         enable: true,
         values: [
             {name: "タイプ", enable: false},
@@ -39,7 +53,7 @@ export const parameterDefault: ParametersType = {
             {name: "非表示フィルター", enable: true}
         ]
     },
-    Video_MyPage_NicoRepo_HiddenFilter: {
+    Video_MyPage_HiddenFilter: {
         enable: true,
         values: [
             Object.assign({enable: false}, nicoRepoMatcher.AD),
@@ -59,7 +73,7 @@ export const parameterDefault: ParametersType = {
             Object.assign({enable: false}, nicoRepoMatcher.FOLLOW),
         ]
     },
-    Video_MyPage_NicoRepo_Highlight: {
+    Video_MyPage_Highlight: {
         enable: true,
         values: [
             Object.assign({enable: true, color: '#A5D17814'}, nicoRepoMatcher.LIKE),
@@ -67,9 +81,9 @@ export const parameterDefault: ParametersType = {
             Object.assign({enable: true, color: '#d0021b14'}, nicoRepoMatcher.VIDEO_UP),
         ]
     },
-    Video_MyPage_NicoRepo_AddWatchLater: {enable: true},
-    Video_MyPage_NicoRepo_SlimItem: {enable: true},
-    Video_MyPage_NicoRepo_HighlightNewRange: {
+    Video_MyPage_AddWatchLater: {enable: true},
+    Video_MyPage_SlimItem: {enable: true},
+    Video_MyPage_HighlightNewRange: {
         enable: true,
         selectIndex: 5,
         selectList: [

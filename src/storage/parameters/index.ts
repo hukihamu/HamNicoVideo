@@ -22,10 +22,6 @@ interface ParameterDynamicValues<T> extends ParameterBaseValue{
 }
 
 // valuesType
-// interface ValuesBase<EDITABLE, TEMPLATE> {
-//     editable: EDITABLE
-//     template: TEMPLATE
-// }
 export interface ValuesCheckBox{
     enable: boolean
     name: string

@@ -3,7 +3,7 @@ import {
     ParametersType,
     ValuesCheckBox, ValuesHighLight,
 } from '@/storage/parameters';
-import {isArrayOf, isInstanceOf} from '@/util';
+import {isArrayOf, isInstanceOf, isInstancesOf} from '@/util';
 
 const parameterToName = {
     Video: "動画",
@@ -142,12 +142,12 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
         paramName.classList.add('bold')
         const valuesUl = document.createElement('ul')
         flexParent.appendChild(valuesUl)
-        param.values.forEach((value,_,array) => {
+        for (const value of param.values){
             const valueLi = document.createElement('li')
             valueLi.className = 'values-content'
             valuesUl.appendChild(valueLi)
             // ValuesCheckBox
-            if (isArrayOf<ValuesCheckBox>(array, 'enable', 'name')){
+            if(isInstancesOf<ValuesCheckBox>(value, 'name', 'enable')){
                 const valueEnableCheckBox = document.createElement('input')
                 valueEnableCheckBox.type = 'checkbox'
                 valueEnableCheckBox.id = key + '-values_enable'
@@ -158,47 +158,48 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
                 valueName.textContent = value.name
                 valueName.htmlFor = key + '-values_enable'
                 valueLi.appendChild(valueName)
-            }
-            // ValuesHighLight
-            if (isArrayOf<ValuesHighLight>(array, 'color', 'matcher')){
-                const color = value.color.substring(0,7)
-                const alpha = value.color.substring(7,10)
 
-                const sampleDiv = document.createElement('div')
-                sampleDiv.className = 'color-sample'
-                valueLi.appendChild(sampleDiv)
-                const sampleText = document.createElement('div')
-                sampleText.textContent = value.matcher
-                sampleDiv.appendChild(sampleText)
+                // ValuesHighLight
+                if (isInstancesOf<ValuesHighLight>(value, 'color', 'matcher')){
+                    const color = value.color.substring(0,7)
+                    const alpha = value.color.substring(7,10)
 
-                const valueColor = document.createElement('input')
-                valueColor.type = 'color'
-                valueColor.style.width = '25px'
-                valueColor.value = color
-                // TODO SaveEvent
-                valueColor.addEventListener('change',()=>{
+                    const sampleDiv = document.createElement('div')
+                    sampleDiv.className = 'color-sample'
+                    valueLi.appendChild(sampleDiv)
+                    const sampleText = document.createElement('div')
+                    sampleText.textContent = value.matcher
+                    sampleDiv.appendChild(sampleText)
+
+                    const valueColor = document.createElement('input')
+                    valueColor.type = 'color'
+                    valueColor.style.width = '25px'
+                    valueColor.value = color
+                    // TODO SaveEvent
+                    valueColor.addEventListener('change',()=>{
+                        onApplySample()
+                    })
+                    valueLi.appendChild(valueColor)
+                    const valueAlpha = document.createElement('input')
+                    valueAlpha.type = 'text'
+                    valueAlpha.maxLength = 2
+                    valueAlpha.style.width = '25px'
+                    valueAlpha.pattern = /[0-9A-Fa-f]{2}/.source
+                    valueAlpha.value = alpha
+                    // TODO SaveEvent
+                    valueAlpha.addEventListener('change',()=>{
+                        onApplySample()
+                    })
+                    valueLi.appendChild(valueAlpha)
+
+                    const onApplySample = ()=>{
+                        sampleText.style.backgroundColor = valueColor.value + valueAlpha.value
+                    }
                     onApplySample()
-                })
-                valueLi.appendChild(valueColor)
-                const valueAlpha = document.createElement('input')
-                valueAlpha.type = 'text'
-                valueAlpha.maxLength = 2
-                valueAlpha.style.width = '25px'
-                valueAlpha.pattern = /[0-9A-Fa-f]{2}/.source
-                valueAlpha.value = alpha
-                // TODO SaveEvent
-                valueAlpha.addEventListener('change',()=>{
-                    onApplySample()
-                })
-                valueLi.appendChild(valueAlpha)
-
-                const onApplySample = ()=>{
-                    sampleText.style.backgroundColor = valueColor.value + valueAlpha.value
+                    // TODO alpha用range toggle?
                 }
-                onApplySample()
-                // TODO alpha用range toggle?
             }
-        })
+        }
     }
 
     //default

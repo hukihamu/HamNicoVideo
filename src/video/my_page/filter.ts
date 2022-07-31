@@ -1,6 +1,5 @@
 import {OnSetNicoRepo} from '@/video/type_on_set';
 import storage from '@/storage';
-import {NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
 
 export const onSetFilter: OnSetNicoRepo =  {
     item: itemElement => {

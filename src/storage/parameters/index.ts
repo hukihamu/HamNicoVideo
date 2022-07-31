@@ -1,7 +1,8 @@
 // 汎用Value
-import {nicoRepoMatcher, NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
+import {nicoRepoMatcher} from '@/storage/parameters/nico_repo_matcher';
 
-interface ParameterBaseValue {
+
+interface ParameterBaseValue{
     enable: boolean
 }
 interface ParameterSelectValue extends ParameterBaseValue{
@@ -11,13 +12,39 @@ interface ParameterSelectValue extends ParameterBaseValue{
         value: string
     }[]
 }
-interface ParameterListValue<T> extends ParameterBaseValue{
+interface ParameterStaticValues<T> extends ParameterBaseValue{
     values: T[]
 }
-interface ParameterCheckBoxValue<T extends {enable: boolean, name: string}> extends ParameterListValue<T>{}
-interface ParameterDynamicValue<T> extends ParameterListValue<T>{}
+interface ParameterDynamicValues<T> extends ParameterBaseValue{
+    dynamicValues: T[]
+    createView: (value?: T)=>HTMLDivElement
+    getValue: (element: HTMLDivElement)=> T
+}
 
-
+// valuesType
+// interface ValuesBase<EDITABLE, TEMPLATE> {
+//     editable: EDITABLE
+//     template: TEMPLATE
+// }
+export interface ValuesCheckBox{
+    enable: boolean
+    name: string
+}
+export interface ValuesNicoRepoMatcher extends ValuesCheckBox{
+    matcher: string
+}
+export interface ValuesHighLight extends ValuesNicoRepoMatcher{
+    color: string
+}
+interface ValuesSeries{
+    seriesId: string
+    seriesName: string
+    isInterval: boolean //周期確認を行うか
+    intervalWeek: number // 0 ~ 6
+    intervalTime: number
+    isNotify: boolean //未読か
+    lastVideoId: string // 最後に確認した動画ID
+}
 
 
 // param登録
@@ -25,9 +52,9 @@ export type ParametersType = {
     Video_MyPage_AddWatchLater: ParameterBaseValue,
     Video_MyPage_SlimItem: ParameterBaseValue,
     Video_MyPage_HighlightNewRange: ParameterSelectValue,
-    Video_MyPage_Highlight: ParameterDynamicValue<{enable: boolean, color: string} & NicoRepoMatcherType>,
-    Video_MyPage_HiddenFilter: ParameterCheckBoxValue<{ enable: boolean } & NicoRepoMatcherType>
-    Video_MyPage_HideSideBar: ParameterCheckBoxValue<{ enable: boolean, name: string }>,
+    Video_MyPage_Highlight: ParameterStaticValues<ValuesHighLight>,
+    Video_MyPage_HiddenFilter: ParameterStaticValues<ValuesNicoRepoMatcher>
+    Video_MyPage_HideSideBar: ParameterStaticValues<ValuesCheckBox>,
     Video_Watch_ChangeVideoList: ParameterBaseValue,
     Video_Watch_RemoveWatchLater: ParameterBaseValue,
     Video_Watch_MinimizeLike: ParameterSelectValue,
@@ -48,9 +75,9 @@ export const parameterDefault: ParametersType = {
     Video_MyPage_HideSideBar: {
         enable: true,
         values: [
-            {name: "タイプ", enable: false},
-            {name: "表示対象", enable: false},
-            {name: "非表示フィルター", enable: true}
+            {name: "タイプ", enable: true},
+            {name: "表示対象", enable: true},
+            {name: "非表示フィルター", enable: false}
         ]
     },
     Video_MyPage_HiddenFilter: {
@@ -79,6 +106,19 @@ export const parameterDefault: ParametersType = {
             Object.assign({enable: true, color: '#A5D17814'}, nicoRepoMatcher.LIKE),
             Object.assign({enable: true, color: '#76B3F914'}, nicoRepoMatcher.MY_LIST),
             Object.assign({enable: true, color: '#d0021b14'}, nicoRepoMatcher.VIDEO_UP),
+
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.AD),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.KIRI),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.LIVE),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.LIVE_PLAN),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.VIDEO_LIVE),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.VIDEO_LIVE_PLAN),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.IMAGE),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.IMAGE_CLIP),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.BLOG),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MANGA),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MODEL),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.FOLLOW),
         ]
     },
     Video_MyPage_AddWatchLater: {enable: true},

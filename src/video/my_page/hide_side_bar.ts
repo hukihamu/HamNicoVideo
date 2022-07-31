@@ -17,7 +17,7 @@ export const onSetHideSideBar: OnSetRepoSidebar = ()=>{
         ul.style.overflow = 'hidden'
         ul.style.height = 'auto'
         ul.dataset['height'] = ul.clientHeight.toString()
-        ul.style.height = (subMenuClasses[ul.parentElement.className] ? ul.dataset['height'] : '0') + 'px'
+        ul.style.height = (!subMenuClasses[ul.parentElement.className] ? ul.dataset['height'] : '0') + 'px'
         header.addEventListener('click', () => {
             const lastH = ul.style.height
             ul.style.height = (lastH === '0px') ? ul.dataset['height'] + 'px' : '0px'

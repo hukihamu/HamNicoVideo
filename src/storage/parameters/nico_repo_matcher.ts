@@ -1,8 +1,3 @@
-export type NicoRepoMatcherType = {
-    name: string,
-    matcher: string
-}
-
 export const nicoRepoMatcher = {
     AD: {name: 'ニコニ広告', matcher: '^ニコニ広告しました'},
     LIKE: {name: 'いいね', matcher: '^動画を「いいね！」しました$'},

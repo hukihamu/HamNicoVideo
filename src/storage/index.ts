@@ -27,4 +27,5 @@ export default class {
         storage_cache[key] = value
         chrome.storage.local.set({[STORAGE_KEY]: storage_cache}).then()
     }
+    static default = parameterDefault
 }

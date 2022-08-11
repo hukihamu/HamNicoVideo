@@ -1,5 +1,7 @@
-import {parameterDefault, ParameterStaticValues, ParametersType} from './parameters';
+import {parameterDefault, ParametersType} from './parameters';
 import {isInstanceOf} from '@/util';
+import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
+import {ParameterSelectValue} from '@/storage/parameters/parameter_value/parameter_select_value';
 
 let storage_cache: ParametersType | undefined = undefined
 const STORAGE_KEY = "ham-nico-video"
@@ -14,7 +16,7 @@ export default class {
             storage_cache = localToParameter(changes[STORAGE_KEY].newValue)
         })
         return new Promise<void>((resolve) =>{
-            chrome.storage.local.get(null,(items) =>{
+            chrome.storage.sync.get(null,(items) =>{
                 storage_cache = localToParameter(items[STORAGE_KEY])
                 resolve()
             })
@@ -49,24 +51,18 @@ export default class {
             addKeys.forEach(k=>{
                 values[k] = defaultParam.values[k]
             })
+        }else
+        // selectの中身が更新された際の対応
+        if (isInstanceOf<ParameterSelectValue>(param, 'selectList')){
+            const defaultSelectValue = parameterDefault[key] as ParameterSelectValue
+            param.selectList = defaultSelectValue.selectList
         }
-        // TODO selectの中身が更新された際の対応
 
         return param
     }
     static set<U extends keyof ParametersType>(key: U, value: ParametersType[U]) {
         storage_cache[key] = value
-        chrome.storage.local.set({[STORAGE_KEY]: storage_cache}).then()
-    }
-    static default = parameterDefault
-
-    static uploadSync() {
         chrome.storage.sync.set({[STORAGE_KEY]: storage_cache}).then()
     }
-    static downloadSync(){
-        chrome.storage.sync.get(null,(items) =>{
-            storage_cache = localToParameter(items[STORAGE_KEY])
-            chrome.storage.local.set({[STORAGE_KEY]: storage_cache}).then()
-        })
-    }
+    static default = parameterDefault
 }

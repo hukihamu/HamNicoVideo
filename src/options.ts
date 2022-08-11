@@ -1,9 +1,8 @@
 import storage from '@/storage';
-import {
-    ParametersType,
-    ValuesCheckBox, ValuesHighLight,
-} from '@/storage/parameters';
+import {ParametersType,} from '@/storage/parameters';
 import {isArrayOf, isInstanceOf, isInstancesOf, toKeyArray, toObjectArray} from '@/util';
+import {ValuesHighLight} from '@/storage/parameters/values_type/values_high_light';
+import {ValuesCheckBox} from '@/storage/parameters/values_type/values_check_box';
 
 const parameterToName = {
     Video: "動画",
@@ -123,7 +122,7 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
     paramName.htmlFor = key + '-enable'
     flexParent.appendChild(paramName)
 
-    // ParameterSelectValue
+    // Parameter_select_value
     if ('selectIndex' in param){
 
         const select = document.createElement('select')

@@ -1,52 +1,13 @@
 // 汎用Value
 import {nicoRepoMatcher, NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
+import {ParameterSelectValue} from '@/storage/parameters/parameter_value/parameter_select_value';
+import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
+import {ValuesHighLight} from '@/storage/parameters/values_type/values_high_light';
+import {ValuesNicoRepoMatcher} from '@/storage/parameters/values_type/values_nico_repo_matcher';
+import {ValuesCheckBox} from '@/storage/parameters/values_type/values_check_box';
 
 
-interface ParameterBaseValue{
-    enable: boolean
-}
-interface ParameterSelectValue extends ParameterBaseValue{
-    selectIndex: number
-    selectList: {
-        name: string,
-        value: string
-    }[]
-}
-export interface ParameterStaticValues<T, K extends string> extends ParameterBaseValue{
-    templateKey: (keyof T)[]
-    values: {
-        [key in K]: T
-    }
-}
-interface ParameterDynamicValues<T> extends ParameterBaseValue{
-    dynamicValues: T[]
-    createView: (value?: T)=>HTMLDivElement
-    getValue: (element: HTMLDivElement)=> T
-}
-
-// valuesType
-export interface ValuesCheckBox{
-    enable: boolean
-    name: string
-}
-export interface ValuesNicoRepoMatcher extends ValuesCheckBox{
-    matcher: string
-}
-export interface ValuesHighLight extends ValuesNicoRepoMatcher{
-    color: string
-}
-interface ValuesSeries{
-    seriesId: string
-    seriesName: string
-    isInterval: boolean //周期確認を行うか
-    intervalWeek: number // 0 ~ 6
-    intervalTime: number
-    isNotify: boolean //未読か
-    lastVideoId: string // 最後に確認した動画ID
-}
-
-
-// param登録
+// param登録 TODO 適時追記
 export type ParametersType = {
     Video_MyPage_AddWatchLater: ParameterBaseValue,
     Video_MyPage_SlimItem: ParameterBaseValue,
@@ -58,7 +19,7 @@ export type ParametersType = {
     Video_Watch_RemoveWatchLater: ParameterBaseValue,
     Video_Watch_MinimizeLike: ParameterSelectValue,
 }
-// default設定
+// default設定 TODO 適時追記
 export const parameterDefault: ParametersType = {
     Video_Watch_MinimizeLike: {
         enable: true,
@@ -163,4 +124,3 @@ export const parameterDefault: ParametersType = {
         ]}
 
 }
-// TODO 適時追記

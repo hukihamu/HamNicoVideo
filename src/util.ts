@@ -33,3 +33,4 @@ export const toKeyArray = <T, K extends string>(o: {[p in K]: T}): K[]=>{
     })
     return v as K[]
 }
+

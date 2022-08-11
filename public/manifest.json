@@ -9,8 +9,9 @@
   },
   "permissions": [
     "storage",
-    "tabs",
-    "alarms"
+    "activeTab",
+    "alarms",
+    "scripting"
   ],
   "background": {
     "service_worker": "background.js"

@@ -1,19 +1,27 @@
 import storage from '@/storage';
-import MessageSender = chrome.runtime.MessageSender;
-interface Massage {
-    key: string
-    value: unknown
-}
+import message from '@/message';
 
-const onMassage = (message: Massage, _: MessageSender, sendResponse: (response?: any) => void)=>{
-    
-}
+const notifyList: unknown[] = []
 
 
 const initBackground = async ()=>{
     await storage.init()
-    chrome.runtime.onMessage.addListener(onMassage)
+    message.setListener(args => {
+        switch (args.key) {
+            case 'add': {
+                // TODO
+                notifyList.push(args.value)
+                return
+            }
+            case 'list':{
+                // TODO
+                return notifyList
+            }
+        }
+    })
 }
 
 chrome.runtime.onInstalled.addListener(initBackground)
 chrome.runtime.onStartup.addListener(initBackground)
+
+

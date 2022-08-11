@@ -1,0 +1,3 @@
+interface ParameterBaseValue{
+    enable: boolean
+}

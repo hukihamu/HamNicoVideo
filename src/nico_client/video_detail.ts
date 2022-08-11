@@ -1,5 +1,8 @@
 type InitialDataType = {
     "channel": {}|null
+    "client": {
+        "watchId": string
+    }
     "video": {
         "title": string,
         "description": string,
@@ -21,6 +24,10 @@ type InitialDataType = {
             "isPpv": boolean,
             "isPremium": boolean,
         }
+    }
+    "series": {
+        "id": number
+        "title": string
     }
 }
 
@@ -64,3 +71,4 @@ export const getVideoDetail = async (watchId: string): Promise<VideoDetail>=>{
         }
     })
 }
+export const getInitialData = (initialDataText: string): InitialDataType =>JSON.parse(initialDataText)

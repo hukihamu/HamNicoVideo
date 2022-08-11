@@ -10,13 +10,13 @@
 <form id="form">
     <p class="target-type">
         <label><input type="radio" name="target_type" value="series" checked required>シリーズ</label>
-        <label><input type="radio" name="target_type" value="tag">タグ</label>
+        <label><input type="radio" name="target_type" value="tag" disabled>タグ</label>
     </p>
+    <button id="get_video_info">動画から情報取得</button>
     <div class="target-value">
         <div id="series_value">
             <p>
                 <label>シリーズID<input type="text" name="series_id" id="series_id" required></label>
-                <button id="get_series_id">シリーズID取得</button>
             </p>
         </div>
         <div id="tags_value" class="hidden">
@@ -26,13 +26,13 @@
     <div class="target-interval">
         <label>更新周期<input type="checkbox" id="is_interval" name="is_interval" checked></label><br>
         <div id="set_interval">
-            <label class="target-interval-week">月<input type="checkbox" name="target_interval_week" value="mon" required></label>
-            <label class="target-interval-week">火<input type="checkbox" name="target_interval_week" value="tue" required></label>
-            <label class="target-interval-week">水<input type="checkbox" name="target_interval_week" value="wed" required></label>
-            <label class="target-interval-week">木<input type="checkbox" name="target_interval_week" value="thu" required></label>
-            <label class="target-interval-week">金<input type="checkbox" name="target_interval_week" value="fri" required></label>
-            <label class="target-interval-week">土<input type="checkbox" name="target_interval_week" value="sat" required></label>
-            <label class="target-interval-week">日<input type="checkbox" name="target_interval_week" value="sun" required></label>
+            <label class="target-interval-week">日<input type="checkbox" name="target_interval_week" value="0" required></label>
+            <label class="target-interval-week">月<input type="checkbox" name="target_interval_week" value="1" required></label>
+            <label class="target-interval-week">火<input type="checkbox" name="target_interval_week" value="2" required></label>
+            <label class="target-interval-week">水<input type="checkbox" name="target_interval_week" value="3" required></label>
+            <label class="target-interval-week">木<input type="checkbox" name="target_interval_week" value="4" required></label>
+            <label class="target-interval-week">金<input type="checkbox" name="target_interval_week" value="5" required></label>
+            <label class="target-interval-week">土<input type="checkbox" name="target_interval_week" value="6" required></label>
             <div class="target-interval-time"><input type="time" name="target_interval_time" required></div>
         </div>
     </div>

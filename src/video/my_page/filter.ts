@@ -1,6 +1,5 @@
 import {OnSetNicoRepo} from '@/video/type_on_set';
 import storage from '@/storage';
-import {ValuesNicoRepoMatcher} from '@/storage/parameters';
 import {NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
 import {toObjectArray} from '@/util';
 

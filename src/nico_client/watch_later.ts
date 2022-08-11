@@ -10,8 +10,8 @@ export type WatchLaterType = {
     }
 }
 
-export class WatchLater{
-    static addWatchLater(watchId: string,
+export const watchLater = {
+    addWatchLater(watchId: string,
                          wait: ()=>void,
                          succeed: ()=>void,
                          failed: ()=>void,
@@ -45,9 +45,8 @@ export class WatchLater{
         xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded;charset=UTF-8')
 
         xhr.send('watchId={watchId}&memo='.replace('{watchId}',watchId))
-    }
-
-    static removeWatchLater(itemId: string,wait: ()=>void,succeed: ()=>void,failed: ()=>void){
+    },
+    removeWatchLater(itemId: string,wait: ()=>void,succeed: ()=>void,failed: ()=>void){
         const xhr = new XMLHttpRequest()
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -69,9 +68,8 @@ export class WatchLater{
         xhr.setRequestHeader('X-Niconico-Language','ja-jp')
         xhr.setRequestHeader('X-Request-With','https://www.nicovideo.jp')
         xhr.send()
-    }
-
-    static isWatchLater(callback: (itemId: string)=>void,watchId: string,page= 1){
+    },
+    isWatchLater(callback: (itemId: string)=>void,watchId: string,page= 1){
         const xhr = new XMLHttpRequest()
         xhr.open('GET', `https://nvapi.nicovideo.jp/v1/users/me/watch-later?sortKey=addedAt&sortOrder=desc&pageSize=100&page=${page}`)
         xhr.onreadystatechange = ()=>{

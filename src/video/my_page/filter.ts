@@ -1,11 +1,14 @@
 import {OnSetNicoRepo} from '@/video/type_on_set';
 import storage from '@/storage';
+import {ValuesNicoRepoMatcher} from '@/storage/parameters';
+import {NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
+import {toObjectArray} from '@/util';
 
 export const onSetFilter: OnSetNicoRepo =  {
     item: itemElement => {
         const activityDescriptionText = itemElement.getElementsByClassName('NicorepoItem-activityDescription')[0].textContent
         let result: boolean|undefined = undefined
-        for (const v of storage.get('Video_MyPage_HiddenFilter').values) {
+        for (const v of toObjectArray(storage.get('Video_MyPage_HiddenFilter').values)) {
             if (activityDescriptionText.match(v.matcher)) {
                 result = v.enable
                 break
@@ -35,14 +38,16 @@ export const onSetFilter: OnSetNicoRepo =  {
         ul.className = 'SubMenuLinkList'
         div.appendChild(ul)
         //各フィルターセット
-        const filters = storage.get("Video_MyPage_HiddenFilter").values
-        for (let i = 0; i < filters.length; i++) {
-            const element = createCheckBox(filters[i].name,filters[i].enable)
+        const values = storage.get("Video_MyPage_HiddenFilter").values // TODO sort
+        let key: keyof NicoRepoMatcherType
+        for (key in values){
+            const value = values[key]
+            const element = createCheckBox(value.name, key, value.enable)
             ul.appendChild(element)
         }
     }
 }
-function createCheckBox(name: string, enable: boolean) {
+function createCheckBox(name: string, key: keyof NicoRepoMatcherType, enable: boolean) {
     const subMenuItem = document.createElement('li')
     subMenuItem.className = 'SubMenuLink NicorepoPageSubMenu-subMenuItem'
     const subMenuItemLink = document.createElement('a')
@@ -54,8 +59,7 @@ function createCheckBox(name: string, enable: boolean) {
     subMenuItemLink.addEventListener('click',  (event) =>{
         checkBox.checked = !checkBox.checked
         const filters = storage.get("Video_MyPage_HiddenFilter")
-        const index = filters.values.findIndex(v =>v.name === name)
-        filters.values[index].enable = checkBox.checked
+        filters.values[key].enable = checkBox.checked
         storage.set("Video_MyPage_HiddenFilter", filters)
         for (const child of Array.from(document.getElementsByClassName('SlideOut NicorepoItem NicorepoTimeline-item'))) {
             onSetFilter.item(child as HTMLDivElement)

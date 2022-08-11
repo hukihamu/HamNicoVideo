@@ -1,9 +1,12 @@
-type PopupType = 'main' | 'edit_notify'
+import {popupMain} from '@/popup/main';
+import {editNotify} from '@/popup/edit_notify';
 
-// TODO
-switch (document.currentScript.dataset['popup'] as PopupType){
-    case 'main':
-        break
-    case 'edit_notify':
-        break
+const initPopup = ()=>{
+    const pathname = window.location.pathname
+    if (pathname.match('popup_main')){
+        popupMain()
+    }else if(pathname.match('popup_edit_notify')){
+        editNotify()
+    }
 }
+window.addEventListener('DOMContentLoaded', initPopup)

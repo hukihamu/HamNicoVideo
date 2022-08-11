@@ -4,7 +4,7 @@ import storage from '@/storage';
 export const onSetHighlight: OnSetRepoItem = itemElement => {
     const activityDescriptionText = itemElement.getElementsByClassName('NicorepoItem-activityDescription')[0].textContent
     let resultColor: string | undefined = undefined
-    for (const v of storage.get('Video_MyPage_Highlight').values) {
+    for (const v of Object.values(storage.get('Video_MyPage_Highlight').values)) {
         if (activityDescriptionText.match(v.matcher)) {
             resultColor = v.color
             break

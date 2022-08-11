@@ -4,9 +4,9 @@ import storage from '@/storage';
 export const onSetHideSideBar: OnSetRepoSidebar = ()=>{
     const params = storage.get("Video_MyPage_HideSideBar")
     const subMenuClasses: {[key: string]: boolean} = {
-        'RadioGroup NicorepoPageSubMenu-types': params.values[0].enable,
-        'RadioGroup NicorepoPageSubMenu-target': params.values[1].enable,
-        'NicorepoPageSubMenu-filter': params.values[2].enable,
+        'RadioGroup NicorepoPageSubMenu-types': params.values['TYPE'].enable,
+        'RadioGroup NicorepoPageSubMenu-target': params.values['FILTER'].enable,
+        'NicorepoPageSubMenu-filter': params.values['HIDDEN_FILTER'].enable,
     }
 
     for (const _header of Array.from(document.getElementsByClassName('SubMenuHeader'))) {

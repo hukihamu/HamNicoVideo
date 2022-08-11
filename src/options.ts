@@ -3,14 +3,14 @@ import {
     ParametersType,
     ValuesCheckBox, ValuesHighLight,
 } from '@/storage/parameters';
-import {isArrayOf, isInstanceOf, isInstancesOf} from '@/util';
+import {isArrayOf, isInstanceOf, isInstancesOf, toKeyArray, toObjectArray} from '@/util';
 
 const parameterToName = {
     Video: "動画",
     Watch: "視聴画面",
     MinimizeLike: 'いいねボタン大きさ変更',
     RemoveWatchLater: '後で見るから削除ボタン追加',
-    ChangeVideoList: '再生リストを表示するリンク追加',
+    ChangeVideoList: '後で見るリストを表示するリンク追加',
     MyPage: 'マイページ画面',
     HideSideBar: '左サイドバーの最小化',
     HiddenFilter: '非表示フィルター',
@@ -69,7 +69,7 @@ const setEvent = ()=>{
 }
 const createBody = ()=> {
     //階層作成
-    const keys = Object.keys(storage.default) as (keyof ParametersType)[]
+    const keys = toKeyArray(storage.default) as (keyof ParametersType)[]
     type Layer = { [name: string]: keyof ParametersType | Layer }
     const layer: Layer = {}
     keys.forEach(key => {
@@ -142,7 +142,7 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
         paramName.classList.add('bold')
         const valuesUl = document.createElement('ul')
         flexParent.appendChild(valuesUl)
-        for (const value of param.values){
+        for (const value of toObjectArray(param.values)){
             const valueLi = document.createElement('li')
             valueLi.className = 'values-content'
             valuesUl.appendChild(valueLi)

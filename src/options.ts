@@ -10,8 +10,7 @@ import {
 } from '@/util';
 import {ValuesHighLight} from '@/storage/parameters/values_type/values_high_light';
 import {ValuesCheckBox} from '@/storage/parameters/values_type/values_check_box';
-import {NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
-
+// TODO 見た目を洗練
 const parameterToName = {
     Video: "動画",
     Watch: "視聴画面",
@@ -226,9 +225,9 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
                         sampleText.style.backgroundColor = valueColor.value + valueAlpha.value
                     }
                     const changeColor = ()=>{
-                        onApplySample()
-                        valueObject.value.color = valueColor.value + valueAlpha.value
+                        (valueObject.value as ValuesHighLight).color = valueColor.value + valueAlpha.value
                         onSave(key, param)
+                        onApplySample()
                     }
                     valueColor.addEventListener('change',changeColor)
                     valueAlpha.addEventListener('change',changeColor)
@@ -244,7 +243,10 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
     flexParent.appendChild(defaultDiv)
     const defaultButton = document.createElement('button')
     defaultButton.textContent = 'default'
-    // TODO DefaultEvent
+    defaultButton.addEventListener('click', ()=>{
+        onSave(key, storage.default[key])
+        location.reload() // TODO 気に食わないが、しゃーない
+    })
     defaultDiv.appendChild(defaultButton)
 }
 

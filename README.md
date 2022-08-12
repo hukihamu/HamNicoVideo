@@ -23,3 +23,6 @@ A. 連絡手段は下記の通り
   - [Twitter](https://twitter.com/hukihamu)
   - [GitHub Issue](https://github.com/hukihamu/HamNicoVideo/issues)
   - [NicoNico](https://www.nicovideo.jp/user/26267653) (たまに生放送をやっています)
+
+
+## 利用API

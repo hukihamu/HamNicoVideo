@@ -1,22 +1,19 @@
 import storage from '@/storage';
 import message from '@/message';
 
-const notifyList: unknown[] = []
+const notifyList: ValuesNotifySeries[] = []
 
 
 const initBackground = async ()=>{
     await storage.init()
     message.setListener(args => {
-        switch (args.key) {
-            case 'add': {
-                // TODO
-                notifyList.push(args.value)
-                return
-            }
-            case 'list':{
-                // TODO
-                return notifyList
-            }
+        if (message.isInstanceof(args, 'add')){
+            notifyList.push(args.args)
+            return
+        }else if (message.isInstanceof(args, 'list')){
+            return notifyList
+        }else if (message.isInstanceof(args, 'remove')){
+            // TODO
         }
     })
 }

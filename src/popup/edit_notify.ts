@@ -67,7 +67,9 @@ export const editNotify = ()=>{
         }else {
             //追加
             if (seriesName){
-                const valuesSeries: ValuesSeries = {
+                // シリーズネームを取得できている
+                const valuesSeries: ValuesNotifySeries = {
+                    valueId: Date.now(),
                     seriesId: editForm.series_id.value,
                     seriesName: seriesName,
                     isNotify: false,
@@ -80,12 +82,14 @@ export const editNotify = ()=>{
                     window.location.href = '/html/popup_main.html'
                 })
             }else {
+                // シリーズネームを取得できていない
                 fetch('https://www.nicovideo.jp/series/' + editForm.series_id.value)
                     .then(resp => resp.text())
                     .then(text => {
                         const doc = new DOMParser().parseFromString(text, 'text/html')
                         const seriesName = doc.getElementsByClassName('SeriesDetailContainer-bodyTitle')[0].textContent
-                        const valuesSeries: ValuesSeries = {
+                        const valuesSeries: ValuesNotifySeries = {
+                            valueId: Date.now(),
                             seriesId: editForm.series_id.value,
                             seriesName: seriesName,
                             isNotify: false,
@@ -241,10 +245,9 @@ export const editNotify = ()=>{
     //削除
     document.getElementById('delete').addEventListener('click', () => {
         if (confirm('削除しますか？')){
-            // TODO
-            // chrome.runtime.sendMessage({key: 'notify-remove',value: usp.get('edit')},()=>{
-            //     window.location.href = '/html/popup.html'
-            // })
+            message.send('remove', usp.get('edit'), ()=>{
+                window.location.href = '/html/popup_main.html'
+            })
         }
     })
 

@@ -1,21 +1,25 @@
-type MessageType = {
+interface MessageType  {
     add: {
-        args: ValuesSeries,
+        args: ValuesNotifySeries,
         result: void
     },
     list: {
         args: undefined,
-        result: unknown[] // TODO
+        result: ValuesNotifySeries[]
+    },
+    remove: {
+        args: string,
+        result: void
     }
 }
-type MessageArgs<K extends keyof MessageType> = {
+interface MessageArgs<K extends keyof MessageType> {
     key: K,
-    value: MessageType[K]['args']
+    args: MessageType[K]['args']
 }
 export default {
     send: <K extends keyof MessageType>
     (key: K, args: MessageType[K]['args'], resultCallback: (resultValue: MessageType[K]['result']) => void) => {
-        chrome.runtime.sendMessage<MessageArgs<K>, MessageType[K]['result']>({key, value: args}).then(resultCallback)
+        chrome.runtime.sendMessage<MessageArgs<K>, MessageType[K]['result']>({key, args}).then(resultCallback)
     },
     setListener: <K extends keyof MessageType>
     (listener: (args: MessageArgs<K>)=>MessageType[K]['result'])=>{
@@ -26,6 +30,8 @@ export default {
             }).then(value => sendResponse(value))
             return true
         })
+    },
+    isInstanceof: <K extends keyof MessageType>(value: MessageArgs<any>, key: K): value is MessageArgs<K> =>{
+        return value.key === key
     }
-
 }

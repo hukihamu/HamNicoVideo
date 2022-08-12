@@ -1,6 +1,4 @@
-export interface ParameterStaticValues<T, K extends string> extends ParameterBaseValue{
+export interface ParameterStaticValues<T extends ValuesBase<any>> extends ParameterBaseValue{
     templateKey: (keyof T)[]
-    values: {
-        [key in K]: T
-    }
+    values: T[]
 }

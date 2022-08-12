@@ -1,5 +1,5 @@
 // 汎用Value
-import {nicoRepoMatcher, NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
+import {nicoRepoMatcher} from '@/storage/parameters/nico_repo_matcher';
 import {ParameterSelectValue} from '@/storage/parameters/parameter_value/parameter_select_value';
 import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
 import {ValuesHighLight} from '@/storage/parameters/values_type/values_high_light';
@@ -12,16 +12,21 @@ export type ParametersType = {
     Video_MyPage_AddWatchLater: ParameterBaseValue,
     Video_MyPage_SlimItem: ParameterBaseValue,
     Video_MyPage_HighlightNewRange: ParameterSelectValue,
-    Video_MyPage_Highlight: ParameterStaticValues<ValuesHighLight, keyof NicoRepoMatcherType>,
-    Video_MyPage_HiddenFilter: ParameterStaticValues<ValuesNicoRepoMatcher, keyof NicoRepoMatcherType>
-    Video_MyPage_HideSideBar: ParameterStaticValues<ValuesCheckBox, ('TYPE'|'FILTER'|'HIDDEN_FILTER')>,
+    Video_MyPage_Highlight: ParameterStaticValues<ValuesHighLight>,
+    Video_MyPage_HiddenFilter: ParameterStaticValues<ValuesNicoRepoMatcher>
+    Video_MyPage_HideSideBar: ParameterStaticValues<ValuesCheckBox<'TYPE'|'FILTER'|'HIDDEN_FILTER'>>,
     Video_Watch_ChangeVideoList: ParameterBaseValue,
     Video_Watch_RemoveWatchLater: ParameterBaseValue,
     Video_Watch_MinimizeLike: ParameterSelectValue,
-    Video_Watch_OneClickMyList: ParameterTextValue
+    Video_Watch_OneClickMyList: ParameterTextValue,
+    Notify_NotifyList: ParameterDynamicValues<ValuesNotifySeries>
 }
 // default設定 TODO 適時追記
 export const parameterDefault: ParametersType = {
+    Notify_NotifyList: {
+        enable: true,
+        dynamicValues: []
+    },
     Video_Watch_OneClickMyList: {
         enable: true,
         textValue: ''
@@ -40,57 +45,57 @@ export const parameterDefault: ParametersType = {
     Video_MyPage_HideSideBar: {
         enable: true,
         templateKey: ['name'],
-        values: {
-            TYPE: {name: "タイプ", enable: true},
-            FILTER: {name: "表示対象", enable: true},
-            HIDDEN_FILTER: {name: "非表示フィルター", enable: false}
-}
+        values: [
+            {valueId: 'TYPE', name: "タイプ", enable: true},
+            {valueId: 'FILTER', name: "表示対象", enable: true},
+            {valueId: 'HIDDEN_FILTER', name: "非表示フィルター", enable: false}
+        ]
     },
     Video_MyPage_HiddenFilter: {
         enable: true,
         templateKey: ['name', 'matcher'],
-        values: {
-            AD: Object.assign({enable: false}, nicoRepoMatcher.AD),
-            LIKE: Object.assign({enable: false}, nicoRepoMatcher.LIKE),
-            KIRI: Object.assign({enable: false}, nicoRepoMatcher.KIRI),
-            MY_LIST: Object.assign({enable: false}, nicoRepoMatcher.MY_LIST),
-            LIVE: Object.assign({enable: false}, nicoRepoMatcher.LIVE),
-            LIVE_PLAN: Object.assign({enable: false}, nicoRepoMatcher.LIVE_PLAN),
-            VIDEO_UP: Object.assign({enable: false}, nicoRepoMatcher.VIDEO_UP),
-            VIDEO_LIVE: Object.assign({enable: false}, nicoRepoMatcher.VIDEO_LIVE),
-            VIDEO_LIVE_PLAN: Object.assign({enable: false}, nicoRepoMatcher.VIDEO_LIVE_PLAN),
-            IMAGE: Object.assign({enable: false}, nicoRepoMatcher.IMAGE),
-            IMAGE_CLIP: Object.assign({enable: false}, nicoRepoMatcher.IMAGE_CLIP),
-            BLOG: Object.assign({enable: false}, nicoRepoMatcher.BLOG),
-            MANGA: Object.assign({enable: false}, nicoRepoMatcher.MANGA),
-            MODEL: Object.assign({enable: false}, nicoRepoMatcher.MODEL),
-            FOLLOW: Object.assign({enable: false}, nicoRepoMatcher.FOLLOW),
-            MANGA_FAV: Object.assign({enable: false}, nicoRepoMatcher.MANGA_FAV),
-            MODEL_FAV: Object.assign({enable: false}, nicoRepoMatcher.MODEL_FAV),
-        }
+        values: [
+            Object.assign({enable: false}, nicoRepoMatcher.VIDEO_UP),
+            Object.assign({enable: false}, nicoRepoMatcher.VIDEO_LIVE),
+            Object.assign({enable: false}, nicoRepoMatcher.VIDEO_LIVE_PLAN),
+            Object.assign({enable: false}, nicoRepoMatcher.KIRI),
+            Object.assign({enable: false}, nicoRepoMatcher.MY_LIST),
+            Object.assign({enable: false}, nicoRepoMatcher.LIKE),
+            Object.assign({enable: false}, nicoRepoMatcher.AD),
+            Object.assign({enable: false}, nicoRepoMatcher.LIVE_START),
+            Object.assign({enable: false}, nicoRepoMatcher.LIVE_PLAN),
+            Object.assign({enable: false}, nicoRepoMatcher.IMAGE_UP),
+            Object.assign({enable: false}, nicoRepoMatcher.IMAGE_CLIP),
+            Object.assign({enable: false}, nicoRepoMatcher.BLOG_UP),
+            Object.assign({enable: false}, nicoRepoMatcher.MANGA_UP),
+            Object.assign({enable: false}, nicoRepoMatcher.MANGA_FAV),
+            Object.assign({enable: false}, nicoRepoMatcher.MODEL_UP),
+            Object.assign({enable: false}, nicoRepoMatcher.MODEL_FAV),
+            Object.assign({enable: false}, nicoRepoMatcher.FOLLOW),
+        ]
     },
     Video_MyPage_Highlight: {
         enable: true,
         templateKey: ['name', 'matcher'],
-        values: {
-            LIKE: Object.assign({enable: true, color: '#A5D17814'}, nicoRepoMatcher.LIKE),
-            MY_LIST: Object.assign({enable: true, color: '#76B3F914'}, nicoRepoMatcher.MY_LIST),
-            VIDEO_UP: Object.assign({enable: true, color: '#d0021b14'}, nicoRepoMatcher.VIDEO_UP),
-            AD: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.AD),
-            KIRI: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.KIRI),
-            LIVE: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.LIVE),
-            LIVE_PLAN: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.LIVE_PLAN),
-            VIDEO_LIVE: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.VIDEO_LIVE),
-            VIDEO_LIVE_PLAN: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.VIDEO_LIVE_PLAN),
-            IMAGE: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.IMAGE),
-            IMAGE_CLIP: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.IMAGE_CLIP),
-            BLOG: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.BLOG),
-            MANGA: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MANGA),
-            MODEL: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MODEL),
-            FOLLOW: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.FOLLOW),
-            MANGA_FAV: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MANGA_FAV),
-            MODEL_FAV: Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MODEL_FAV),
-        }
+        values: [
+            Object.assign({enable: true, color: '#d0021b14'}, nicoRepoMatcher.VIDEO_UP),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.VIDEO_LIVE),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.VIDEO_LIVE_PLAN),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.KIRI),
+            Object.assign({enable: true, color: '#76B3F914'}, nicoRepoMatcher.MY_LIST),
+            Object.assign({enable: true, color: '#A5D17814'}, nicoRepoMatcher.LIKE),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.AD),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.LIVE_START),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.LIVE_PLAN),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.IMAGE_UP),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.IMAGE_CLIP),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.BLOG_UP),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MANGA_UP),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MANGA_FAV),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MODEL_UP),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.MODEL_FAV),
+            Object.assign({enable: false, color: '#FFFFFFFF'}, nicoRepoMatcher.FOLLOW),
+        ]
     },
     Video_MyPage_AddWatchLater: {enable: true},
     Video_MyPage_SlimItem: {enable: true},

@@ -4,9 +4,7 @@ import {
     isArrayOf,
     isInstanceOf,
     isInstancesOf,
-    objectToKeyArray,
-    objectToSortArray,
-    objectToSortArrayObject
+    objectToKeyArray
 } from '@/util';
 import {ValuesHighLight} from '@/storage/parameters/values_type/values_high_light';
 import {ValuesCheckBox} from '@/storage/parameters/values_type/values_check_box';
@@ -176,36 +174,36 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
         paramName.classList.add('bold')
         const valuesUl = document.createElement('ul')
         flexParent.appendChild(valuesUl)
-        for (const valueObject of objectToSortArrayObject(param.values)){
+        for (const value of param.values){
             const valueLi = document.createElement('li')
             valueLi.className = 'values-content'
             valuesUl.appendChild(valueLi)
             // ValuesCheckBox
-            if(isInstancesOf<ValuesCheckBox>(valueObject.value, 'name', 'enable')){
+            if(isInstancesOf<ValuesCheckBox<any>>(value, 'name', 'enable')){
                 const valueEnableCheckBox = document.createElement('input')
                 valueEnableCheckBox.type = 'checkbox'
-                valueEnableCheckBox.id = key + '-' + valueObject.key + '-enable'
+                valueEnableCheckBox.id = key + '-' + value.valueId + '-enable'
                 valueEnableCheckBox.addEventListener('change',()=>{
-                    valueObject.value.enable = valueEnableCheckBox.checked
+                    value.enable = valueEnableCheckBox.checked
                     onSave(key, param)
                 })
-                valueEnableCheckBox.checked = valueObject.value.enable
+                valueEnableCheckBox.checked = value.enable
                 valueLi.appendChild(valueEnableCheckBox)
                 const valueName = document.createElement('label')
-                valueName.textContent = valueObject.value.name
-                valueName.htmlFor = key + '-' + valueObject.key + '-enable'
+                valueName.textContent = value.name
+                valueName.htmlFor = key + '-' + value.valueId + '-enable'
                 valueLi.appendChild(valueName)
 
                 // ValuesHighLight
-                if (isInstancesOf<ValuesHighLight>(valueObject.value, 'color', 'matcher')){
-                    const color = valueObject.value.color.substring(0,7)
-                    const alpha = valueObject.value.color.substring(7,10)
+                if (isInstancesOf<ValuesHighLight>(value, 'color', 'matcher')){
+                    const color = value.color.substring(0,7)
+                    const alpha = value.color.substring(7,10)
 
                     const sampleDiv = document.createElement('div')
                     sampleDiv.className = 'color-sample'
                     valueLi.appendChild(sampleDiv)
                     const sampleText = document.createElement('div')
-                    sampleText.textContent = valueObject.value.matcher
+                    sampleText.textContent = value.matcher
                     sampleDiv.appendChild(sampleText)
 
                     const valueColor = document.createElement('input')
@@ -225,7 +223,7 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
                         sampleText.style.backgroundColor = valueColor.value + valueAlpha.value
                     }
                     const changeColor = ()=>{
-                        (valueObject.value as ValuesHighLight).color = valueColor.value + valueAlpha.value
+                        value.color = valueColor.value + valueAlpha.value
                         onSave(key, param)
                         onApplySample()
                     }

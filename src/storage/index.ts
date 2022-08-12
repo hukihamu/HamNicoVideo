@@ -24,38 +24,18 @@ export default class {
     }
     static get<U extends keyof ParametersType>(key: U): ParametersType[U]  {
         const param = storage_cache[key]
-        if (isInstanceOf<ParameterStaticValues<any, any>>(param, 'templateKey')){
-            const defaultParam = parameterDefault[key] as ParameterStaticValues<any, any>
-            const addKeys = Object.keys(defaultParam.values)
-            const removeKeys = []
-            const values: any = param.values
-            let valuesKey: any
-            for (valuesKey in values){
-                const index = addKeys.findIndex(v => v === valuesKey)
-                if (index === -1) {
-                    //defaultに存在しないため、削除
-                    removeKeys.push(valuesKey)
-                }else {
-                    //defaultに存在したため、addしない
-                    addKeys.splice(index,1)
+        if (isInstanceOf<ParameterStaticValues<any>>(param, 'templateKey')){
+            // TODO valueIdを追加したので、一意の差し替えが可能
+            const defaultParams = parameterDefault[key] as ParameterStaticValues<any>
 
-                    //templateの変更
-                    const value = values[valuesKey]
-                    const defaultValue = defaultParam.values[valuesKey]
-                    param.templateKey.forEach(templateKey=> value[templateKey] = defaultValue[templateKey])
-                }
-            }
-            removeKeys.forEach(k =>{
-                delete values[k]
-            })
-            addKeys.forEach(k=>{
-                values[k] = defaultParam.values[k]
-            })
         }else
         // selectの中身が更新された際の対応
         if (isInstanceOf<ParameterSelectValue>(param, 'selectList')){
             const defaultSelectValue = parameterDefault[key] as ParameterSelectValue
-            param.selectList = defaultSelectValue.selectList
+            if (JSON.stringify(param.selectList) !== JSON.stringify(defaultSelectValue.selectList)){
+                param.selectList = defaultSelectValue.selectList
+                param.selectIndex = defaultSelectValue.selectIndex
+            }
         }
 
         return param

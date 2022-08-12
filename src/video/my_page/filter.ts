@@ -1,13 +1,13 @@
 import {OnSetNicoRepo} from '@/video/type_on_set';
 import storage from '@/storage';
-import {NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
-import {objectToSortArray} from '@/util';
+import {ValuesNicoRepoMatcher} from '@/storage/parameters/values_type/values_nico_repo_matcher';
+import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
 
 export const onSetFilter: OnSetNicoRepo =  {
     item: itemElement => {
         const activityDescriptionText = itemElement.getElementsByClassName('NicorepoItem-activityDescription')[0].textContent
         let result: boolean|undefined = undefined
-        for (const v of objectToSortArray(storage.get('Video_MyPage_HiddenFilter').values)) {
+        for (const v of storage.get('Video_MyPage_HiddenFilter').values) {
             if (activityDescriptionText.match(v.matcher)) {
                 result = v.enable
                 break
@@ -37,16 +37,14 @@ export const onSetFilter: OnSetNicoRepo =  {
         ul.className = 'SubMenuLinkList'
         div.appendChild(ul)
         //各フィルターセット
-        const values = storage.get("Video_MyPage_HiddenFilter").values // TODO sort
-        let key: keyof NicoRepoMatcherType
-        for (key in values){
-            const value = values[key]
-            const element = createCheckBox(value.name, key, value.enable)
+        const param = storage.get("Video_MyPage_HiddenFilter")
+        for (const value of param.values){
+            const element = createCheckBox(value, param)
             ul.appendChild(element)
         }
     }
 }
-function createCheckBox(name: string, key: keyof NicoRepoMatcherType, enable: boolean) {
+function createCheckBox(value: ValuesNicoRepoMatcher, param: ParameterStaticValues<ValuesNicoRepoMatcher>) {
     const subMenuItem = document.createElement('li')
     subMenuItem.className = 'SubMenuLink NicorepoPageSubMenu-subMenuItem'
     const subMenuItemLink = document.createElement('a')
@@ -57,19 +55,18 @@ function createCheckBox(name: string, key: keyof NicoRepoMatcherType, enable: bo
     checkBox.className = 'SubMenuLink-icon'
     subMenuItemLink.addEventListener('click',  (event) =>{
         checkBox.checked = !checkBox.checked
-        const filters = storage.get("Video_MyPage_HiddenFilter")
-        filters.values[key].enable = checkBox.checked
-        storage.set("Video_MyPage_HiddenFilter", filters)
+        value.enable = checkBox.checked
+        storage.set("Video_MyPage_HiddenFilter", param)
         for (const child of Array.from(document.getElementsByClassName('SlideOut NicorepoItem NicorepoTimeline-item'))) {
             onSetFilter.item(child as HTMLDivElement)
         }
 
     }, false)
-    checkBox.checked = enable
+    checkBox.checked = value.enable
 
     const label = document.createElement('span')
     label.className = 'SubMenuLink-label'
-    label.innerText = name
+    label.textContent = value.name
     subMenuItemLink.appendChild(checkBox)
     subMenuItemLink.appendChild(label)
     subMenuItem.appendChild(subMenuItemLink)

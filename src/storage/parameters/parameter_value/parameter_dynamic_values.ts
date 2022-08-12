@@ -1,5 +1,3 @@
-interface ParameterDynamicValues<T> extends ParameterBaseValue{
+interface ParameterDynamicValues<T extends ValuesBase<number>> extends ParameterBaseValue{
     dynamicValues: T[]
-    createView: (value?: T)=>HTMLDivElement
-    getValue: (element: HTMLDivElement)=> T
 }

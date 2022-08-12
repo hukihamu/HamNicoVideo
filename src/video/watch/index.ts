@@ -4,16 +4,20 @@ import {onSetChangeVideoList} from '@/video/watch/change_video_list';
 import storage from '@/storage';
 import {onSetRemoveWatchLater} from '@/video/watch/remove_watch_later';
 import {onSetMinimizeLike} from '@/video/watch/minimize_like';
+import {onSetOneClickMyList} from '@/video/watch/one_click_my_list';
 
 export default ()=>{
-    // enable確認
-    const cardGridList: OnSetCardGrid[] = []
-    const initList: (()=>void)[] = []
-    const videoChangeList: (()=>void)[] = []
+    // enable確認 TODO 適時追加
+    const cardGridList: OnSetCardGrid[] = [] // カードに追加要素追加
+    const initList: (()=>void)[] = [] // 初回起動時
+    const videoChangeList: (()=>void)[] = [] // 動画変更毎
     if (storage.get("Video_Watch_ChangeVideoList").enable) cardGridList.push(onSetChangeVideoList)
     if (storage.get("Video_Watch_RemoveWatchLater").enable) initList.push(onSetRemoveWatchLater)
     if (storage.get("Video_Watch_MinimizeLike").enable) initList.push(onSetMinimizeLike)
-    // TODO 適時追加
+    if (storage.get('Video_Watch_OneClickMyList').enable) {
+        initList.push(onSetOneClickMyList.init)
+        cardGridList.push(onSetOneClickMyList.cardGrid)
+    }
 
     // 各画面要素の処理を呼び出し
     // 動画変更毎

@@ -1,13 +1,13 @@
 import {OnSetNicoRepo} from '@/video/type_on_set';
 import storage from '@/storage';
 import {NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
-import {toObjectArray} from '@/util';
+import {objectToSortArray} from '@/util';
 
 export const onSetFilter: OnSetNicoRepo =  {
     item: itemElement => {
         const activityDescriptionText = itemElement.getElementsByClassName('NicorepoItem-activityDescription')[0].textContent
         let result: boolean|undefined = undefined
-        for (const v of toObjectArray(storage.get('Video_MyPage_HiddenFilter').values)) {
+        for (const v of objectToSortArray(storage.get('Video_MyPage_HiddenFilter').values)) {
             if (activityDescriptionText.match(v.matcher)) {
                 result = v.enable
                 break

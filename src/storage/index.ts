@@ -64,5 +64,10 @@ export default class {
         storage_cache[key] = value
         chrome.storage.sync.set({[STORAGE_KEY]: storage_cache}).then()
     }
+    static allDefault = ()=>{
+        // 手動初期化
+        chrome.storage.sync.set({[STORAGE_KEY]: {}}).then()
+        storage_cache = parameterDefault
+    }
     static default = parameterDefault
 }

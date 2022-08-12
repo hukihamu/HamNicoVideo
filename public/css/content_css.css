@@ -36,14 +36,14 @@
 .WatchLaterButton:hover{
     fill: #007cff !important;
 }
-#custom_mylist_button.is-succeeded[data-title]:after {
+#one_click_my_list_button.is-succeeded[data-title]:after {
     opacity: 1;
     background-color: #007cff;
     border: 0;
     transition: none;
     width: auto;
 }
-#custom_mylist_button.is-failed[data-title]:after {
+#one_click_my_list_button.is-failed[data-title]:after {
     opacity: 1;
     background-color: #ff9f00;
     border: 0;

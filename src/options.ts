@@ -1,8 +1,16 @@
 import storage from '@/storage';
 import {ParametersType,} from '@/storage/parameters';
-import {isArrayOf, isInstanceOf, isInstancesOf, toKeyArray, toObjectArray} from '@/util';
+import {
+    isArrayOf,
+    isInstanceOf,
+    isInstancesOf,
+    objectToKeyArray,
+    objectToSortArray,
+    objectToSortArrayObject
+} from '@/util';
 import {ValuesHighLight} from '@/storage/parameters/values_type/values_high_light';
 import {ValuesCheckBox} from '@/storage/parameters/values_type/values_check_box';
+import {NicoRepoMatcherType} from '@/storage/parameters/nico_repo_matcher';
 
 const parameterToName = {
     Video: "動画",
@@ -17,13 +25,19 @@ const parameterToName = {
     AddWatchLater: '後で見るボタン追加',
     SlimItem: '表示アイテム小型化',
     HighlightNewRange: '新着対象時間',
+    OneClickMyList: '1クリックマイリスト'
 } as { [key: string]: string }
 
+const onSave = <U extends keyof ParametersType>(key: U, newValue:ParametersType[U])=>{
+    const p = storage.get(key)
+    storage.set(key, newValue)
+    document.getElementById('save').classList.add('is-show')
+}
 const setEvent = ()=>{
     const saveElement = document.getElementById('save')
-    saveElement.onanimationend = () => {
+    saveElement.addEventListener('animationend', ()=>{
         saveElement.classList.remove('is-show')
-    }
+    })
 
     document.getElementById('export').addEventListener('click', ()=>{
         // TODO
@@ -65,10 +79,14 @@ const setEvent = ()=>{
         // }))
         // t.readAsText(file)
     })
+    document.getElementById('all_default').addEventListener('click',()=>{
+        storage.allDefault()
+        location.reload()
+    })
 }
 const createBody = ()=> {
     //階層作成
-    const keys = toKeyArray(storage.default) as (keyof ParametersType)[]
+    const keys = objectToKeyArray(storage.default)
     type Layer = { [name: string]: keyof ParametersType | Layer }
     const layer: Layer = {}
     keys.forEach(key => {
@@ -93,6 +111,7 @@ const createBody = ()=> {
             const childLayer = layer[l]
             if (typeof childLayer === "string") {
                 li.className = 'param-content'
+                li.id = childLayer
                 createOptionGrid(li, childLayer, parameterToName[l] || l)
             } else {
                 const header = document.createElement('h' + level)
@@ -111,7 +130,10 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
     const enableCheckBox = document.createElement('input')
     enableCheckBox.type = 'checkbox'
     enableCheckBox.id = key + '-enable'
-    // TODO SaveEvent
+    enableCheckBox.addEventListener('change', ()=>{
+        param.enable = enableCheckBox.checked
+        onSave(key,param)
+    })
     enableCheckBox.checked = param.enable
     enableDiv.appendChild(enableCheckBox)
     flexParent.appendChild(enableDiv)
@@ -122,11 +144,14 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
     paramName.htmlFor = key + '-enable'
     flexParent.appendChild(paramName)
 
-    // Parameter_select_value
+    // ParameterSelectValue
     if ('selectIndex' in param){
 
         const select = document.createElement('select')
-        // TODO SaveEvent
+        select.addEventListener('change', ()=>{
+            param.selectIndex = select.selectedIndex
+            onSave(key, param)
+        })
         flexParent.appendChild(select)
         param.selectList.forEach((value, index) => {
             const option = document.createElement('option')
@@ -136,48 +161,58 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
             select.appendChild(option)
         })
     }
+    //ParameterTextValue
+    else if ('textValue' in param){
+        const textInput = document.createElement('input')
+        flexParent.appendChild(textInput)
+        textInput.value = param.textValue
+        console.log(param.textValue)
+        textInput.addEventListener('change', ()=>{
+            param.textValue = textInput.value
+            onSave(key, param)
+        })
+    }
     // ParameterListValue
     else if ('values' in param){
         paramName.classList.add('bold')
         const valuesUl = document.createElement('ul')
         flexParent.appendChild(valuesUl)
-        for (const value of toObjectArray(param.values)){
+        for (const valueObject of objectToSortArrayObject(param.values)){
             const valueLi = document.createElement('li')
             valueLi.className = 'values-content'
             valuesUl.appendChild(valueLi)
             // ValuesCheckBox
-            if(isInstancesOf<ValuesCheckBox>(value, 'name', 'enable')){
+            if(isInstancesOf<ValuesCheckBox>(valueObject.value, 'name', 'enable')){
                 const valueEnableCheckBox = document.createElement('input')
                 valueEnableCheckBox.type = 'checkbox'
-                valueEnableCheckBox.id = key + '-values_enable'
-                // TODO SaveEvent
-                valueEnableCheckBox.checked = value.enable
+                valueEnableCheckBox.id = key + '-' + valueObject.key + '-enable'
+                valueEnableCheckBox.addEventListener('change',()=>{
+                    valueObject.value.enable = valueEnableCheckBox.checked
+                    onSave(key, param)
+                })
+                valueEnableCheckBox.checked = valueObject.value.enable
                 valueLi.appendChild(valueEnableCheckBox)
                 const valueName = document.createElement('label')
-                valueName.textContent = value.name
-                valueName.htmlFor = key + '-values_enable'
+                valueName.textContent = valueObject.value.name
+                valueName.htmlFor = key + '-' + valueObject.key + '-enable'
                 valueLi.appendChild(valueName)
 
                 // ValuesHighLight
-                if (isInstancesOf<ValuesHighLight>(value, 'color', 'matcher')){
-                    const color = value.color.substring(0,7)
-                    const alpha = value.color.substring(7,10)
+                if (isInstancesOf<ValuesHighLight>(valueObject.value, 'color', 'matcher')){
+                    const color = valueObject.value.color.substring(0,7)
+                    const alpha = valueObject.value.color.substring(7,10)
 
                     const sampleDiv = document.createElement('div')
                     sampleDiv.className = 'color-sample'
                     valueLi.appendChild(sampleDiv)
                     const sampleText = document.createElement('div')
-                    sampleText.textContent = value.matcher
+                    sampleText.textContent = valueObject.value.matcher
                     sampleDiv.appendChild(sampleText)
 
                     const valueColor = document.createElement('input')
                     valueColor.type = 'color'
                     valueColor.style.width = '25px'
                     valueColor.value = color
-                    // TODO SaveEvent
-                    valueColor.addEventListener('change',()=>{
-                        onApplySample()
-                    })
                     valueLi.appendChild(valueColor)
                     const valueAlpha = document.createElement('input')
                     valueAlpha.type = 'text'
@@ -185,23 +220,25 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
                     valueAlpha.style.width = '25px'
                     valueAlpha.pattern = /[0-9A-Fa-f]{2}/.source
                     valueAlpha.value = alpha
-                    // TODO SaveEvent
-                    valueAlpha.addEventListener('change',()=>{
-                        onApplySample()
-                    })
                     valueLi.appendChild(valueAlpha)
 
                     const onApplySample = ()=>{
                         sampleText.style.backgroundColor = valueColor.value + valueAlpha.value
                     }
+                    const changeColor = ()=>{
+                        onApplySample()
+                        valueObject.value.color = valueColor.value + valueAlpha.value
+                        onSave(key, param)
+                    }
+                    valueColor.addEventListener('change',changeColor)
+                    valueAlpha.addEventListener('change',changeColor)
                     onApplySample()
-                    // TODO alpha用range toggle?
                 }
             }
         }
     }
 
-    //default
+    //default復元
     const defaultDiv = document.createElement('div')
     defaultDiv.className = 'default'
     flexParent.appendChild(defaultDiv)

@@ -18,9 +18,14 @@ export type ParametersType = {
     Video_Watch_ChangeVideoList: ParameterBaseValue,
     Video_Watch_RemoveWatchLater: ParameterBaseValue,
     Video_Watch_MinimizeLike: ParameterSelectValue,
+    Video_Watch_OneClickMyList: ParameterTextValue
 }
 // default設定 TODO 適時追記
 export const parameterDefault: ParametersType = {
+    Video_Watch_OneClickMyList: {
+        enable: true,
+        textValue: ''
+    },
     Video_Watch_MinimizeLike: {
         enable: true,
         selectIndex: 1,

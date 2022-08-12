@@ -8,7 +8,7 @@ export const isInstancesOf = <T>(value: any, ...keys: (keyof T)[]): value is T =
  * オブジェクトをKeyでソートしつつArrayに変換
  * @param o オブジェクト
  */
-export const toObjectArray = <T>(o: {[p: string]: T}): T[]=>{
+export const objectToSortArray = <T>(o: {[p: string]: T}): T[]=>{
     const v = Object.entries(o).sort((a, b)=>{
         const nameA = a[0].toUpperCase(); // 大文字と小文字を無視する
         const nameB = b[0].toUpperCase(); // 大文字と小文字を無視する
@@ -22,7 +22,7 @@ export const toObjectArray = <T>(o: {[p: string]: T}): T[]=>{
 /**
  * オブジェクトのKeyをソートしつつ出力
  */
-export const toKeyArray = <T, K extends string>(o: {[p in K]: T}): K[]=>{
+export const objectToKeyArray = <T>(o: {[p in keyof T]: any }): (keyof T)[]=>{
     const v = Object.keys(o).sort((a, b)=>{
         const nameA = a.toUpperCase(); // 大文字と小文字を無視する
         const nameB = b.toUpperCase(); // 大文字と小文字を無視する
@@ -31,6 +31,20 @@ export const toKeyArray = <T, K extends string>(o: {[p in K]: T}): K[]=>{
         // names must be equal
         return 0;
     })
-    return v as K[]
+    return v as (keyof T)[]
 }
-
+/**
+ * オブジェクトをKeyでソートしつつKeyValueObjectArrayに変換
+ * @param o オブジェクト
+ */
+export const objectToSortArrayObject = <T>(o: {[p: string]: T}): {key: string, value: T}[]=>{
+    const v = Object.entries(o).sort((a, b)=>{
+        const nameA = a[0].toUpperCase(); // 大文字と小文字を無視する
+        const nameB = b[0].toUpperCase(); // 大文字と小文字を無視する
+        if (nameA < nameB) return -1;
+        if (nameA > nameB) return 1;
+        // names must be equal
+        return 0;
+    })
+    return v.map(v => ({key: v[0], value: v[1]}))
+}

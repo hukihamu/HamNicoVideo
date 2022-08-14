@@ -20,12 +20,12 @@ body {
 .header * {
     font-weight: bold;
 }
-.header *, .target *{
+.header *, .notify-header *{
     display: table-cell;
     padding: 2px;
     border: 1px #1a1c21 solid;
 }
-.target * *{
+.notify-header * *{
     border: 0;
 }
 .target-accordion{
@@ -82,7 +82,7 @@ body {
 .target-index{
     display: inline-block;
 }
-.target{
+.notify-header{
     margin-bottom: 8px;
 }
 .operation-row{

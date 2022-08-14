@@ -37,13 +37,13 @@ export const onSetRemoveWatchLater = ()=>{
         path.setAttributeNS(null,'d','M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16zm3.3-3.5l-4.2-3.1a.5.5 0 01-.2-.4V6.4c0-.3.2-.5.5-.5h1.2c.3 0 .5.2.5.5V12l3.6 2.6c.2.2.2.5 0 .7l-.7 1c-.1.3-.4.3-.7.1z')
         svg.appendChild(path)
     }
-    watchLater.isWatchLater(callback,watchId)
+    watchLater.has(callback,watchId)
 }
 function removeWatchLaterListener(event: MouseEvent){
 
     const target = event.target as HTMLElement
 
-    watchLater.removeWatchLater(target.dataset['itemId'],
+    watchLater.remove(target.dataset['itemId'],
         ()=>{
             target.parentElement.remove()
         },()=>{

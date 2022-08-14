@@ -20,13 +20,31 @@ export const objectToKeyArray = <T>(o: {[p in keyof T]: any }): (keyof T)[]=>{
     return v as (keyof T)[]
 }
 
-const userAgent = window.navigator.userAgent.toLowerCase()
-let browserInstance
-if (userAgent.indexOf('chrome') !== -1) {
-    browserInstance = chrome
-// } else if (userAgent.indexOf('firefox') !== -1) {
-//     browserInstance = browser
-} else {
-    console.error('知らないブラウザ')
+export const getRandomString = (n: number): string =>{
+    const S = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    return Array.from(crypto.getRandomValues(new Uint32Array(n)))
+        .map((v) => S[v % S.length])
+        .join('');
 }
-export const BROWSER = browserInstance
+export const getRandomNumber = (n: number): number =>{
+    const S = '0123456789';
+    return Number.parseInt(Array.from(crypto.getRandomValues(new Uint32Array(n)))
+        .map((v) => S[v % S.length])
+        .join(''));
+}
+
+export const findValue = <T extends ValuesBase<K>, K>(findId: K, values: T[]): T=>{
+    return values.find(value =>value.valueId === findId)
+}
+
+// const userAgent = window.navigator.userAgent.toLowerCase()
+// let browserInstance
+// if (userAgent.indexOf('chrome') !== -1) {
+//     browserInstance = chrome
+// // } else if (userAgent.indexOf('firefox') !== -1) {
+// //     browserInstance = browser
+// } else {
+//     console.error('知らないブラウザ')
+// }
+// export const BROWSER = browserInstance

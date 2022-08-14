@@ -1,5 +1,5 @@
-import message from '@/message';
-import {getInitialData} from '@/nico_client/video_detail';
+import connection from '@/connection';
+import {NicoAPI} from '@/nico_client/nico_api';
 
 export const editNotify = ()=>{
     // 取得に利用した情報
@@ -78,7 +78,7 @@ export const editNotify = ()=>{
                     intervalWeek: weekList,
                     lastVideoId: videoId
                 }
-                message.send('add', valuesSeries, ()=>{
+                connection.connect('add', valuesSeries, ()=>{
                     window.location.href = '/html/popup_main.html'
                 })
             }else {
@@ -98,7 +98,7 @@ export const editNotify = ()=>{
                             intervalWeek: weekList,
                             lastVideoId: 'first'
                         }
-                        message.send('add', valuesSeries, ()=>{
+                        connection.connect('add', valuesSeries, ()=>{
                             window.location.href = '/html/popup_main.html'
                         })
                     })
@@ -203,49 +203,61 @@ export const editNotify = ()=>{
     }
 
     //情報取得
-    document.getElementById('get_video_info').addEventListener('click',async ()=>{
+    document.getElementById('get_video_info').addEventListener('click',async (event)=>{
+        event.stopPropagation()
         let [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
-        const initialDataString = (await chrome.scripting.executeScript({
-            target: {tabId: tab.id},
-            func: () => {
-                return document.getElementById('js-initial-watch-data').dataset['apiData']
-            }
-        }))[0].result
-        const initialData = getInitialData(initialDataString)
-        if (initialData){
-            const date = new Date(initialData.video.registeredAt)
-            date.setMinutes(date.getMinutes() + 1)
-            editForm.target_interval_time.value = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2)
-            Array.from((document.getElementsByName('target_interval_week')) as NodeListOf<HTMLInputElement>).forEach(
-                (value, index)=>{
-                    value.checked = index === date.getDay()
-                })
-            videoId = initialData.client.watchId
-            onClickWeek()
-            switch (editForm.target_type.value) {
-                case 'series': {
-                    if (initialData.series){
-                        seriesName = initialData.series.title
-                        editForm.series_id.value = initialData.series.id
-                    }else {
-                        alert('シリーズを取得できませんでした')
-                    }
-                }
-            }
-        }else {
+        if (!tab){
             alert('動画情報の取得に失敗しました')
+            return
+        }
+        if (tab.url.match('https://www.nicovideo.jp/watch/')){
+            let watchId = tab.url.replace('https://www.nicovideo.jp/watch/','')
+            const questionIndex = watchId.indexOf('?')
+            if (questionIndex !== -1){
+                watchId = watchId.slice(0, questionIndex)
+            }
+            connection.connect('watch_detail', watchId, (resultValue)=>{
+                if (resultValue){
+                    const date = new Date(resultValue.data.video.registeredAt)
+                    date.setMinutes(date.getMinutes() + 1)
+                    editForm.target_interval_time.value = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2)
+                    Array.from((document.getElementsByName('target_interval_week')) as NodeListOf<HTMLInputElement>).forEach(
+                        (value, index)=>{
+                            value.checked = index === date.getDay()
+                        })
+                    videoId = resultValue.data.client.watchId
+                    onClickWeek()
+                    console.log(resultValue)
+                    switch (editForm.target_type.value) {
+                        case 'series': {
+                            if (resultValue.data.series){
+                                seriesName = resultValue.data.series.title
+                                editForm.series_id.value = resultValue.data.series.id
+                            }else {
+                                alert('シリーズを取得できませんでした')
+                            }
+                        }
+                    }
+                }else {
+                    alert('動画情報の取得に失敗\n取得したい動画タブを選択してください')
+                }
+            })
+        }else {
+            alert('動画情報の取得に失敗\n取得したい動画タブを選択してください')
         }
     })
 
     //戻る
-    document.getElementById('notification').addEventListener('click', () => {
+    document.getElementById('notification').addEventListener('click', (ev) => {
+        ev.stopPropagation()
         window.location.href = '/html/popup_main.html'
     })
 
     //削除
-    document.getElementById('delete').addEventListener('click', () => {
+    document.getElementById('delete').addEventListener('click', (ev) => {
+        ev.stopPropagation()
         if (confirm('削除しますか？')){
-            message.send('remove', usp.get('edit'), ()=>{
+            connection.connect('remove', usp.get('edit'), ()=>{
                 window.location.href = '/html/popup_main.html'
             })
         }

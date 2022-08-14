@@ -1,5 +1,6 @@
 import {OnSetRepoItem} from '@/video/type_on_set';
 import {watchLater} from '@/nico_client/watch_later';
+import {NicoAPI} from '@/nico_client/nico_api';
 
 
 export const onSetAddWatchLater: OnSetRepoItem = itemElement => {
@@ -29,7 +30,7 @@ function onClickWatchLater(this: HTMLButtonElement){
     const watchId = this.dataset.url.replace('https://www.nicovideo.jp/watch/','')
     this.dataset.title = '更新中'
 
-    watchLater.addWatchLater(watchId, ()=>{
+    NicoAPI.addWatchLater(watchId, ()=>{
         this.classList.remove('is-succeeded')
         this.classList.remove('is-failed')
         this.dataset['title'] = 'あとで見る'

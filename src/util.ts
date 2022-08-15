@@ -39,6 +39,30 @@ export default {
     },
     findValue<T extends ValuesBase<K>, K>(findId: K, values: T[]): T | undefined{
         return values.find(value =>value.valueId === findId)
+    },
+    formatNumber(num: number): string{
+        const numString = num.toString()
+        if (numString.length <= 4){
+            // 4桁以下
+            return num.toLocaleString('ja-JP')
+        }else if (numString.length % 4 === 0){
+            // TODO 1,000表記
+            return num.toLocaleString('ja-JP')
+        }else {
+            const place = ['', '万', '億']
+            let kDotText = ''
+            let cnt = 1
+            for (let i = numString.length - 1; i >= 0; i--){
+                console.log(numString[i])
+                kDotText = numString[i] +  kDotText
+                console.log(kDotText)
+                if (cnt % 4 === 0){
+                    kDotText = '.' +  kDotText
+                }
+                cnt++
+            }
+            return (kDotText.match(/(^\d\.\d\d)|(^\d\d\.\d)|^\d{3}/) ?? [''])[0] + place[Math.floor(numString.length / 4)]
+        }
     }
 }
 export const findValue = <T extends ValuesBase<K>, K>(findId: K, values: T[]): T | undefined=>{

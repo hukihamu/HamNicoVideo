@@ -2,6 +2,7 @@ import connection from '@/connection';
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import {NicoAPI} from '@/nico_client/nico_api';
 import {doc} from '@/window';
+import util from '@/util';
 
 export const popupMain = () => {
     document.getElementById('notification_edit')?.addEventListener('click', () => {
@@ -200,7 +201,7 @@ const setNotifyData = (parent: HTMLDivElement, valueId: number)=>{
             doc.getElementById('h6_1-' + valueId).textContent = videoDetail.title// タイトル
             doc.getElementById('d6_2-' + valueId).innerHTML = videoDetail.description//動画説明
             const videoRegister = new Date(videoDetail.firstRetrieve)//投稿時間
-            doc.getElementById('s8-' + valueId).textContent = `${videoRegister.getFullYear().toString().padStart(4, '0')}/${videoRegister.getMonth().toString().padStart(2, '0')}/${videoRegister.getDate().toString().padStart(2, '0')} ${videoRegister.getHours().toString().padStart(2, '0')}:${videoRegister.getMinutes().toString().padStart(2, '0')}`
+            doc.getElementById('s8-' + valueId).textContent = `${videoRegister.getFullYear().toString().padStart(4, '0')}/${(videoRegister.getMonth() + 1).toString().padStart(2, '0')}/${videoRegister.getDate().toString().padStart(2, '0')} ${videoRegister.getHours().toString().padStart(2, '0')}:${videoRegister.getMinutes().toString().padStart(2, '0')}`
             if (videoDetail.isCH) {
                 doc.getElementById('d9_5-' + valueId).classList.remove('hidden')//チャンネル
             }
@@ -210,7 +211,7 @@ const setNotifyData = (parent: HTMLDivElement, valueId: number)=>{
                 doc.getElementById('d9_7-' + valueId).classList.remove('hidden')//有料
             }
             // TODO フォーマット
-            doc.getElementById('d8_3-' + valueId).textContent = videoDetail.viewCounter.toString()//再生数
+            doc.getElementById('d8_3-' + valueId).textContent = util.formatNumber(videoDetail.viewCounter)//再生数
             doc.getElementById('d8_4-' + valueId).textContent = videoDetail.commentNum.toString()//コメント数
             doc.getElementById('d8_5-' + valueId).textContent = videoDetail.likeCounter.toString()//いいね数
             doc.getElementById('d8_6-' + valueId).textContent = videoDetail.myListCounter.toString()//マイリス数

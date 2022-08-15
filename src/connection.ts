@@ -3,6 +3,7 @@ import {NotifyPostData} from '@/post_data/notify_post_data';
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import {WatchDetailType} from '@/nico_client/watch_detail';
 import {BROWSER} from '@/browser';
+import {isInstanceOf} from '@/util';
 
 interface ConnectType  {
     add: {
@@ -23,11 +24,11 @@ interface ConnectType  {
     },
     next: {
         args: number, // videoId
-        result: string | undefined
+        result: undefined
     },
     prev: {
         args: number, // videoId
-        result: string | undefined
+        result: undefined
     },
     watch_detail: {
         args: string, // watchId
@@ -55,8 +56,12 @@ export default {
             })
         })
     },
-    isInstanceof: <K extends keyof ConnectType>(target: K, key: string, value: any): value is ConnectType[K]['args'] =>{
+    isInstanceof: <K extends keyof ConnectType>(target: K, key: string, value: any)
+        : value is ConnectType[K]['args']=>{
         return target === key
+    },
+    run: async <K extends keyof ConnectType>(key: K, value: any, fun: (a: ConnectType[K]['args'])=>Promise<ConnectType[K]['result']>): Promise<ConnectType[K]['result']>=>{
+        return fun(value)
     }
 }
 

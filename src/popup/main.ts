@@ -1,6 +1,7 @@
 import connection from '@/connection';
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import {NicoAPI} from '@/nico_client/nico_api';
+import {doc} from '@/window';
 
 export const popupMain = () => {
     document.getElementById('notification_edit')?.addEventListener('click', () => {
@@ -39,7 +40,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
 
     const a3 = document.createElement('a')
     a3.className = 'NC-Link NC-MediaObject-contents'
-
+    a3.id = 'a3-' + viewData.valueId
     a3.rel = 'noopener'
     a3.target = '_blank'
     a3.addEventListener('click', () => {
@@ -70,6 +71,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
     d7_1.appendChild(d8_1)
 
     const d9_1 = document.createElement('div')
+    d9_1.id = 'd9_1-' + viewData.valueId
     d9_1.className = 'NC-Thumbnail-image'
     d9_1.setAttribute('role', 'img')
     d8_1.appendChild(d9_1)
@@ -80,6 +82,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
     const d10_1 = document.createElement('div')
     d10_1.className = 'NC-VideoPlaybackIndicator-inner'
     const d9_3 = document.createElement('div')
+    d9_3.id = 'd9_3-' + viewData.valueId
     d9_3.className = 'NC-VideoLength'
 
     d8_1.appendChild(d9_3)
@@ -97,6 +100,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
     d4_2.appendChild(d5_2)
     const h6_1 = document.createElement('h2')
     h6_1.className = 'NC-MediaObjectTitle NC-VideoMediaObject-title NC-MediaObjectTitle_fixed2Line'
+    h6_1.id = 'h6_1-' + viewData.valueId
     d5_2.appendChild(h6_1)
 
 
@@ -106,6 +110,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
 
     const d6_2 = document.createElement('div')
     d6_2.className = 'NC-VideoMediaObject-description'
+    d6_2.id = 'd6_2-' + viewData.valueId
     d5_3.appendChild(d6_2)
 
     const d6_3 = document.createElement('div')
@@ -118,6 +123,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
 
     const s8 = document.createElement('span')
     s8.className = 'NC-VideoRegisteredAtText'
+    s8.id = 's8-' + viewData.valueId
     d7_2.appendChild(s8)
     const s9 = document.createElement('span')
     s9.className = 'NC-VideoRegisteredAtText-text'
@@ -129,10 +135,12 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
     const d9_5 = document.createElement('div')
     d9_5.className = 'NC-VideoLabels-label NC-VideoLabels-channel hidden'
     d9_5.innerText = 'CH'
+    d9_5.id = 'd9_5' + viewData.valueId
     d8_2.appendChild(d9_5)
 
     const d9_6 = document.createElement('div')
     d9_6.className = 'NC-PremiumOnlyLabel SeriesVideoListContainer-video hidden'
+    d9_6.id = 'd9_6-' + viewData.valueId
     d8_2.appendChild(d9_6)
     const s10_1 = document.createElement('span')
     s10_1.className = 'NC-PremiumOnlyLabel-icon'
@@ -144,6 +152,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
     const d9_7 = document.createElement('div')
     d9_7.className = 'NC-VideoLabels-label NC-VideoLabels-paid hidden'
     d9_7.innerText = '有料'
+    d9_7.id = 'd9_7-' + viewData.valueId
     d8_2.appendChild(d9_7)
 
     const d7_3 = document.createElement('div')
@@ -152,21 +161,30 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
 
     const d8_3 = document.createElement('div')
     d8_3.className = 'NC-VideoMetaCount NC-VideoMetaCount_view'
+    d8_3.id = 'd8_3-' + viewData.valueId
     d7_3.appendChild(d8_3)
     const d8_4 = document.createElement('div')
     d8_4.className = 'NC-VideoMetaCount NC-VideoMetaCount_comment'
+    d8_4.id = 'd8_4-' + viewData.valueId
     d7_3.appendChild(d8_4)
     const d8_5 = document.createElement('div')
     d8_5.className = 'NC-VideoMetaCount NC-VideoMetaCount_like'
+    d8_5.id = 'd8_5-' + viewData.valueId
     d7_3.appendChild(d8_5)
     const d8_6 = document.createElement('div')
     d8_6.className = 'NC-VideoMetaCount NC-VideoMetaCount_mylist'
+    d8_6.id = 'd8_6-' + viewData.valueId
     d7_3.appendChild(d8_6)
 
     // データ入力
-    connection.connect('detail', viewData.valueId, videoDetail => {
+    setNotifyData(parent, viewData.valueId)
+}
+const setNotifyData = (parent: HTMLDivElement, valueId: number)=>{
+    connection.connect('detail', valueId, videoDetail => {
         if (videoDetail){
-            a3.href = 'https://www.nicovideo.jp/watch/' + videoDetail.watchId
+
+            doc.getElementById<HTMLAnchorElement>('a3-' + valueId).href = 'https://www.nicovideo.jp/watch/' + videoDetail.watchId
+            const d9_1 = doc.getElementById('d9_1-' + valueId)
             d9_1.setAttribute('aria-label', videoDetail.title)
             d9_1.setAttribute('style', `background-image: url('${videoDetail.thumbnailUrl}.L');`) //サムネ
             let lengthText = ''
@@ -178,27 +196,31 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
             }
             lengthText += min.toString().padStart(2, '0') + ':'
             lengthText += sec.toString().padStart(2, '0')
-            d9_3.textContent = lengthText //動画時間
-            h6_1.textContent = videoDetail.title// タイトル
-            d6_2.innerHTML = videoDetail.description//動画説明
+            doc.getElementById('d9_3-' + valueId).textContent = lengthText //動画時間
+            doc.getElementById('h6_1-' + valueId).textContent = videoDetail.title// タイトル
+            doc.getElementById('d6_2-' + valueId).innerHTML = videoDetail.description//動画説明
             const videoRegister = new Date(videoDetail.firstRetrieve)//投稿時間
-            s8.textContent = `${videoRegister.getFullYear().toString().padStart(4, '0')}/${videoRegister.getMonth().toString().padStart(2, '0')}/${videoRegister.getDate().toString().padStart(2, '0')} ${videoRegister.getHours().toString().padStart(2, '0')}:${videoRegister.getMinutes().toString().padStart(2, '0')}`
+            doc.getElementById('s8-' + valueId).textContent = `${videoRegister.getFullYear().toString().padStart(4, '0')}/${videoRegister.getMonth().toString().padStart(2, '0')}/${videoRegister.getDate().toString().padStart(2, '0')} ${videoRegister.getHours().toString().padStart(2, '0')}:${videoRegister.getMinutes().toString().padStart(2, '0')}`
             if (videoDetail.isCH) {
-                d9_5.classList.remove('hidden')//チャンネル
+                doc.getElementById('d9_5-' + valueId).classList.remove('hidden')//チャンネル
             }
             if (videoDetail.isPremiumOnly) {
-                d9_6.classList.remove('hidden')//プレ限
+                doc.getElementById('d9_6-' + valueId).classList.remove('hidden')//プレ限
             } else if (videoDetail.isPaid) {
-                d9_7.classList.remove('hidden')//有料
+                doc.getElementById('d9_7-' + valueId).classList.remove('hidden')//有料
             }
-            d8_3.textContent = videoDetail.viewCounter.toString()//再生数
-            d8_4.textContent = videoDetail.commentNum.toString()//コメント数
-            d8_5.textContent = videoDetail.likeCounter.toString()//いいね数
-            d8_6.textContent = videoDetail.myListCounter.toString()//マイリス数
+            // TODO フォーマット
+            doc.getElementById('d8_3-' + valueId).textContent = videoDetail.viewCounter.toString()//再生数
+            doc.getElementById('d8_4-' + valueId).textContent = videoDetail.commentNum.toString()//コメント数
+            doc.getElementById('d8_5-' + valueId).textContent = videoDetail.likeCounter.toString()//いいね数
+            doc.getElementById('d8_6-' + valueId).textContent = videoDetail.myListCounter.toString()//マイリス数
+            doc.getElementsByFirstClassName('notification', parent).classList.remove('invisible')
         }else {
-            // TODO 非表示
+            // 非表示
+            doc.getElementsByFirstClassName('notification', parent).classList.add('invisible')
         }
     })
+    parent.classList.remove('child-loading')
 }
 
 const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) => {
@@ -221,27 +243,13 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
     const targetOperation = document.createElement('div')
     targetOperation.className = 'target-operation'
 
-    const reload = (object: any) => {
-        // const videoView = VideoView.importVideoView(object)
-        // const notifyElm = parent.getElementsByClassName('notification')[0]
-        // if (notifyElm) notifyElm.remove()
-        // this.child = videoView.child
-        // this.videoData = videoView.videoData
-        // this.createBody(parent)
-        // if (videoView.videoData){
-        //     if (this.child.isNotify) {
-        //         header.classList.add('target-highlight')
-        //     }
-        // }
-        // parent.classList.remove('child-loading')
-    }
-
     //Next
     const nextButton = document.createElement('button')
     nextButton.innerText = 'Next'
     nextButton.className = 'next_button'
     nextButton.addEventListener('click', () => {
-        // browserInstance.runtime.sendMessage({key: 'video-next',value: this.child.notifyId},reload)
+        parent.classList.add('child-loading')
+        connection.connect('next', viewData.valueId, ()=>{setNotifyData(parent, viewData.valueId)})
     })
 
     //prev
@@ -250,7 +258,7 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
     prevButton.className = 'prev_button'
     prevButton.addEventListener('click', () => {
         parent.classList.add('child-loading')
-        // connection.connect('prev', viewData.valueId, reload)
+        connection.connect('prev', viewData.valueId, ()=>{setNotifyData(parent, viewData.valueId)})
     })
 
     //既読

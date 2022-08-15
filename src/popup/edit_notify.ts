@@ -1,12 +1,13 @@
 import connection from '@/connection';
 import {BROWSER} from '@/browser';
 import {throwText} from '@/util';
+import {doc} from '@/window';
 
 export const editNotify = ()=>{
     // 取得に利用した情報
-    let videoId: string | null = null
-    let seriesId: string | null = null
-    let seriesName: string | null = null
+    let videoId: string | undefined = undefined
+    let seriesId: string | undefined = undefined
+    let seriesName: string | undefined = undefined
 
     const editForm = document.getElementById('form') as HTMLFormElement
 
@@ -237,8 +238,9 @@ export const editNotify = ()=>{
                                 editForm.series_id.value = resultValue.data.series.id
                             }else {
                                 alert('シリーズを取得できませんでした')
-                                seriesId = null
-                                seriesName = null
+                                seriesId = undefined
+                                seriesName = undefined
+                                editForm.series_id.value = ''
                             }
                         }
                     }
@@ -269,8 +271,12 @@ export const editNotify = ()=>{
     })
 
     if (usp.has('edit')){
+        // 編集不可項目
+        doc.getElementById('add').className = 'hidden'
+        editForm.series_id.disabled = true
+        doc.getElementById<HTMLButtonElement>('get_video_info').disabled = true
+
         // 変更元取得
-        // document.getElementById('add').className = 'hidden'
         // TODO
         // chrome.runtime.sendMessage({key: 'get-child',value: usp.get('edit')},(child)=>{
         //     const flagIndex = child.flag === 'series' ? 0: 1
@@ -281,8 +287,6 @@ export const editNotify = ()=>{
         //     }
         //     if (flagIndex === 0){
         //         editForm.series_id.value = child.notifyData
-        //         editForm.series_id.disabled = true
-        //         document.getElementById('get_series_id').disabled = true
         //     }else{
         //         editForm.tags_name.value = child.notifyData
         //     }

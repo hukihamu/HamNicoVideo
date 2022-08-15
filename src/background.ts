@@ -3,17 +3,17 @@ import connection from '@/connection';
 import {WatchDetailType} from '@/nico_client/watch_detail';
 import {NicoAPI} from '@/nico_client/nico_api';
 import {toVideoDetailPostData} from '@/post_data/video_detail_post_data';
-import {findValue, throwText} from '@/util';
+import util, {findValue, throwText} from '@/util';
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import {BROWSER} from '@/browser';
 
-const cacheVideoDetail: { [watchId: string]: WatchDetailType } = {}
+const _cacheVideoDetail: { [watchId: string]: WatchDetailType } = {}
 const getCacheValueDetail = async (watchId: string): Promise<WatchDetailType> =>{
-    if (!cacheVideoDetail[watchId]) cacheVideoDetail[watchId] = await NicoAPI.getWatchDetail(watchId)
-    return cacheVideoDetail[watchId]
+    if (!_cacheVideoDetail[watchId]) _cacheVideoDetail[watchId] = await NicoAPI.getWatchDetail(watchId)
+    return _cacheVideoDetail[watchId]
 }
 let notifyList: ValuesNotifySeries[] = []
-const showNotifyId: {[valueId: number]: string} = {}
+const showNotifyId: {[valueId: number]: string | undefined} = {}
 // TODO https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
 const initBackground = async () => {
     await storage.init()
@@ -28,72 +28,83 @@ const initBackground = async () => {
     }
 
     connection.setConnectListener(async (key, args) => {
-        if (connection.isInstanceof('add', key, args)) {
-            notifyList.push(args)
-            const param = storage.get('Notify_NotifyList')
-            param.dynamicValues = notifyList
-            storage.set('Notify_NotifyList', param)
-            return
-        } else if (connection.isInstanceof('list', key, args)) {
-            const result: NotifyPostData[] = []
-            for (const value of notifyList) {
-                result.push({
-                    valueId: value.valueId,
-                    title: value.seriesName,
-                    isNotify: false,
-                    titleLink: 'https://www.nicovideo.jp/series/' + value.seriesId
+        switch (key){
+            case 'add':
+                return connection.run(key, args, async a => {
+                    notifyList.push(a)
+                    const param = storage.get('Notify_NotifyList')
+                    param.dynamicValues = notifyList
+                    storage.set('Notify_NotifyList', param)
+                    return undefined
                 })
-            }
-            return result
-        } else if (connection.isInstanceof('detail', key, args)) {
-            if (!showNotifyId[args]){
-                let showWatchId: string | undefined
-                const notify = findValue(args, notifyList) ?? throwText(`登録された通知が見つかりませんでした\nID: ${args}: List: ${notifyList}`)
-                if (notify.lastVideoId && notify.lastVideoId !== 'first'){
-                    showWatchId = (await getCacheValueDetail(notify.lastVideoId)).data.series.video.next?.id
-                } else {
-                    // 最初の動画
-                    showWatchId = (await NicoAPI.getSeries(notify.seriesId)).data.items[0].id
-                }
-                showNotifyId[args] = showWatchId ?? throwText('表示する動画IDが見つかりませんでした')
-            }
-            if (!cacheVideoDetail[showNotifyId[args]]) {
-                cacheVideoDetail[showNotifyId[args]] = await NicoAPI.getWatchDetail(showNotifyId[args])
-            }
-            return toVideoDetailPostData(cacheVideoDetail[args])
-        } else if (connection.isInstanceof('watch_detail', key, args)) {
-            if (!cacheVideoDetail[args]) {
-                cacheVideoDetail[args] = await NicoAPI.getWatchDetail(args)
-            }
-            return cacheVideoDetail[args]
-        } else if (connection.isInstanceof('prev', key, args)) {
-            if (!cacheVideoDetail[args]) {
-                cacheVideoDetail[args] = await NicoAPI.getWatchDetail(args)
-            }
-            const prevId = cacheVideoDetail[args].data.series.video.prev?.id
-            if (prevId){
+            case 'list':
+                return connection.run(key, args, async a => {
+                    const result: NotifyPostData[] = []
+                    for (const value of notifyList) {
+                        result.push({
+                            valueId: value.valueId,
+                            title: value.seriesName,
+                            isNotify: false,
+                            titleLink: 'https://www.nicovideo.jp/series/' + value.seriesId
+                        })
+                    }
+                    return result
+                })
+            case 'detail':
+                return connection.run(key, args, async a => {
+                    let nId = showNotifyId[a]
+                    if (!nId){
+                        let showWatchId: string | undefined
+                        const notify = findValue(a, notifyList) ?? throwText(`登録された通知が見つかりませんでした\nID: ${args}: List: ${notifyList}`)
+                        if (notify.lastVideoId && notify.lastVideoId !== 'first'){
+                            showWatchId = (await getCacheValueDetail(notify.lastVideoId)).data.series.video.next?.id
+                        } else {
+                            // 最初の動画
+                            showWatchId = (await NicoAPI.getSeries(notify.seriesId)).data.items[0].id
+                        }
+                        if (!showWatchId) return undefined
+                        nId = showWatchId
+                        showNotifyId[a] = nId
+                    }
+                    return toVideoDetailPostData(await getCacheValueDetail(nId))
+                })
+            case 'next':
+                return connection.run(key, args, async a => {
+                    const nId = showNotifyId[a]
+                    if (!nId) return undefined
+                    const nextId =(await getCacheValueDetail(nId)).data.series.video.next?.id
+                    const i = util.findIndex(a, notifyList)
+                    notifyList[i].lastVideoId = showNotifyId[a]
+                    const param = storage.get('Notify_NotifyList')
+                    param.dynamicValues = notifyList
+                    storage.set('Notify_NotifyList', param)
+                    showNotifyId[a] = nextId
+                    return undefined
+                })
+            case 'prev':
+                return connection.run(key, args, async a => {
+                    const nId = showNotifyId[a]
+                    const prevId = nId ? (await getCacheValueDetail(nId)).data.series.video.prev?.id : util.findValue(a, notifyList)?.lastVideoId
+                    if (prevId){
+                        showNotifyId[a] = prevId
+                        const lastWatchId = (await getCacheValueDetail(prevId)).data.series.video.prev?.id ?? 'first'
+                        const i = util.findIndex(a, notifyList)
+                        notifyList[i].lastVideoId = lastWatchId
+                        const param = storage.get('Notify_NotifyList')
+                        param.dynamicValues = notifyList
+                        storage.set('Notify_NotifyList', param)
+                    }
+                    return undefined
+                })
+            case 'watch_detail':
+                return connection.run(key, args, async a => {
+                    return await getCacheValueDetail(a)
+                })
+            default:
+                console.error('メッセージ取得に失敗')
+                console.log(args)
+                return
 
-                const param = storage.get('Notify_NotifyList')
-                param.dynamicValues.push(args)
-                storage.set('Notify_NotifyList', param)
-            }
-
-            return prevId
-        } else if (connection.isInstanceof('next', key, args)) {
-            // if (!cacheVideoDetail[args]) {
-            //     cacheVideoDetail[args] = await NicoAPI.getWatchDetail(args)
-            // }
-            // const nextId = cacheVideoDetail[args].data.series.video.next?.id
-            // if (!nextId) return
-            // if (!cacheVideoDetail[nextId]) {
-            //     cacheVideoDetail[nextId] = await NicoAPI.getWatchDetail(nextId)
-            // }
-            // return cacheVideoDetail[nextId]
-            return
-        } else {
-            console.error('メッセージ取得に失敗')
-            console.log(args)
-            return
         }
     })
 }

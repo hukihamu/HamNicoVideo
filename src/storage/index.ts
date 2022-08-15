@@ -16,11 +16,8 @@ export default class {
         BROWSER.storage.onChanged.addListener(changes => {
             storage_cache = localToParameter(changes[STORAGE_KEY].newValue)
         })
-        return new Promise<void>((resolve) =>{
-            BROWSER.storage.sync.get(null,(items) =>{
-                storage_cache = localToParameter(items[STORAGE_KEY])
-                resolve()
-            })
+        return BROWSER.storage.sync.get(null).then(items=>{
+            storage_cache = localToParameter(items[STORAGE_KEY])
         })
     }
     static get<U extends keyof ParametersType>(key: U): ParametersType[U]  {

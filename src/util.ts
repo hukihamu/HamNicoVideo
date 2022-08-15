@@ -33,7 +33,14 @@ export const getRandomNumber = (n: number): number =>{
         .map((v) => S[v % S.length])
         .join(''));
 }
-
+export default {
+    findIndex<T extends ValuesBase<K>, K>(findId: K, values: T[]): number{
+        return values.findIndex(value =>value.valueId === findId)
+    },
+    findValue<T extends ValuesBase<K>, K>(findId: K, values: T[]): T | undefined{
+        return values.find(value =>value.valueId === findId)
+    }
+}
 export const findValue = <T extends ValuesBase<K>, K>(findId: K, values: T[]): T | undefined=>{
     return values.find(value =>value.valueId === findId)
 }

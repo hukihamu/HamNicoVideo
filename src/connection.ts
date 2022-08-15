@@ -2,6 +2,7 @@
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import {WatchDetailType} from '@/nico_client/watch_detail';
+import {BROWSER} from '@/browser';
 
 interface ConnectType  {
     add: {
@@ -13,48 +14,37 @@ interface ConnectType  {
         result: NotifyPostData[]
     },
     remove: {
-        args: string,
+        args: number, // videoId
         result: undefined
     },
     detail: {
-        args: string,
-        result: VideoDetailPostData
+        args: number, // videoId
+        result: VideoDetailPostData | undefined
     },
     next: {
-        args: string,
-        result: VideoDetailPostData
+        args: number, // videoId
+        result: string | undefined
     },
     prev: {
-        args: string,
-        result: VideoDetailPostData
+        args: number, // videoId
+        result: string | undefined
     },
     watch_detail: {
-        args: string,
+        args: string, // watchId
         result: WatchDetailType
     }
 }
 export default {
-    connect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args'], resultCallback: (resultValue: ConnectType[K]['result'] | undefined) => void)=>{
-        const onConnect = ()=>{
-            const port = chrome.runtime.connect({name: key})
-            port.onMessage.addListener(message => {
-                resultCallback(message)
-                return true
-            })
-            port.postMessage(args)
-        }
-        navigator.serviceWorker.getRegistrations().then((res) => {
-            for (let worker of res) {
-                console.log(worker)
-                if (worker.active.scriptURL.includes('background.js')) {
-                    // onConnect()
-                    return
-                }
-            }
+    connect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args'], resultCallback: (resultValue: ConnectType[K]['result']) => void)=>{
+        const port = BROWSER.connect({name: key})
+        port.onMessage.addListener(message => {
+            resultCallback(message)
+            return true
         })
+        port.postMessage(args)
     },
     setConnectListener: <K extends keyof ConnectType>(listener: (key: K, args: ConnectType[K]['args'])=>Promise<ConnectType[K]['result']>)=>{
-        chrome.runtime.onConnect.addListener(port => {
+        BROWSER.onConnect.addListener(port => {
             const key = port.name as K
             port.onMessage.addListener(_args =>{
                 const args = _args as ConnectType[K]['args']

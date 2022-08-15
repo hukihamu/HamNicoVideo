@@ -28,15 +28,15 @@ const parameterToName = {
 const onSave = <U extends keyof ParametersType>(key: U, newValue:ParametersType[U])=>{
     const p = storage.get(key)
     storage.set(key, newValue)
-    document.getElementById('save').classList.add('is-show')
+    document.getElementById('save')?.classList.add('is-show')
 }
 const setEvent = ()=>{
     const saveElement = document.getElementById('save')
-    saveElement.addEventListener('animationend', ()=>{
+    saveElement?.addEventListener('animationend', ()=>{
         saveElement.classList.remove('is-show')
     })
 
-    document.getElementById('export').addEventListener('click', ()=>{
+    document.getElementById('export')?.addEventListener('click', ()=>{
         // TODO
         // const e = new Blob([JSON.stringify(BStorage.cache)])
         // const date = new Date()
@@ -46,10 +46,10 @@ const setEvent = ()=>{
         // o.download = t
         // o.dispatchEvent(new MouseEvent('click'))
     })
-    document.getElementById('import').addEventListener('click', ()=>{
-        document.getElementById('import_input').click()
+    document.getElementById('import')?.addEventListener('click', ()=>{
+        document.getElementById('import_input')?.click()
     })
-    document.getElementById('import_input').addEventListener('change', ()=>{
+    document.getElementById('import_input')?.addEventListener('change', ()=>{
         // TODO
         // const file = e.target.files[0]
         // const t = new FileReader
@@ -76,7 +76,7 @@ const setEvent = ()=>{
         // }))
         // t.readAsText(file)
     })
-    document.getElementById('all_default').addEventListener('click',()=>{
+    document.getElementById('all_default')?.addEventListener('click',()=>{
         storage.allDefault()
         location.reload()
     })
@@ -104,7 +104,7 @@ const createBody = ()=> {
     const createLayer = (layer: Layer, level: number) => {
         for (const l in layer) {
             const li = document.createElement('li')
-            ul.appendChild(li)
+            ul?.appendChild(li)
             const childLayer = layer[l]
             if (typeof childLayer === "string") {
                 li.className = 'param-content'

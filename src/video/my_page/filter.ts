@@ -8,7 +8,7 @@ export const onSetFilter: OnSetNicoRepo =  {
         const activityDescriptionText = itemElement.getElementsByClassName('NicorepoItem-activityDescription')[0].textContent
         let result: boolean|undefined = undefined
         for (const v of storage.get('Video_MyPage_HiddenFilter').values) {
-            if (activityDescriptionText.match(v.matcher)) {
+            if (activityDescriptionText?.match(v.matcher)) {
                 result = v.enable
                 break
             }

@@ -1,13 +1,14 @@
 // 1ボタンで後で見るから削除できるやつ
 
 import {watchLater} from '@/nico_client/watch_later';
+import {throwText} from '@/util';
 const ELEMENT_ID = 'remove_watch_later_button'
 
 export const onSetRemoveWatchLater = ()=>{
     const watchId = location.pathname.replace('/watch/','')
 
     const oldRWL = document.getElementById(ELEMENT_ID)
-    if (oldRWL) oldRWL.parentElement.remove()
+    oldRWL?.parentElement?.remove()
 
     const callback = (itemId: string)=>{
         const buttonContainer = document.getElementsByClassName('VideoMenuContainer-areaLeft')[0]
@@ -42,14 +43,14 @@ export const onSetRemoveWatchLater = ()=>{
 function removeWatchLaterListener(event: MouseEvent){
 
     const target = event.target as HTMLElement
-
-    watchLater.remove(target.dataset['itemId'],
-        ()=>{
-            target.parentElement.remove()
-        },()=>{
+    const itemId = target.dataset['itemId'] ?? throwText('itemIdが見つかりませんでした')
+    watchLater.remove(itemId,
+        () => {
+            target.parentElement?.remove()
+        }, () => {
             target.classList.add('is-succeeded')
             target.dataset['title'] = '「あとで見る」から削除しました'
-        },()=>{
+        }, () => {
             target.classList.add('is-failed')
             target.dataset['title'] = '「あとで見る」から削除に失敗'
         })

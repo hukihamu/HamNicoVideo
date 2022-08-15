@@ -34,8 +34,12 @@ export const getRandomNumber = (n: number): number =>{
         .join(''));
 }
 
-export const findValue = <T extends ValuesBase<K>, K>(findId: K, values: T[]): T=>{
+export const findValue = <T extends ValuesBase<K>, K>(findId: K, values: T[]): T | undefined=>{
     return values.find(value =>value.valueId === findId)
+}
+
+export const throwText = (text: string): never=>{
+    throw text
 }
 
 // const userAgent = window.navigator.userAgent.toLowerCase()

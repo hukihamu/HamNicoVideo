@@ -2,10 +2,11 @@
 import {OnSetCardGrid} from '@/video/type_on_set';
 import storage from '@/storage';
 import {myList} from '@/nico_client/my_list';
+import {throwText} from '@/util';
 
 const DEFAULT_MY_LIST_NAME = '1クリックマイリスト'
 
-let currentMyListId = ''
+let currentMyListId: string | undefined = undefined
 let currentMyListName = DEFAULT_MY_LIST_NAME
 
 export const onSetOneClickMyList = {
@@ -17,6 +18,7 @@ export const onSetOneClickMyList = {
         buttonContainer.insertBefore(div, buttonContainer.children[1])
 
         const myListIcon = document.getElementsByClassName('MylistIcon')[0]
+        if (!myListIcon.parentElement) throw 'MylistIcon の親要素取得に失敗'
         myListIcon.parentElement.id = 'add_my_list_button'
         const svg = myListIcon.cloneNode(true) as HTMLElement
         svg.children[0].setAttribute('d', 'M22 0h22c.4 0 .8 0 1.1.2A8 8 0 0151 4.9l3 7.1H92a8 8 0 018 8v56a8 8 0 01-8 8H8a8 8 0 01-8-8V8a8 8 0 018-8h14zm48.2 53.4v-11a1.3 1.3 0 011.2-1.2h5.2a1.3 1.3 0 011.2 1.3v10.9h11a1.3 1.3 0 011.2 1.2v5.2a1.3 1.3 0 01-1.3 1.2H77.8v11a1.3 1.3 0 01-1.2 1.2h-5.2a1.3 1.3 0 01-1.2-1.3V61h-11a1.3 1.3 0 01-1.2-1.2v-5.2a1.3 1.3 0 011.3-1.2h10.9zM24 61.2v-8')
@@ -33,7 +35,7 @@ export const onSetOneClickMyList = {
 
         //マイリスト名取得
         const myListId = storage.get('Video_Watch_OneClickMyList').textValue
-        if (myListId && currentMyListId !== myListId){
+        if (myListId && currentMyListId && currentMyListId !== myListId){
             myList.getMyListName(currentMyListId).then((myListName)=>{
                 if (myListName){
                     currentMyListId = myListId
@@ -98,6 +100,7 @@ const onAddMyList = (event: MouseEvent)=>{
 const onSettingMyList = ()=>{
     //既存の表示に便乗　表示時に上書き
     const myList = document.getElementById('add_my_list_button')
+        ?? throwText('add_my_list_button が見つかりませんでした')
     const panel = document.getElementsByClassName('MainContainer-floatingPanel')[0]
     if (panel.firstChild && !(panel.firstChild.firstChild as HTMLElement).classList.contains('custom-mylist')) {
         myList.click()
@@ -106,14 +109,17 @@ const onSettingMyList = ()=>{
         event.stopPropagation()
         let myListNode = event.target as HTMLElement
         for (let i = 0; !myListNode.dataset['mylistId'] && i < 5; i++) {
+            if (!myListNode.parentElement) throw 'mylistId 取得に失敗'
             myListNode = myListNode.parentElement
         }
         currentMyListId = myListNode.dataset['mylistId']
-        currentMyListName = myListNode.dataset['mylistName']
+        currentMyListName = myListNode.dataset['mylistName'] ?? DEFAULT_MY_LIST_NAME
         const pv = storage.get('Video_Watch_OneClickMyList')
-        pv.textValue = currentMyListId
+        pv.textValue = currentMyListId ?? ''
         storage.set('Video_Watch_OneClickMyList', pv)
-        document.getElementById('one_click_my_list_button').dataset['title'] = currentMyListName
+        const oneClickMyListButton = document.getElementById('one_click_my_list_button')
+            ?? throwText( 'one_click_my_list_button 取得に失敗')
+        oneClickMyListButton.dataset['title'] = currentMyListName
         myList.click()
     }
 
@@ -125,10 +131,10 @@ const onSettingMyList = ()=>{
                     case 'FloatingPanelContainer is-visible':
                         const panelHeader = addedNode.getElementsByClassName('AddVideoListPanelContainer-header')[0] as HTMLElement
                         panelHeader.innerText = panelHeader.innerText.replace('リストに登録', '1クリックマイリストに設定')
-                        panelHeader.parentElement.classList.add('custom-mylist')
+                        panelHeader.parentElement?.classList.add('custom-mylist')
 
                         const inner = addedNode.getElementsByClassName('AddVideoListPanel-inner')[0]
-                        inner.firstChild.remove()
+                        inner.firstChild?.remove()
                         const panelItems = Array.from(inner.getElementsByClassName('AddVideoListPanel-item'))
                         for (let item of panelItems) {
                             item.addEventListener('click', onMyListPanelEvent, true)

@@ -8,7 +8,7 @@ export const onSetHighlightNewRange: OnSetRepoItem = itemElement => {
         const setting = storage.get("Video_MyPage_HighlightNewRange")
         let matchIndex = -1
         for (let i = 0; i < setting.selectList.length;i++) {
-            if (createdAtText.match(setting.selectList[i].value)){
+            if (createdAtText?.match(setting.selectList[i].value)){
                 matchIndex = i
                 break
             }

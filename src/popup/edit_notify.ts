@@ -1,9 +1,11 @@
 import connection from '@/connection';
-import {NicoAPI} from '@/nico_client/nico_api';
+import {BROWSER} from '@/browser';
+import {throwText} from '@/util';
 
 export const editNotify = ()=>{
     // 取得に利用した情報
     let videoId: string | null = null
+    let seriesId: string | null = null
     let seriesName: string | null = null
 
     const editForm = document.getElementById('form') as HTMLFormElement
@@ -16,9 +18,9 @@ export const editNotify = ()=>{
     for (const elm of Array.from(document.getElementsByName('target_type'))){
         elm.addEventListener('click',(e)=>{
             const target = e.target as HTMLInputElement
-            const seriesDiv = document.getElementById('series_value')
+            const seriesDiv = document.getElementById('series_value') ?? throwText('series_value 取得に失敗')
             const seriesInput = document.getElementsByName('series_id')[0] as HTMLInputElement
-            const tagDiv = document.getElementById('tags_value')
+            const tagDiv = document.getElementById('tags_value') ?? throwText('tags_value 取得に失敗')
             const tagInput = document.getElementsByName('tags_name')[0] as HTMLInputElement
             switch (target.value){
                 case "series":
@@ -37,9 +39,9 @@ export const editNotify = ()=>{
         })
     }
     //interval切り替え
-    document.getElementById('is_interval').addEventListener('change',(e)=>{
+    document.getElementById('is_interval')?.addEventListener('change',(e)=>{
         const target = e.target as HTMLInputElement
-        const setInterval = document.getElementById('set_interval')
+        const setInterval = document.getElementById('set_interval') ?? throwText('set_interval 取得に失敗')
         if (target.checked){
             setInterval.className = ''
         }else{
@@ -66,12 +68,12 @@ export const editNotify = ()=>{
             // })
         }else {
             //追加
-            if (seriesName){
+            if (editForm.series_id.value === seriesId){
                 // シリーズネームを取得できている
                 const valuesSeries: ValuesNotifySeries = {
                     valueId: Date.now(),
                     seriesId: editForm.series_id.value,
-                    seriesName: seriesName,
+                    seriesName: seriesName ?? 'シリーズ名取得失敗',
                     isNotify: false,
                     isInterval: editForm.is_interval.checked,
                     intervalTime: intervalTime,
@@ -91,7 +93,7 @@ export const editNotify = ()=>{
                         const valuesSeries: ValuesNotifySeries = {
                             valueId: Date.now(),
                             seriesId: editForm.series_id.value,
-                            seriesName: seriesName,
+                            seriesName: seriesName ?? 'シリーズ名取得失敗',
                             isNotify: false,
                             isInterval: editForm.is_interval.checked,
                             intervalTime: intervalTime,
@@ -142,7 +144,7 @@ export const editNotify = ()=>{
     // }
 
     //シリーズID　入力条件
-    document.getElementById('series_id').addEventListener('input',(e)=>{
+    document.getElementById('series_id')?.addEventListener('input',(e)=>{
         const target = e.target as HTMLInputElement
         target.value = target.value.replace(/[^0-9]/g, '')
     })
@@ -203,14 +205,14 @@ export const editNotify = ()=>{
     }
 
     //情報取得
-    document.getElementById('get_video_info').addEventListener('click',async (event)=>{
+    document.getElementById('get_video_info')?.addEventListener('click',async (event)=>{
         event.stopPropagation()
-        let [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
+        let [tab] = await BROWSER.tabs.query({ active: true, lastFocusedWindow: true })
         if (!tab){
             alert('動画情報の取得に失敗しました')
             return
         }
-        if (tab.url.match('https://www.nicovideo.jp/watch/')){
+        if (tab.url?.match('https://www.nicovideo.jp/watch/')){
             let watchId = tab.url.replace('https://www.nicovideo.jp/watch/','')
             const questionIndex = watchId.indexOf('?')
             if (questionIndex !== -1){
@@ -227,14 +229,16 @@ export const editNotify = ()=>{
                         })
                     videoId = resultValue.data.client.watchId
                     onClickWeek()
-                    console.log(resultValue)
                     switch (editForm.target_type.value) {
                         case 'series': {
                             if (resultValue.data.series){
+                                seriesId = resultValue.data.series.id.toString()
                                 seriesName = resultValue.data.series.title
                                 editForm.series_id.value = resultValue.data.series.id
                             }else {
                                 alert('シリーズを取得できませんでした')
+                                seriesId = null
+                                seriesName = null
                             }
                         }
                     }
@@ -248,24 +252,25 @@ export const editNotify = ()=>{
     })
 
     //戻る
-    document.getElementById('notification').addEventListener('click', (ev) => {
+    document.getElementById('notification')?.addEventListener('click', (ev) => {
         ev.stopPropagation()
         window.location.href = '/html/popup_main.html'
     })
 
     //削除
-    document.getElementById('delete').addEventListener('click', (ev) => {
+    document.getElementById('delete')?.addEventListener('click', (ev) => {
         ev.stopPropagation()
         if (confirm('削除しますか？')){
-            connection.connect('remove', usp.get('edit'), ()=>{
-                window.location.href = '/html/popup_main.html'
-            })
+            // TODO
+            // connection.connect('remove', usp.get('edit'), ()=>{
+            //     window.location.href = '/html/popup_main.html'
+            // })
         }
     })
 
     if (usp.has('edit')){
         // 変更元取得
-        document.getElementById('add').className = 'hidden'
+        // document.getElementById('add').className = 'hidden'
         // TODO
         // chrome.runtime.sendMessage({key: 'get-child',value: usp.get('edit')},(child)=>{
         //     const flagIndex = child.flag === 'series' ? 0: 1
@@ -318,6 +323,9 @@ export const editNotify = ()=>{
         //     editChild = child
         // })
     }else{
-        document.getElementById('edit').className = 'hidden'
+        const edit = document.getElementById('edit')
+        if (edit){
+            edit.className = 'hidden'
+        }
     }
 }

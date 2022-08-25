@@ -55,9 +55,7 @@ export default {
             let kDotText = ''
             let cnt = 1
             for (let i = numString.length - 1; i >= 0; i--){
-                console.log(numString[i])
                 kDotText = numString[i] +  kDotText
-                console.log(kDotText)
                 if (cnt % 4 === 0){
                     kDotText = '.' +  kDotText
                 }
@@ -76,7 +74,7 @@ export const findIndex = <T extends ValuesBase<K>, K>(findId: K, values: T[]): n
 }
 
 export const throwText = (text: string): never => {
-    throw text
+    throw new Error(text)
 }
 
 // const userAgent = window.navigator.userAgent.toLowerCase()

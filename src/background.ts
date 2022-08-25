@@ -3,7 +3,7 @@ import connection from '@/connection';
 import {WatchDetailType} from '@/nico_client/watch_detail';
 import {NicoAPI} from '@/nico_client/nico_api';
 import {toVideoDetailPostData} from '@/post_data/video_detail_post_data';
-import util, {findValue, throwText} from '@/util';
+import util, {findIndex, findValue, isInstanceOf, throwText} from '@/util';
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import {BROWSER} from '@/browser';
 
@@ -12,7 +12,7 @@ const getCacheValueDetail = async (watchId: string): Promise<WatchDetailType> =>
     if (!_cacheVideoDetail[watchId]) _cacheVideoDetail[watchId] = await NicoAPI.getWatchDetail(watchId)
     return _cacheVideoDetail[watchId]
 }
-let notifyList: ValuesNotifySeries[] = []
+let notifyList: ValuesNotify[] = []
 const showNotifyId: {[valueId: number]: string | undefined} = {}
 // TODO https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
 const initBackground = async () => {
@@ -38,15 +38,17 @@ const initBackground = async () => {
                     return undefined
                 })
             case 'list':
-                return connection.run(key, args, async a => {
+                return connection.run(key, args, async _ => {
                     const result: NotifyPostData[] = []
                     for (const value of notifyList) {
-                        result.push({
-                            valueId: value.valueId,
-                            title: value.seriesName,
-                            isNotify: false,
-                            titleLink: 'https://www.nicovideo.jp/series/' + value.seriesId
-                        })
+                        if (isInstanceOf<ValuesNotifySeries>(value, 'seriesId')){
+                            result.push({
+                                valueId: value.valueId,
+                                title: value.seriesName,
+                                isNotify: false,
+                                titleLink: 'https://www.nicovideo.jp/series/' + value.seriesId
+                            })
+                        }
                     }
                     return result
                 })
@@ -60,7 +62,9 @@ const initBackground = async () => {
                             showWatchId = (await getCacheValueDetail(notify.lastVideoId)).data.series.video.next?.id
                         } else {
                             // 最初の動画
-                            showWatchId = (await NicoAPI.getSeries(notify.seriesId)).data.items[0].id
+                            if (isInstanceOf<ValuesNotifySeries>(notify, 'seriesId')){
+                                showWatchId = (await NicoAPI.getSeries(notify.seriesId)).data.items[0].id
+                            }
                         }
                         if (!showWatchId) return undefined
                         nId = showWatchId
@@ -100,6 +104,28 @@ const initBackground = async () => {
                 return connection.run(key, args, async a => {
                     return await getCacheValueDetail(a)
                 })
+            case 'remove':
+                return connection.run(key, args, async a => {
+                    const index = findIndex(a, notifyList)
+                    notifyList.splice(index, 1)
+                    const param = storage.get('Notify_NotifyList')
+                    param.dynamicValues = notifyList
+                    storage.set('Notify_NotifyList', param)
+                    return undefined
+                })
+            case 'get_notify':
+                return connection.run(key, args, async a =>{
+                    return findValue(a, notifyList) ?? throwText('通知データの取得に失敗')
+                })
+            case 'edit':
+                return connection.run(key, args, async a =>{
+                    const index = findIndex(a.valueId, notifyList)
+                    notifyList[index] = a
+                    const param = storage.get('Notify_NotifyList')
+                    param.dynamicValues = notifyList
+                    storage.set('Notify_NotifyList', param)
+                    return undefined
+                })
             default:
                 console.error('メッセージ取得に失敗')
                 console.log(args)
@@ -109,7 +135,7 @@ const initBackground = async () => {
     })
 }
 
-const onCreateAlarm = async (notifyValue: ValuesNotifySeries) => {
+const onCreateAlarm = async (notifyValue: ValuesNotify) => {
     if (!notifyValue.isInterval) return
     if (!notifyValue.intervalTime) return
     await BROWSER.alarms.clear(notifyValue.valueId.toString())

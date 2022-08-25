@@ -19,7 +19,7 @@ export type ParametersType = {
     Video_Watch_RemoveWatchLater: ParameterBaseValue,
     Video_Watch_MinimizeLike: ParameterSelectValue,
     Video_Watch_OneClickMyList: ParameterTextValue,
-    Notify_NotifyList: ParameterDynamicValues<ValuesNotifySeries>
+    Notify_NotifyList: ParameterDynamicValues<ValuesNotify>
 }
 // default設定 TODO 適時追記
 export const parameterDefault: ParametersType = {

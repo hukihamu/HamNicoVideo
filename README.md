@@ -26,3 +26,5 @@ A. 連絡手段は下記の通り
 
 
 ## 利用API
+- https://nvapi.nicovideo.jp/v3/users/4846395/videos?sortKey=registeredAt&sortOrder=desc&pageSize=100&page=1
+- https://nvapi.nicovideo.jp/v1/playlist/search?sortKey=registeredAt&sortOrder=desc&tag=d%E3%82%A2%E3%83%8B%E3%83%A1%E3%82%B9%E3%83%88%E3%82%A2&pageSize=32&page=1

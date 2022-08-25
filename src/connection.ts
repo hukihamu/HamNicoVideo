@@ -9,31 +9,39 @@ interface ConnectType  {
     add: {
         args: ValuesNotifySeries,
         result: undefined
-    },
+    }
     list: {
         args: undefined,
         result: NotifyPostData[]
-    },
+    }
+    edit: {
+        args: ValuesNotify,
+        result: undefined
+    }
+    get_notify: {
+        args: number, // valueId
+        result: ValuesNotify
+    }
     remove: {
-        args: number, // videoId
+        args: number, // valueId
         result: undefined
-    },
+    }
     detail: {
-        args: number, // videoId
+        args: number, // valueId
         result: VideoDetailPostData | undefined
-    },
+    }
     next: {
-        args: number, // videoId
+        args: number, // valueId
         result: undefined
-    },
+    }
     prev: {
-        args: number, // videoId
+        args: number, // valueId
         result: undefined
-    },
+    }
     watch_detail: {
         args: string, // watchId
         result: WatchDetailType
-    },
+    }
 }
 export default {
     connect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args'], resultCallback: (resultValue: ConnectType[K]['result']) => void)=>{

@@ -136,7 +136,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
     const d9_5 = document.createElement('div')
     d9_5.className = 'NC-VideoLabels-label NC-VideoLabels-channel hidden'
     d9_5.innerText = 'CH'
-    d9_5.id = 'd9_5' + viewData.valueId
+    d9_5.id = 'd9_5-' + viewData.valueId
     d8_2.appendChild(d9_5)
 
     const d9_6 = document.createElement('div')

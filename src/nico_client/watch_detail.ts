@@ -44,7 +44,7 @@ export type WatchDetailType = {
 }
 export const watchDetail = {
     get: async (watchId: string): Promise<WatchDetailType>=>{
-        return fetch(`https://www.nicovideo.jp/api/watch/v3_guest/${watchId}?actionTrackId=${getRandomString(10)}_${getRandomNumber(13)}&additionals=series`, {
+        return fetch(`https://www.nicovideo.jp/api/watch/v3/${watchId}?actionTrackId=${getRandomString(10)}_${getRandomNumber(13)}&additionals=series`, {
             method: 'post',
             headers: {
                 'X-Frontend-Id': '6',

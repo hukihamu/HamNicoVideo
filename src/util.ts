@@ -27,12 +27,14 @@ export const getRandomString = (n: number): string =>{
         .map((v) => S[v % S.length])
         .join('');
 }
+
 export const getRandomNumber = (n: number): number =>{
     const S = '0123456789';
     return Number.parseInt(Array.from(crypto.getRandomValues(new Uint32Array(n)))
         .map((v) => S[v % S.length])
         .join(''));
 }
+
 export default {
     findIndex<T extends ValuesBase<K>, K>(findId: K, values: T[]): number{
         return values.findIndex(value =>value.valueId === findId)
@@ -69,7 +71,11 @@ export const findValue = <T extends ValuesBase<K>, K>(findId: K, values: T[]): T
     return values.find(value =>value.valueId === findId)
 }
 
-export const throwText = (text: string): never=>{
+export const findIndex = <T extends ValuesBase<K>, K>(findId: K, values: T[]): number => {
+    return values.findIndex(value =>value.valueId === findId)
+}
+
+export const throwText = (text: string): never => {
     throw text
 }
 

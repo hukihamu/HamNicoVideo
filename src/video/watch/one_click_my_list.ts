@@ -35,8 +35,8 @@ export const onSetOneClickMyList = {
 
         //マイリスト名取得
         const myListId = storage.get('Video_Watch_OneClickMyList').textValue
-        if (myListId && currentMyListId && currentMyListId !== myListId){
-            myList.getMyListName(currentMyListId).then((myListName)=>{
+        if (myListId && currentMyListId !== myListId){
+            myList.getMyListName(myListId).then((myListName)=>{
                 if (myListName){
                     currentMyListId = myListId
                     button.dataset['title'] = myListName

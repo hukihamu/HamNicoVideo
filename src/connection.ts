@@ -33,7 +33,7 @@ interface ConnectType  {
     watch_detail: {
         args: string, // watchId
         result: WatchDetailType
-    }
+    },
 }
 export default {
     connect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args'], resultCallback: (resultValue: ConnectType[K]['result']) => void)=>{

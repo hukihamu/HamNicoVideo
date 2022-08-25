@@ -12,7 +12,7 @@ export default ()=>{
     const initList: (()=>void)[] = [] // 初回起動時
     const videoChangeList: (()=>void)[] = [] // 動画変更毎
     if (storage.get("Video_Watch_ChangeVideoList").enable) cardGridList.push(onSetChangeVideoList)
-    if (storage.get("Video_Watch_RemoveWatchLater").enable) initList.push(onSetRemoveWatchLater)
+    if (storage.get("Video_Watch_RemoveWatchLater").enable) videoChangeList.push(onSetRemoveWatchLater)
     if (storage.get("Video_Watch_MinimizeLike").enable) initList.push(onSetMinimizeLike)
     if (storage.get('Video_Watch_OneClickMyList').enable) {
         initList.push(onSetOneClickMyList.init)

@@ -1,22 +1,25 @@
 import connection from '@/connection';
 import {BROWSER} from '@/browser';
-import {throwText} from '@/util';
+import {findIndex, findValue, isInstanceOf, throwText} from '@/util';
 import {doc} from '@/window';
+import storage from '@/storage';
 
-export const editNotify = ()=>{
+export const editNotify = async ()=>{
     // 取得に利用した情報
     let videoId: string | undefined = undefined
     let seriesId: string | undefined = undefined
     let seriesName: string | undefined = undefined
+    await storage.init()
 
     const editForm = document.getElementById('form') as HTMLFormElement
 
     //登録か編集家判別
-    const usp = new URLSearchParams(location.search)
+    const editId = new URLSearchParams(location.search).get('edit')
+    let editNotifyData: ValuesNotifySeries
 
 
     //targetType切り替え
-    for (const elm of Array.from(document.getElementsByName('target_type'))){
+    for (const elm of Array.from(document.getElementsByName('target_type'))) {
         elm.addEventListener('click',(e)=>{
             const target = e.target as HTMLInputElement
             const seriesDiv = document.getElementById('series_value') ?? throwText('series_value 取得に失敗')
@@ -59,15 +62,16 @@ export const editNotify = ()=>{
             ? editForm.target_interval_time.value
             : null
 
-        if (usp.has('edit')){
+        if (editId) {
             //変更
-            // editChild.isInterval = editForm.is_interval.checked
-            // editChild.intervalWeek = weekList
-            // editChild.intervalTime = intervalTime
-            // browserInstance.runtime.sendMessage({key: 'notify-set',value: editChild},()=>{
-            //     window.location.href = '/html/popup.html'
-            // })
-        }else {
+            editNotifyData.isInterval = editForm.is_interval.checked
+            editNotifyData.intervalWeek = weekList
+            editNotifyData.intervalTime = intervalTime
+            const notifyList = storage.get('Notify_NotifyList')
+            const index = findIndex(Number.parseInt(editId), notifyList.dynamicValues)
+            notifyList.dynamicValues[index] = editNotifyData
+            storage.set('Notify_NotifyList', notifyList)
+        } else {
             //追加
             if (editForm.series_id.value === seriesId){
                 // シリーズネームを取得できている
@@ -221,6 +225,7 @@ export const editNotify = ()=>{
             }
             connection.connect('watch_detail', watchId, (resultValue)=>{
                 if (resultValue){
+                    console.warn(resultValue)
                     const date = new Date(resultValue.data.video.registeredAt)
                     date.setMinutes(date.getMinutes() + 1)
                     editForm.target_interval_time.value = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2)
@@ -263,69 +268,40 @@ export const editNotify = ()=>{
     document.getElementById('delete')?.addEventListener('click', (ev) => {
         ev.stopPropagation()
         if (confirm('削除しますか？')){
-            // TODO
-            // connection.connect('remove', usp.get('edit'), ()=>{
-            //     window.location.href = '/html/popup_main.html'
-            // })
+            connection.connect('remove', Number.parseInt(editId ?? throwText('IDの取得に失敗しました')), ()=>{
+                window.location.href = '/html/popup_main.html'
+            })
         }
     })
-
-    if (usp.has('edit')){
+    // 編集・追加表示切替
+    if (editId){
         // 編集不可項目
         doc.getElementById('add').className = 'hidden'
-        editForm.series_id.disabled = true
         doc.getElementById<HTMLButtonElement>('get_video_info').disabled = true
 
         // 変更元取得
         // TODO
-        // chrome.runtime.sendMessage({key: 'get-child',value: usp.get('edit')},(child)=>{
-        //     const flagIndex = child.flag === 'series' ? 0: 1
-        //     const targetType = document.getElementsByName('target_type')
-        //     targetType[flagIndex].click()
-        //     for (const type of targetType){
-        //         type.disabled = true
-        //     }
-        //     if (flagIndex === 0){
-        //         editForm.series_id.value = child.notifyData
-        //     }else{
-        //         editForm.tags_name.value = child.notifyData
-        //     }
-        //     if (!child.isInterval){
-        //         editForm.is_interval.click()
-        //     }
-        //     const weekIndex = []
-        //     for (const week of child.intervalWeek){
-        //         switch (week){
-        //             case 'mon':
-        //                 weekIndex.push(0)
-        //                 break
-        //             case 'tue':
-        //                 weekIndex.push(1)
-        //                 break
-        //             case 'wed':
-        //                 weekIndex.push(2)
-        //                 break
-        //             case 'thu':
-        //                 weekIndex.push(3)
-        //                 break
-        //             case 'fri':
-        //                 weekIndex.push(4)
-        //                 break
-        //             case 'sat':
-        //                 weekIndex.push(5)
-        //                 break
-        //             case 'sun':
-        //                 weekIndex.push(6)
-        //                 break
-        //         }
-        //     }
-        //     const targetIntervalWeek = document.getElementsByName('target_interval_week')
-        //     for (const i of weekIndex){
-        //         targetIntervalWeek[i].click()
-        //     }
-        //     editForm.target_interval_time.value = child.intervalTime
-        //     editChild = child
-        // })
+        const notifyData = findValue(Number.parseInt(editId), storage.get('Notify_NotifyList').dynamicValues)
+          ?? throwText('通知情報取得に失敗')
+
+        // 通知対象型式切り替え
+        // TODO シリーズに固定している
+        editForm.target_type[0].click()
+        for (const type of editForm.target_type){
+            type.disabled = true
+        }
+        editForm.series_id.value = notifyData.seriesId
+        editForm.series_id.disabled = true
+        if (!notifyData.isInterval){
+            editForm.is_interval.click()
+        } else {
+            for (const weekIndex of notifyData.intervalWeek) {
+                const targetIntervalWeek = document.getElementsByName('target_interval_week')
+                targetIntervalWeek[weekIndex].click()
+            }
+            editForm.target_interval_time.value = notifyData.intervalTime
+        }
+        editNotifyData = notifyData
     }else{
         const edit = document.getElementById('edit')
         if (edit){

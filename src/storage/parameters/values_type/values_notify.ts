@@ -7,7 +7,16 @@ interface ValuesNotify extends ValuesBase<number>{
     lastCheckDateTime: number // 最終確認日時
 }
 
-interface ValuesNotifySeries extends ValuesNotify{
+interface ValuesNotifySeriesType {
     seriesId: string
     seriesName: string
 }
+interface ValueNotifyUserVideoType{
+    userId: string
+    userName: string
+    isCh: boolean
+    lastCheckIndex: number
+    lastCheckTotalSize: number
+}
+interface ValuesNotifySeries extends ValuesNotify, ValuesNotifySeriesType{}
+interface ValueNotifyUserVideo extends ValuesNotify, ValueNotifyUserVideoType{}

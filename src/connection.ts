@@ -55,13 +55,24 @@ interface ConnectType  {
     }
 }
 export default {
-    connect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args'], resultCallback: (resultValue: ConnectType[K]['result']) => void)=>{
+    oldConnect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args'], resultCallback: (resultValue: ConnectType[K]['result']) => void)=>{
         const port = BROWSER.connect({name: key})
         port.onMessage.addListener(message => {
             resultCallback(message)
             return true
         })
         port.postMessage(args)
+    },
+    connect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args']): Promise<ConnectType[K]['result']>=>{
+        const port = BROWSER.connect({name: key})
+        const p = new Promise<ConnectType[K]['result']>((resolve)=>{
+            port.onMessage.addListener(message => {
+                resolve(message)
+                return true
+            })
+        })
+        port.postMessage(args)
+        return p
     },
     setConnectListener: <K extends keyof ConnectType>(listener: (key: K, args: ConnectType[K]['args'])=>Promise<ConnectType[K]['result']>)=>{
         BROWSER.onConnect.addListener(port => {

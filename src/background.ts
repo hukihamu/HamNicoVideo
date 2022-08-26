@@ -15,7 +15,16 @@ const getCacheValueDetail = async (watchId: string, isReload: boolean = false): 
 const getNotifyData = (valueId: number): ValuesNotify =>{
     return util.findValue(valueId, notifyList) ?? util.throwText(`登録された通知が見つかりませんでした\nID: ${valueId}: List: ${notifyList}`)
 }
-// TODO Notifyの形式ごとで処理を変える状態をまとめる
+const hasNotify = async (valueId: number): Promise<boolean>=>{
+    try {
+        const notifyData = getNotifyData(valueId)
+        const lastWatchDetail = await funValuesNotify.getNewVideoDetail(notifyData)
+        return new Date(notifyData.lastCheckDateTime).getTime() < new Date(lastWatchDetail.data.video.registeredAt).getTime()
+    }catch (e) {
+        return false
+    }
+}
+// TODO Notifyの形式ごとで処理を変える状態をまとめる => Notify オブジェクト
 const funValuesNotify = {
     async getCurrentVideoDetailByValueId (valueId: number, isUseCache: boolean):  Promise<WatchDetailType | undefined> {
         const notify = getNotifyData(valueId)
@@ -77,7 +86,6 @@ const initBackground = async () => {
                             result.push({
                                 valueId: value.valueId,
                                 title: value.seriesName,
-                                isNotify: false,
                                 titleLink: 'https://www.nicovideo.jp/series/' + value.seriesId
                             })
                         }
@@ -159,16 +167,7 @@ const initBackground = async () => {
                     return undefined
                 })
             case 'is_new_notify':
-                return connection.run(key, args, async a=>{
-                    try {
-                        const notifyData = getNotifyData(a)
-                        const lastWatchDetail = await funValuesNotify.getNewVideoDetail(notifyData)
-                        // TODO 途中から入れた変数なので、undefinedの可能性あり
-                        return new Date(notifyData.lastCheckDateTime ?? Date.now()).getTime() < new Date(lastWatchDetail.data.video.registeredAt).getTime()
-                    }catch (e) {
-                        return false
-                    }
-                })
+                return connection.run(key, args, async a=> hasNotify(a) )
             case 'read_notify':
                 return connection.run(key, args, async a =>{
                     const index = util.findIndex(a, notifyList)

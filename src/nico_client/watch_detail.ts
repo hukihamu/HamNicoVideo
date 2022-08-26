@@ -2,10 +2,17 @@ import util from '@/util';
 
 export type WatchDetailType = {
     'data': {
-        "channel": {}|null
+        "channel": {
+            id: string
+            name: string
+        }|null
         "client": {
             "watchId": string
         }
+        "owner": {
+            id: number
+            nickname: string
+        } | null
         "video": {
             "title": string,
             "description": string,

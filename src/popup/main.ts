@@ -8,7 +8,7 @@ export const popupMain = () => {
   document.getElementById('notification_edit')?.addEventListener('click', () => {
     window.location.href = '/html/popup_edit_notify.html?add'
   })
-  connection.connect('list', undefined, (resultValue) => {
+  connection.oldConnect('list', undefined, (resultValue) => {
     for (const viewData of resultValue) {
       createNotifyView(viewData)
     }
@@ -22,8 +22,8 @@ const createNotifyView = (viewData: NotifyPostData) => {
 
   createNotifyHeader(parent, viewData)
   createNotifyBody(parent, viewData)
-  connection.connect('is_new_notify', viewData.valueId, isNewNotify=>{
-    parent.classList.toggle('target-highlight', isNewNotify)
+  connection.oldConnect('is_new_notify', viewData.valueId, isNewNotify=>{
+    parent.getElementsByClassName('target-type')[0].classList.toggle('target-highlight', isNewNotify)
   })
 }
 const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
@@ -46,9 +46,9 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
   a3.rel = 'noopener'
   a3.target = '_blank'
   a3.addEventListener('click', () => {
-    connection.connect('next', viewData.valueId,()=>{
+    connection.oldConnect('next', viewData.valueId,()=>{
       // 既読
-      connection.connect('read_notify', viewData.valueId, ()=>{})
+      connection.oldConnect('read_notify', viewData.valueId, ()=>{})
     })
   })
   d2.appendChild(a3)
@@ -183,7 +183,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
   setNotifyData(parent, viewData.valueId)
 }
 const setNotifyData = (parent: HTMLDivElement, valueId: number)=>{
-  connection.connect('detail', valueId, videoDetail => {
+  connection.oldConnect('detail', valueId, videoDetail => {
     if (videoDetail){
 
       doc.getElementById<HTMLAnchorElement>('a3-' + valueId).href = 'https://www.nicovideo.jp/watch/' + videoDetail.watchId
@@ -212,11 +212,11 @@ const setNotifyData = (parent: HTMLDivElement, valueId: number)=>{
       } else if (videoDetail.isPaid) {
         doc.getElementById('d9_7-' + valueId).classList.remove('hidden')//有料
       }
-      // TODO フォーマット
+
       doc.getElementById('d8_3-' + valueId).textContent = util.formatNumber(videoDetail.viewCounter)//再生数
-      doc.getElementById('d8_4-' + valueId).textContent = videoDetail.commentNum.toString()//コメント数
-      doc.getElementById('d8_5-' + valueId).textContent = videoDetail.likeCounter.toString()//いいね数
-      doc.getElementById('d8_6-' + valueId).textContent = videoDetail.myListCounter.toString()//マイリス数
+      doc.getElementById('d8_4-' + valueId).textContent = util.formatNumber(videoDetail.commentNum)//コメント数
+      doc.getElementById('d8_5-' + valueId).textContent = util.formatNumber(videoDetail.likeCounter)//いいね数
+      doc.getElementById('d8_6-' + valueId).textContent = util.formatNumber(videoDetail.myListCounter)//マイリス数
       doc.getElementsByFirstClassName('notification', parent).classList.remove('invisible')
     }else {
       // 非表示
@@ -229,9 +229,6 @@ const setNotifyData = (parent: HTMLDivElement, valueId: number)=>{
 const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) => {
   const header = document.createElement('div')
   header.className = 'notify-header'
-  if (viewData.isNotify) {
-    header.classList.add('target-highlight')
-  }
 
   //タイトル
   const targetTypeDiv = document.createElement('div')
@@ -252,7 +249,7 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
   nextButton.className = 'next_button'
   nextButton.addEventListener('click', () => {
     parent.classList.add('child-loading')
-    connection.connect('next', viewData.valueId, ()=>{setNotifyData(parent, viewData.valueId)})
+    connection.oldConnect('next', viewData.valueId, ()=>{setNotifyData(parent, viewData.valueId)})
   })
 
   //prev
@@ -261,7 +258,7 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
   prevButton.className = 'prev_button'
   prevButton.addEventListener('click', () => {
     parent.classList.add('child-loading')
-    connection.connect('prev', viewData.valueId, ()=>{setNotifyData(parent, viewData.valueId)})
+    connection.oldConnect('prev', viewData.valueId, ()=>{setNotifyData(parent, viewData.valueId)})
   })
 
   //既読
@@ -269,8 +266,8 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
   notifyRead.innerText = '既読'
   notifyRead.className = 'notify-read'
   notifyRead.addEventListener('click', () => {
-    connection.connect('read_notify', viewData.valueId, ()=>{
-      parent.classList.toggle('target-highlight', false)
+    connection.oldConnect('read_notify', viewData.valueId, ()=>{
+      header.classList.toggle('target-highlight', false)
     })
   })
   //リフレッシュ
@@ -279,9 +276,10 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
   refreshButton.className = 'refresh'
   refreshButton.addEventListener('click', () => {
     parent.classList.toggle('child-loading', true)
-    connection.connect('is_new_notify', viewData.valueId, (isNewNotify)=>{
+    connection.oldConnect('is_new_notify', viewData.valueId, (isNewNotify)=>{
       if (isNewNotify) {
-        connection.connect('reload', viewData.valueId, () => {
+        header.classList.toggle('target-highlight', true)
+        connection.oldConnect('reload', viewData.valueId, () => {
           setNotifyData(parent, viewData.valueId)
         })
       } else {

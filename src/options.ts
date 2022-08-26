@@ -1,13 +1,8 @@
 import storage from '@/storage';
 import {ParametersType,} from '@/storage/parameters';
-import {
-    isArrayOf,
-    isInstanceOf,
-    isInstancesOf,
-    objectToKeyArray
-} from '@/util';
 import {ValuesHighLight} from '@/storage/parameters/values_type/values_high_light';
 import {ValuesCheckBox} from '@/storage/parameters/values_type/values_check_box';
+import util from '@/util';
 // TODO 見た目を洗練
 const parameterToName = {
     Video: "動画",
@@ -83,7 +78,7 @@ const setEvent = ()=>{
 }
 const createBody = ()=> {
     //階層作成
-    const keys = objectToKeyArray(storage.default)
+    const keys = util.objectToKeyArray(storage.default)
     type Layer = { [name: string]: keyof ParametersType | Layer }
     const layer: Layer = {}
     keys.forEach(key => {
@@ -179,7 +174,7 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
             valueLi.className = 'values-content'
             valuesUl.appendChild(valueLi)
             // ValuesCheckBox
-            if(isInstancesOf<ValuesCheckBox<any>>(value, 'name', 'enable')){
+            if(util.isInstancesOf<ValuesCheckBox<any>>(value, 'name', 'enable')){
                 const valueEnableCheckBox = document.createElement('input')
                 valueEnableCheckBox.type = 'checkbox'
                 valueEnableCheckBox.id = key + '-' + value.valueId + '-enable'
@@ -195,7 +190,7 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
                 valueLi.appendChild(valueName)
 
                 // ValuesHighLight
-                if (isInstancesOf<ValuesHighLight>(value, 'color', 'matcher')){
+                if (util.isInstancesOf<ValuesHighLight>(value, 'color', 'matcher')){
                     const color = value.color.substring(0,7)
                     const alpha = value.color.substring(7,10)
 

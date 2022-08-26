@@ -1,5 +1,6 @@
 // 動画下のHam専用操作場所
-import {throwText} from '@/util';
+
+import util from '@/util';
 
 export const onSetControlCard = {
     init: () => {
@@ -30,7 +31,7 @@ export const onSetControlCard = {
      */
     createGrid: (): HTMLDivElement=>{
         const parent = document.getElementById('Ham-Card-main')
-            ?? throwText('Ham-Card-main が見つかりませんでした')
+            ?? util.throwText('Ham-Card-main が見つかりませんでした')
         const div = document.createElement('div')
         div.className = 'Grid'
         parent.appendChild(div)

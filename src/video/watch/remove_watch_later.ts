@@ -1,7 +1,7 @@
 // 1ボタンで後で見るから削除できるやつ
 
 import {watchLater} from '@/nico_client/watch_later';
-import {throwText} from '@/util';
+import util from '@/util';
 const ELEMENT_ID = 'remove_watch_later_button'
 
 export const onSetRemoveWatchLater = ()=>{
@@ -43,7 +43,7 @@ export const onSetRemoveWatchLater = ()=>{
 function removeWatchLaterListener(event: MouseEvent){
 
     const target = event.target as HTMLElement
-    const itemId = target.dataset['itemId'] ?? throwText('itemIdが見つかりませんでした')
+    const itemId = target.dataset['itemId'] ?? util.throwText('itemIdが見つかりませんでした')
     watchLater.remove(itemId,
         () => {
             target.parentElement?.remove()

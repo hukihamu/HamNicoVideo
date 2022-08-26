@@ -1,4 +1,4 @@
-import {getRandomNumber, getRandomString, throwText} from '@/util';
+import util from '@/util';
 
 export type WatchDetailType = {
     'data': {
@@ -44,7 +44,7 @@ export type WatchDetailType = {
 }
 export const watchDetail = {
     get: async (watchId: string): Promise<WatchDetailType>=>{
-        return fetch(`https://www.nicovideo.jp/api/watch/v3/${watchId}?actionTrackId=${getRandomString(10)}_${getRandomNumber(13)}&additionals=series&skips=harmful`, {
+        return fetch(`https://www.nicovideo.jp/api/watch/v3/${watchId}?actionTrackId=${util.getRandomString(10)}_${util.getRandomNumber(13)}&additionals=series&skips=harmful`, {
             method: 'post',
             headers: {
                 'X-Frontend-Id': '6',
@@ -53,7 +53,7 @@ export const watchDetail = {
         }).then(async value => {
             if (value.status !== 200) {
                 console.error(value)
-                throwText('動画取得に失敗')
+                util.throwText('動画取得に失敗')
             }
             return value.json()
         })

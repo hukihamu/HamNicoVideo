@@ -1,7 +1,9 @@
 type SeriesType = {
     data: {
         "items": {
-            "id": string
+            video: {
+                "id": string
+            }
         }[]
     }
 }

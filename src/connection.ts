@@ -3,44 +3,55 @@ import {NotifyPostData} from '@/post_data/notify_post_data';
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import {WatchDetailType} from '@/nico_client/watch_detail';
 import {BROWSER} from '@/browser';
-import {isInstanceOf} from '@/util';
 
 interface ConnectType  {
-    add: {
-        args: ValuesNotifySeries,
-        result: undefined
-    }
-    list: {
-        args: undefined,
-        result: NotifyPostData[]
-    }
-    edit: {
+    add: { // 通知追加
         args: ValuesNotify,
         result: undefined
     }
-    get_notify: {
+    list: { // 通知一覧取得
+        args: undefined,
+        result: NotifyPostData[]
+    }
+    edit: { // 通知編集
+        args: ValuesNotify,
+        result: undefined
+    }
+    get_notify: { // 編集元通知取得
         args: number, // valueId
         result: ValuesNotify
     }
-    remove: {
+    remove: { // 通知削除
         args: number, // valueId
         result: undefined
     }
-    detail: {
+    detail: { // 動画情報取得
         args: number, // valueId
         result: VideoDetailPostData | undefined
     }
-    next: {
+    next: { // 次動画遷移
         args: number, // valueId
         result: undefined
     }
-    prev: {
+    prev: { // 前動画遷移
         args: number, // valueId
         result: undefined
     }
-    watch_detail: {
+    watch_detail: { // 動画生データ取得
         args: string, // watchId
         result: WatchDetailType
+    }
+    is_new_notify: { // 新着動画確認
+        args: number
+        result: boolean
+    }
+    read_notify: { // 既読
+        args: number // valueId
+        result: undefined
+    }
+    reload: {
+        args: number // valueId
+        result: undefined
     }
 }
 export default {

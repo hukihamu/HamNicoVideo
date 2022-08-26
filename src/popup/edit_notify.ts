@@ -1,8 +1,8 @@
 import connection from '@/connection';
 import {BROWSER} from '@/browser';
-import {findIndex, findValue, isInstanceOf, throwText} from '@/util';
 import {doc} from '@/window';
 import storage from '@/storage';
+import util from '@/util';
 
 export const editNotify = async ()=>{
     // 取得に利用した情報
@@ -22,22 +22,19 @@ export const editNotify = async ()=>{
     for (const elm of Array.from(document.getElementsByName('target_type'))) {
         elm.addEventListener('click',(e)=>{
             const target = e.target as HTMLInputElement
-            const seriesDiv = document.getElementById('series_value') ?? throwText('series_value 取得に失敗')
-            const seriesInput = document.getElementsByName('series_id')[0] as HTMLInputElement
-            const tagDiv = document.getElementById('tags_value') ?? throwText('tags_value 取得に失敗')
+            const seriesDiv = document.getElementById('series_value') ?? util.throwText('series_value 取得に失敗')
+            const tagDiv = document.getElementById('tags_value') ?? util.throwText('tags_value 取得に失敗')
             const tagInput = document.getElementsByName('tags_name')[0] as HTMLInputElement
             switch (target.value){
                 case "series":
                     seriesDiv.className = ''
                     tagDiv.className = 'hidden'
-                    seriesInput.required = true
                     tagInput.required = false
                     break
                 case "tag":
                     tagDiv.className = ''
                     seriesDiv.className = 'hidden'
                     tagInput.required = true
-                    seriesInput.required = false
                     break
             }
         })
@@ -45,7 +42,7 @@ export const editNotify = async ()=>{
     //interval切り替え
     document.getElementById('is_interval')?.addEventListener('change',(e)=>{
         const target = e.target as HTMLInputElement
-        const setInterval = document.getElementById('set_interval') ?? throwText('set_interval 取得に失敗')
+        const setInterval = document.getElementById('set_interval') ?? util.throwText('set_interval 取得に失敗')
         if (target.checked){
             setInterval.className = ''
         }else{
@@ -58,7 +55,7 @@ export const editNotify = async ()=>{
 
     //シリーズ登録
     const onSubmitSeries = (weekList: number[]) => {
-        const intervalTime: string | null = (document.getElementById('is_interval') as HTMLInputElement).checked
+        const intervalTime: string | undefined = (document.getElementById('is_interval') as HTMLInputElement).checked
             ? editForm.target_interval_time.value
             : null
 
@@ -72,45 +69,25 @@ export const editNotify = async ()=>{
             })
         } else {
             //追加
-            if (editForm.series_id.value === seriesId){
+            if (seriesId && seriesName){
                 // シリーズネームを取得できている
                 const valuesSeries: ValuesNotifySeries = {
                     valueId: Date.now(),
-                    seriesId: editForm.series_id.value,
-                    seriesName: seriesName ?? 'シリーズ名取得失敗',
+                    seriesId,
+                    seriesName,
                     isNotify: false,
                     isInterval: editForm.is_interval.checked,
-                    intervalTime: intervalTime,
+                    intervalTime,
                     intervalWeek: weekList,
-                    lastVideoId: videoId
+                    lastVideoId: videoId,
+                    lastCheckDateTime: Date.now()
                 }
                 connection.connect('add', valuesSeries, ()=>{
                     window.location.href = '/html/popup_main.html'
                 })
             }else {
                 // シリーズネームを取得できていない
-                fetch('https://www.nicovideo.jp/series/' + editForm.series_id.value)
-                    .then(resp => resp.text())
-                    .then(text => {
-                        const doc = new DOMParser().parseFromString(text, 'text/html')
-                        const seriesName = doc.getElementsByClassName('SeriesDetailContainer-bodyTitle')[0].textContent
-                        const valuesSeries: ValuesNotifySeries = {
-                            valueId: Date.now(),
-                            seriesId: editForm.series_id.value,
-                            seriesName: seriesName ?? 'シリーズ名取得失敗',
-                            isNotify: false,
-                            isInterval: editForm.is_interval.checked,
-                            intervalTime: intervalTime,
-                            intervalWeek: weekList,
-                            lastVideoId: 'first'
-                        }
-                        connection.connect('add', valuesSeries, ()=>{
-                            window.location.href = '/html/popup_main.html'
-                        })
-                    })
-                    .catch(() => {
-                        alert('記入のseriesはありませんでした\n「シリーズID取得」ボタンを利用ください')
-                    })
+                alert('動画視聴画面から情報を取得してください')
             }
         }
     }
@@ -146,12 +123,6 @@ export const editNotify = async ()=>{
     //         })
     //     }
     // }
-
-    //シリーズID　入力条件
-    document.getElementById('series_id')?.addEventListener('input',(e)=>{
-        const target = e.target as HTMLInputElement
-        target.value = target.value.replace(/[^0-9]/g, '')
-    })
 
     //サブミット
     editForm.addEventListener('submit', (event) => {
@@ -238,12 +209,11 @@ export const editNotify = async ()=>{
                             if (resultValue.data.series){
                                 seriesId = resultValue.data.series.id.toString()
                                 seriesName = resultValue.data.series.title
-                                editForm.series_id.value = resultValue.data.series.id
+                                doc.getElementById('series_name').textContent = seriesName
                             }else {
                                 alert('シリーズを取得できませんでした')
                                 seriesId = undefined
                                 seriesName = undefined
-                                editForm.series_id.value = ''
                             }
                         }
                     }
@@ -266,7 +236,7 @@ export const editNotify = async ()=>{
     document.getElementById('delete')?.addEventListener('click', (ev) => {
         ev.stopPropagation()
         if (confirm('削除しますか？')){
-            connection.connect('remove', Number.parseInt(editId ?? throwText('IDの取得に失敗しました')),()=>{
+            connection.connect('remove', Number.parseInt(editId ?? util.throwText('IDの取得に失敗しました')),()=>{
                 window.location.href = '/html/popup_main.html'
             })
         }
@@ -281,14 +251,14 @@ export const editNotify = async ()=>{
         connection.connect('get_notify', Number.parseInt(editId), (notifyData)=>{
             // 通知対象型式切り替え
 
-            if (isInstanceOf<ValuesNotifySeries>(notifyData, 'seriesId')){
+            if (util.isInstanceOf<ValuesNotifySeries>(notifyData, 'seriesId')){
                 // シリーズ
                 editForm.target_type[0].click()
                 for (const type of editForm.target_type){
                     type.disabled = true
                 }
-                editForm.series_id.value = notifyData.seriesId
-                editForm.series_id.disabled = true
+                seriesId = notifyData.seriesId
+                doc.getElementById('series_name').textContent = notifyData.seriesName
                 if (!notifyData.isInterval){
                     editForm.is_interval.click()
                 } else {
@@ -302,9 +272,6 @@ export const editNotify = async ()=>{
             }
         })
     }else{
-        const edit = document.getElementById('edit')
-        if (edit){
-            edit.className = 'hidden'
-        }
+        const edit = doc.getElementById('edit').className = 'hidden'
     }
 }

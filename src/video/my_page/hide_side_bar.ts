@@ -1,6 +1,6 @@
 import {OnSetRepoSidebar} from '@/video/type_on_set';
 import storage from '@/storage';
-import {throwText} from '@/util';
+import util from '@/util';
 
 export const onSetHideSideBar: OnSetRepoSidebar = ()=>{
     const params = storage.get("Video_MyPage_HideSideBar")
@@ -14,7 +14,7 @@ export const onSetHideSideBar: OnSetRepoSidebar = ()=>{
         const header = _header as HTMLDivElement
         header.style.border = "1px"
         const ul = header.parentElement?.getElementsByClassName('SubMenuLinkList')[0] as HTMLElement | undefined
-            ?? throwText('SubMenuLinkList が見つかりませんでした')
+            ?? util.throwText('SubMenuLinkList が見つかりませんでした')
         ul.style.transition = '0.5s'
         ul.style.overflow = 'hidden'
         ul.style.height = 'auto'

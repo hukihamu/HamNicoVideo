@@ -2,7 +2,7 @@
 import {OnSetCardGrid} from '@/video/type_on_set';
 import storage from '@/storage';
 import {myList} from '@/nico_client/my_list';
-import {throwText} from '@/util';
+import util from '@/util';
 
 const DEFAULT_MY_LIST_NAME = '1クリックマイリスト'
 
@@ -100,7 +100,7 @@ const onAddMyList = (event: MouseEvent)=>{
 const onSettingMyList = ()=>{
     //既存の表示に便乗　表示時に上書き
     const myList = document.getElementById('add_my_list_button')
-        ?? throwText('add_my_list_button が見つかりませんでした')
+        ?? util.throwText('add_my_list_button が見つかりませんでした')
     const panel = document.getElementsByClassName('MainContainer-floatingPanel')[0]
     if (panel.firstChild && !(panel.firstChild.firstChild as HTMLElement).classList.contains('custom-mylist')) {
         myList.click()
@@ -118,7 +118,7 @@ const onSettingMyList = ()=>{
         pv.textValue = currentMyListId ?? ''
         storage.set('Video_Watch_OneClickMyList', pv)
         const oneClickMyListButton = document.getElementById('one_click_my_list_button')
-            ?? throwText( 'one_click_my_list_button 取得に失敗')
+            ?? util.throwText( 'one_click_my_list_button 取得に失敗')
         oneClickMyListButton.dataset['title'] = currentMyListName
         myList.click()
     }

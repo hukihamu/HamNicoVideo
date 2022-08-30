@@ -56,15 +56,16 @@ function createCheckBox(value: ValuesNicoRepoMatcher, param: ParameterStaticValu
     const checkBox = document.createElement('input')
     checkBox.type = 'checkbox'
     checkBox.className = 'SubMenuLink-icon'
-    subMenuItemLink.addEventListener('click',  (event) =>{
+    const onClick = () =>{
         checkBox.checked = !checkBox.checked
         value.config.enable = checkBox.checked
         storage.set("Video_MyPage_HiddenFilter", param)
         for (const child of Array.from(document.getElementsByClassName('SlideOut NicorepoItem NicorepoTimeline-item'))) {
             onSetFilter.item(child as HTMLDivElement)
         }
-
-    }, false)
+    }
+    subMenuItemLink.addEventListener('click', onClick , false)
+    checkBox.addEventListener('click', onClick,false)
     checkBox.checked = value.config.enable
 
     const label = document.createElement('span')

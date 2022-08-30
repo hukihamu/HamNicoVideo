@@ -6,51 +6,18 @@ import {toVideoDetailPostData} from '@/post_data/video_detail_post_data';
 import util from '@/util';
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import {BROWSER} from '@/browser';
-
-const _cacheVideoDetail: { [watchId: string]: WatchDetailType } = {}
-const getCacheValueDetail = async (watchId: string, isReload: boolean = false): Promise<WatchDetailType> =>{
-    if (isReload || !_cacheVideoDetail[watchId]) _cacheVideoDetail[watchId] = await NicoAPI.getWatchDetail(watchId)
-    return _cacheVideoDetail[watchId]
-}
+import {ValuesNotify} from '@/storage/parameters/values_type/values_notify';
+import {Notify} from '@/notify/notify';
 const getNotifyData = (valueId: number): ValuesNotify =>{
-    return util.findValue(valueId, notifyList) ?? util.throwText(`登録された通知が見つかりませんでした\nID: ${valueId}: List: ${notifyList}`)
+    return util.findValue(valueId, notifyList) ?? util.throwText(`登録された通知が見つかりませんでした\nID: ${valueId}`)
 }
 const hasNotify = async (valueId: number): Promise<boolean>=>{
     try {
         const notifyData = getNotifyData(valueId)
-        const lastWatchDetail = await funValuesNotify.getNewVideoDetail(notifyData)
-        return new Date(notifyData.lastCheckDateTime).getTime() < new Date(lastWatchDetail.data.video.registeredAt).getTime()
+        const lastWatchDetail = await Notify.Background.getLastedWatchId(notifyData)
+        return new Date(notifyData.config.lastCheckDateTime).getTime() < new Date(lastWatchDetail.data.video.registeredAt).getTime()
     }catch (e) {
         return false
-    }
-}
-// TODO Notifyの形式ごとで処理を変える状態をまとめる => Notify オブジェクト
-const funValuesNotify = {
-    async getCurrentVideoDetailByValueId (valueId: number, isUseCache: boolean):  Promise<WatchDetailType | undefined> {
-        const notify = getNotifyData(valueId)
-        let findVideoId = notify.lastVideoId
-        if (findVideoId){
-            if (util.isInstanceOf<ValuesNotifySeries>(notify, 'seriesId')){
-                const nextVideo = (await getCacheValueDetail(findVideoId)).data.series.video.next
-                if (!nextVideo) return undefined
-                findVideoId = nextVideo.id
-            }
-        } else {
-            if (util.isInstanceOf<ValuesNotifySeries>(notify, 'seriesId')){
-                // 最初の動画
-                findVideoId = (await NicoAPI.getSeries(notify.seriesId)).data.items[0].video.id
-            }
-            findVideoId = findVideoId ?? util.throwText('動画ID取得に失敗')
-        }
-        return isUseCache ? getCacheValueDetail(findVideoId) : NicoAPI.getWatchDetail(findVideoId)
-    },
-    async getNewVideoDetail(notifyData: ValuesNotify): Promise<WatchDetailType>{
-        let lastWatchId: string | undefined
-        if (util.isInstanceOf<ValuesNotifySeries>(notifyData, 'seriesId')){
-            const seriesData =  (await NicoAPI.getSeries(notifyData.seriesId))
-            lastWatchId = seriesData.data.items[seriesData.data.items.length - 1].video.id
-        }
-        return lastWatchId ? getCacheValueDetail(lastWatchId) : util.throwText('最新の動画の取得に失敗')
     }
 }
 let notifyList: ValuesNotify[] = []
@@ -58,13 +25,13 @@ const showNotifyId: {[valueId: number]: string | undefined} = {}
 // TODO v3はクソ https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
 const initBackground = async () => {
     await storage.init()
-    notifyList = storage.get('Notify_NotifyList').dynamicValues
+    notifyList = storage.get('Notify_NotifyList').config.dynamicValues
     BROWSER.alarms.onAlarm.addListener(async (alarm) => {
         const v = getNotifyData(Number.parseInt(alarm.name))
         if (v) onCreateAlarm(v).then()
         // TODO アラーム動作時の挙動
     })
-    for (const v of storage.get('Notify_NotifyList').dynamicValues) {
+    for (const v of storage.get('Notify_NotifyList').config.dynamicValues) {
         onCreateAlarm(v).then()
     }
 
@@ -74,7 +41,7 @@ const initBackground = async () => {
                 return connection.run(key, args, async a => {
                     notifyList.push(a)
                     const param = storage.get('Notify_NotifyList')
-                    param.dynamicValues = notifyList
+                    param.config.dynamicValues = notifyList
                     storage.set('Notify_NotifyList', param)
                     return undefined
                 })
@@ -82,13 +49,7 @@ const initBackground = async () => {
                 return connection.run(key, args, async _ => {
                     const result: NotifyPostData[] = []
                     for (const value of notifyList) {
-                        if (util.isInstanceOf<ValuesNotifySeries>(value, 'seriesId')){
-                            result.push({
-                                valueId: value.valueId,
-                                title: value.seriesName,
-                                titleLink: 'https://www.nicovideo.jp/series/' + value.seriesId
-                            })
-                        }
+                        result.push(Notify.Background.createNotifyPostData(value))
                     }
                     return result
                 })
@@ -96,60 +57,52 @@ const initBackground = async () => {
                 return connection.run(key, args, async a => {
                     let nId = showNotifyId[a]
                     if (!nId){
-                        let showWatchId: string | undefined
                         const notify = getNotifyData(a)
-                        if (notify.lastVideoId){
-                            showWatchId = (await getCacheValueDetail(notify.lastVideoId)).data.series.video.next?.id
-                        } else {
-                            if (util.isInstanceOf<ValuesNotifySeries>(notify, 'seriesId')){
-                                // 最初の動画
-                                showWatchId = (await NicoAPI.getSeries(notify.seriesId)).data.items[0].video.id
-                            }
-                        }
-                        if (!showWatchId) return undefined
-                        nId = showWatchId
+                        nId = await Notify.Background.getCurrentWatchId(notify)
+                        if (!nId) return
                         showNotifyId[a] = nId
                     }
-                    return toVideoDetailPostData(await getCacheValueDetail(nId))
+                    return toVideoDetailPostData(await Notify.Background.getCacheWatchDetail(nId))
                 })
             case 'next':
                 return connection.run(key, args, async a => {
                     const nId = showNotifyId[a]
-                    if (!nId) return undefined
-                    const nextId =(await getCacheValueDetail(nId)).data.series.video.next?.id
+                    if (!nId) return
+                    const nextId = await Notify.Background.getNextWatchId(getNotifyData(a), nId)
                     const i = util.findIndex(a, notifyList)
-                    notifyList[i].lastVideoId = showNotifyId[a]
+                    notifyList[i].config.lastWatchId = showNotifyId[a]
                     const param = storage.get('Notify_NotifyList')
-                    param.dynamicValues = notifyList
+                    param.config.dynamicValues = notifyList
                     storage.set('Notify_NotifyList', param)
                     showNotifyId[a] = nextId
                     return undefined
                 })
             case 'prev':
                 return connection.run(key, args, async a => {
-                    const nId = showNotifyId[a]
-                    const prevId = nId ? (await getCacheValueDetail(nId)).data.series.video.prev?.id : getNotifyData(a).lastVideoId
+                    const notify = getNotifyData(a)
+                    const prevId = notify.config.lastWatchId
                     if (prevId){
                         showNotifyId[a] = prevId
-                        const lastWatchId = (await getCacheValueDetail(prevId)).data.series.video.prev?.id
+                        const lastWatchId = await Notify.Background.getPrevWatchId(notify, prevId)
                         const i = util.findIndex(a, notifyList)
-                        notifyList[i].lastVideoId = lastWatchId
+                        notifyList[i].config.lastWatchId = lastWatchId
                         const param = storage.get('Notify_NotifyList')
-                        param.dynamicValues = notifyList
+                        param.config.dynamicValues = notifyList
                         storage.set('Notify_NotifyList', param)
                     }
                     return undefined
                 })
+            // TODO 削除したい
             case 'watch_detail':
                 return connection.run(key, args, async a => {
-                    return await getCacheValueDetail(a)
+                    return await Notify.Background.getCacheWatchDetail(a)
                 })
             case 'remove':
                 return connection.run(key, args, async a => {
                     const index = util.findIndex(a, notifyList)
                     notifyList.splice(index, 1)
                     const param = storage.get('Notify_NotifyList')
-                    param.dynamicValues = notifyList
+                    param.config.dynamicValues = notifyList
                     storage.set('Notify_NotifyList', param)
                     return undefined
                 })
@@ -159,10 +112,10 @@ const initBackground = async () => {
                 })
             case 'edit':
                 return connection.run(key, args, async a =>{
-                    const index = util.findIndex(a.valueId, notifyList)
+                    const index = util.findIndex(a.config.valueId, notifyList)
                     notifyList[index] = a
                     const param = storage.get('Notify_NotifyList')
-                    param.dynamicValues = notifyList
+                    param.config.dynamicValues = notifyList
                     storage.set('Notify_NotifyList', param)
                     return undefined
                 })
@@ -171,17 +124,17 @@ const initBackground = async () => {
             case 'read_notify':
                 return connection.run(key, args, async a =>{
                     const index = util.findIndex(a, notifyList)
-                    notifyList[index].lastCheckDateTime = Date.now()
+                    notifyList[index].config.lastCheckDateTime = Date.now()
                     const param = storage.get('Notify_NotifyList')
-                    param.dynamicValues = notifyList
+                    param.config.dynamicValues = notifyList
                     storage.set('Notify_NotifyList', param)
                     return undefined
                 })
             case 'reload':
                 return connection.run(key, args, async a =>{
                     const notifyData = getNotifyData(a)
-                    if (notifyData.lastVideoId){
-                        await getCacheValueDetail(notifyData.lastVideoId, true)
+                    if (notifyData.config.lastWatchId){
+                        await Notify.Background.getCacheWatchDetail(notifyData.config.lastWatchId, true)
                     }
                     return undefined
                 })
@@ -195,9 +148,9 @@ const initBackground = async () => {
 }
 
 const onCreateAlarm = async (notifyValue: ValuesNotify) => {
-    if (!notifyValue.isInterval) return
-    if (!notifyValue.intervalTime) return
-    await BROWSER.alarms.clear(notifyValue.valueId.toString())
+    if (!notifyValue.config.isInterval) return
+    if (!notifyValue.config.intervalTime) return
+    await BROWSER.alarms.clear(notifyValue.config.valueId.toString())
 
     const nowDate = new Date()
     const nowDayOfWeek = nowDate.getDay()
@@ -205,12 +158,12 @@ const onCreateAlarm = async (notifyValue: ValuesNotify) => {
     let dayOfWeek = nowDayOfWeek
     let counter
     for (counter = 0; counter < 7; counter++) {
-        if (notifyValue.intervalWeek.indexOf(dayOfWeek) !== -1) {
+        if (notifyValue.config.intervalWeek.indexOf(dayOfWeek) !== -1) {
             if (dayOfWeek === nowDayOfWeek) {
-                if (nowHour === notifyValue.intervalTime) {
+                if (nowHour === notifyValue.config.intervalTime) {
                     //確認処理
                     return
-                } else if (nowHour < notifyValue.intervalTime) {
+                } else if (nowHour < notifyValue.config.intervalTime) {
                     break
                 }
             } else {
@@ -224,8 +177,8 @@ const onCreateAlarm = async (notifyValue: ValuesNotify) => {
     }
     const nextDay = new Date()
     nextDay.setDate(nextDay.getDate() + counter)
-    nextDay.setHours(Number.parseInt(notifyValue.intervalTime.substring(0, 2)), Number.parseInt(notifyValue.intervalTime.substring(3, 5)), 0, 0)
-    BROWSER.alarms.create(notifyValue.valueId.toString(), {
+    nextDay.setHours(Number.parseInt(notifyValue.config.intervalTime.substring(0, 2)), Number.parseInt(notifyValue.config.intervalTime.substring(3, 5)), 0, 0)
+    BROWSER.alarms.create(notifyValue.config.valueId.toString(), {
         when: nextDay.getTime()
     })
 }

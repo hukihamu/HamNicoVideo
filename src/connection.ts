@@ -3,11 +3,12 @@ import {NotifyPostData} from '@/post_data/notify_post_data';
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import {WatchDetailType} from '@/nico_client/watch_detail';
 import {BROWSER} from '@/browser';
+import {ValuesNotify} from '@/storage/parameters/values_type/values_notify';
 
 interface ConnectType  {
     add: { // 通知追加
         args: ValuesNotify,
-        result: undefined
+        result: void
     }
     list: { // 通知一覧取得
         args: undefined,
@@ -15,7 +16,7 @@ interface ConnectType  {
     }
     edit: { // 通知編集
         args: ValuesNotify,
-        result: undefined
+        result: void
     }
     get_notify: { // 編集元通知取得
         args: number, // valueId
@@ -23,7 +24,7 @@ interface ConnectType  {
     }
     remove: { // 通知削除
         args: number, // valueId
-        result: undefined
+        result: void
     }
     detail: { // 動画情報取得
         args: number, // valueId
@@ -31,11 +32,11 @@ interface ConnectType  {
     }
     next: { // 次動画遷移
         args: number, // valueId
-        result: undefined
+        result: void
     }
     prev: { // 前動画遷移
         args: number, // valueId
-        result: undefined
+        result: void
     }
     watch_detail: { // 動画生データ取得
         args: string, // watchId
@@ -47,11 +48,11 @@ interface ConnectType  {
     }
     read_notify: { // 既読
         args: number // valueId
-        result: undefined
+        result: void
     }
     reload: {
         args: number // valueId
-        result: undefined
+        result: void
     }
 }
 export default {
@@ -63,7 +64,7 @@ export default {
         })
         port.postMessage(args)
     },
-    connect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args']): Promise<ConnectType[K]['result']>=>{
+    connect: <K extends keyof ConnectType>(key: K, args?: ConnectType[K]['args']): Promise<ConnectType[K]['result']>=>{
         const port = BROWSER.connect({name: key})
         const p = new Promise<ConnectType[K]['result']>((resolve)=>{
             port.onMessage.addListener(message => {

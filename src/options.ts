@@ -1,8 +1,11 @@
 import storage from '@/storage';
-import {ParametersType,} from '@/storage/parameters';
 import {ValuesHighLight} from '@/storage/parameters/values_type/values_high_light';
 import {ValuesCheckBox} from '@/storage/parameters/values_type/values_check_box';
 import util from '@/util';
+import {ParametersType} from '@/storage/parameters';
+import {ParameterSelectValue} from '@/storage/parameters/parameter_value/parameter_select_value';
+import {ParameterTextValue} from '@/storage/parameters/parameter_value/parameter_text_value';
+import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
 // TODO 見た目を洗練
 const parameterToName = {
     Video: "動画",
@@ -123,10 +126,10 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
     enableCheckBox.type = 'checkbox'
     enableCheckBox.id = key + '-enable'
     enableCheckBox.addEventListener('change', ()=>{
-        param.enable = enableCheckBox.checked
+        param.config.enable = enableCheckBox.checked
         onSave(key,param)
     })
-    enableCheckBox.checked = param.enable
+    enableCheckBox.checked = param.config.enable
     enableDiv.appendChild(enableCheckBox)
     flexParent.appendChild(enableDiv)
 
@@ -137,68 +140,65 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
     flexParent.appendChild(paramName)
 
     // ParameterSelectValue
-    if ('selectIndex' in param){
-
+    if (util.isInstancesParamBaseOf<ParameterSelectValue>(param, 'selectIndex')){
         const select = document.createElement('select')
         select.addEventListener('change', ()=>{
-            param.selectIndex = select.selectedIndex
+            param.config.selectIndex = select.selectedIndex
             onSave(key, param)
         })
         flexParent.appendChild(select)
-        param.selectList.forEach((value, index) => {
+        param.template.selectList.forEach((value, index) => {
             const option = document.createElement('option')
             option.value = index.toString()
             option.textContent = value.name
-            option.selected = index === param.selectIndex
+            option.selected = index === param.config.selectIndex
             select.appendChild(option)
         })
-    }
-    //ParameterTextValue
-    else if ('textValue' in param){
+    }//ParameterTextValue
+    else if (util.isInstancesParamBaseOf<ParameterTextValue>(param, 'textValue')){
+
         const textInput = document.createElement('input')
         flexParent.appendChild(textInput)
-        textInput.value = param.textValue
-        console.log(param.textValue)
+        textInput.value = param.config.textValue
         textInput.addEventListener('change', ()=>{
-            param.textValue = textInput.value
+            param.config.textValue = textInput.value
             onSave(key, param)
         })
-    }
-    // ParameterListValue
-    else if ('values' in param){
+    } // ParameterListValue
+    else if (util.isInstancesParamBaseOf<ParameterStaticValues<any, any>>(param, 'values')){
         paramName.classList.add('bold')
         const valuesUl = document.createElement('ul')
         flexParent.appendChild(valuesUl)
-        for (const value of param.values){
+        util.forParamValues<ValuesTemplate<any>>(param, (value)=>{
             const valueLi = document.createElement('li')
             valueLi.className = 'values-content'
             valuesUl.appendChild(valueLi)
             // ValuesCheckBox
-            if(util.isInstancesOf<ValuesCheckBox<any>>(value, 'name', 'enable')){
+            if(util.isInstancesValuesTemplateOf<ValuesCheckBox<any>>(value, ['enable'])){
                 const valueEnableCheckBox = document.createElement('input')
                 valueEnableCheckBox.type = 'checkbox'
-                valueEnableCheckBox.id = key + '-' + value.valueId + '-enable'
+                valueEnableCheckBox.id = key + '-' + value.config.valueId + '-enable'
                 valueEnableCheckBox.addEventListener('change',()=>{
-                    value.enable = valueEnableCheckBox.checked
+                    value.config.enable = valueEnableCheckBox.checked
                     onSave(key, param)
                 })
-                valueEnableCheckBox.checked = value.enable
+                valueEnableCheckBox.checked = value.config.enable
                 valueLi.appendChild(valueEnableCheckBox)
                 const valueName = document.createElement('label')
-                valueName.textContent = value.name
-                valueName.htmlFor = key + '-' + value.valueId + '-enable'
+                valueName.textContent = value.template.name
+                valueName.htmlFor = key + '-' + value.config.valueId + '-enable'
                 valueLi.appendChild(valueName)
 
                 // ValuesHighLight
-                if (util.isInstancesOf<ValuesHighLight>(value, 'color', 'matcher')){
-                    const color = value.color.substring(0,7)
-                    const alpha = value.color.substring(7,10)
+                if (util.isInstancesValuesTemplateOf<ValuesHighLight>(value, ['color'])){
+                    const color = value.config.color.substring(0,7)
+                    const alpha = value.config.color.substring(7,10)
 
                     const sampleDiv = document.createElement('div')
                     sampleDiv.className = 'color-sample'
                     valueLi.appendChild(sampleDiv)
                     const sampleText = document.createElement('div')
-                    sampleText.textContent = value.matcher
+                    sampleText.textContent = value.template.matcher
                     sampleDiv.appendChild(sampleText)
 
                     const valueColor = document.createElement('input')
@@ -218,7 +218,7 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
                         sampleText.style.backgroundColor = valueColor.value + valueAlpha.value
                     }
                     const changeColor = ()=>{
-                        value.color = valueColor.value + valueAlpha.value
+                        value.config.color = valueColor.value + valueAlpha.value
                         onSave(key, param)
                         onApplySample()
                     }
@@ -227,7 +227,7 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
                     onApplySample()
                 }
             }
-        }
+        })
     }
 
     //default復元

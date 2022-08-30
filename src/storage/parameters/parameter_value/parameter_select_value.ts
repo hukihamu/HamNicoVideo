@@ -1,7 +1,15 @@
-export interface ParameterSelectValue extends ParameterBaseValue{
-    selectIndex: number
-    selectList: {
-        name: string,
-        value: string
-    }[]
+import {ParameterBaseValue, ParameterTemplateValue} from '@/storage/parameters/parameter_value/parameter_base_value';
+
+export interface ParameterSelectValue extends ParameterTemplateValue{
+    config: {
+        enable: boolean
+        templateVersion: number
+        selectIndex: number
+    }
+    template: {
+        selectList: {
+            name: string,
+            value: string
+        }[]
+    }
 }

@@ -12,15 +12,15 @@ export default () => {
     // enable確認
     const repoItemList: OnSetRepoItem[] = []
     const sideBarList: OnSetRepoSidebar[] = []
-    if (storage.get('Video_MyPage_AddWatchLater').enable) repoItemList.push(onSetAddWatchLater)
-    if (storage.get('Video_MyPage_SlimItem').enable) repoItemList.push(onSetSlimItem)
-    if (storage.get('Video_MyPage_HighlightNewRange').enable) repoItemList.push(onSetHighlightNewRange)
-    if (storage.get('Video_MyPage_Highlight').enable) repoItemList.push(onSetHighlight)
-    if (storage.get('Video_MyPage_HiddenFilter').enable) {
+    if (storage.get('Video_MyPage_AddWatchLater').config.enable) repoItemList.push(onSetAddWatchLater)
+    if (storage.get('Video_MyPage_SlimItem').config.enable) repoItemList.push(onSetSlimItem)
+    if (storage.get('Video_MyPage_HighlightNewRange').config.enable) repoItemList.push(onSetHighlightNewRange)
+    if (storage.get('Video_MyPage_Highlight').config.enable) repoItemList.push(onSetHighlight)
+    if (storage.get('Video_MyPage_HiddenFilter').config.enable) {
         repoItemList.push(onSetFilter.item)
         sideBarList.push(onSetFilter.sideBar)
     }
-    if (storage.get('Video_MyPage_HideSideBar').enable)sideBarList.push(onSetHideSideBar)
+    if (storage.get('Video_MyPage_HideSideBar').config.enable)sideBarList.push(onSetHideSideBar)
     // TODO 適時追加
 
     // 各画面要素の処理を呼び出し

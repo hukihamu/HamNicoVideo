@@ -1,16 +1,13 @@
-
-
-
-
-
+import {ParameterBaseValue, ParameterTemplateValue} from '@/storage/parameters/parameter_value/parameter_base_value';
+import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
 
 
 export default {
-    findIndex<T extends ValuesBase<K>, K>(findId: K, values: T[]): number{
-        return values.findIndex(value =>value.valueId === findId)
+    findIndex<T extends ValuesBase<K>, K extends string | number>(findId: K, values: T[]): number{
+        return values.findIndex(value =>value.config.valueId === findId)
     },
-    findValue<T extends ValuesBase<K>, K>(findId: K, values: T[]): T | undefined{
-        return values.find(value =>value.valueId === findId)
+    findValue<T extends ValuesBase<K>, K extends string | number>(findId: K, values: T[]): T | undefined{
+        return values.find(value =>value.config.valueId === findId)
     },
     formatNumber(num: number): string{
         const numString = num.toString()
@@ -45,6 +42,28 @@ export default {
     },
     isInstancesOf<T>(value: any, ...keys: (keyof T)[]): value is T{
         return keys.every(key=>key in value)
+    },
+    isInstancesParamBaseOf<T extends ParameterBaseValue>(value: ParameterBaseValue, ...keys: (keyof T['config'])[]): value is T{
+        return keys.every(key=>key in value['config'])
+    },
+    isInstancesParamTemplateOf<T extends ParameterTemplateValue>(value: ParameterTemplateValue, ...keys: (keyof T['template'])[]): value is T{
+        console.warn(value['template'])
+        console.log(keys)
+        keys.forEach(key => console.warn(key in value['template']))
+        return keys.every(key=>key in value['template'])
+    },
+    isInstancesValuesBaseOf<T extends ValuesBase<any>>(value: ValuesBase<any>, ...keys: (keyof T['config'])[]): value is T{
+        return keys.every(key=>key in value['config'])
+    },
+    forParamValues<K extends ValuesTemplate<any>>(param: ParameterStaticValues<K, any>, forEach: (value: K)=> boolean | void){
+        for (const config of param.config.values){
+            const template = param.template.values[config.valueId]
+            const isBreak = forEach({config,template} as K)
+            if (isBreak) break
+        }
+    },
+    isInstancesValuesTemplateOf<V extends ValuesTemplate<any>>(value: ValuesTemplate<any>, configKeys: (keyof V['config'])[], templateKeys?: (keyof V['template'])[]): value is V{
+        return configKeys.every(key=>key in value['config']) && (templateKeys?.every(key=>key in value['template']) ?? true)
     },
     getRandomString(n: number): string{
         const S = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';

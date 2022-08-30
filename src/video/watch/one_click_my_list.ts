@@ -34,7 +34,7 @@ export const onSetOneClickMyList = {
         div.appendChild(button)
 
         //マイリスト名取得
-        const myListId = storage.get('Video_Watch_OneClickMyList').textValue
+        const myListId = storage.get('Video_Watch_OneClickMyList').config.textValue
         if (myListId && currentMyListId !== myListId){
             myList.getMyListName(myListId).then((myListName)=>{
                 if (myListName){
@@ -61,8 +61,8 @@ const onAddMyList = (event: MouseEvent)=>{
     if (currentMyListId) {
         settingButton.classList.add('is-busy')
         settingButton.dataset['title'] = '更新中'
-        const videoId = location.pathname.replace('/watch/', '')
-        myList.addMyList(currentMyListId, videoId).then((resp)=>{
+        const watchId = location.pathname.replace('/watch/', '')
+        myList.addMyList(currentMyListId, watchId).then((resp)=>{
             settingButton.classList.remove('is-busy')
             settingButton.classList.remove('is-succeeded')
             settingButton.classList.remove('is-failed')
@@ -115,7 +115,7 @@ const onSettingMyList = ()=>{
         currentMyListId = myListNode.dataset['mylistId']
         currentMyListName = myListNode.dataset['mylistName'] ?? DEFAULT_MY_LIST_NAME
         const pv = storage.get('Video_Watch_OneClickMyList')
-        pv.textValue = currentMyListId ?? ''
+        pv.config.textValue = currentMyListId ?? ''
         storage.set('Video_Watch_OneClickMyList', pv)
         const oneClickMyListButton = document.getElementById('one_click_my_list_button')
             ?? util.throwText( 'one_click_my_list_button 取得に失敗')

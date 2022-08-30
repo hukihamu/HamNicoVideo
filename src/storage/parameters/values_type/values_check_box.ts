@@ -1,4 +1,9 @@
-export interface ValuesCheckBox<K> extends ValuesBase<K>{
-    enable: boolean
-    name: string
+export interface ValuesCheckBox<K extends string | number> extends ValuesTemplate<K>{
+    config: {
+        valueId: K,
+        enable: boolean
+    },
+    template: {
+        name: string
+    }
 }

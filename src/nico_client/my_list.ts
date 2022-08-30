@@ -19,10 +19,10 @@ export const myList = {
             }
         })
     },
-    addMyList: async (myListId: string, videoId: string): Promise<Response>=>{
+    addMyList: async (myListId: string, watchId: string): Promise<Response>=>{
         const url = 'https://nvapi.nicovideo.jp/v1/users/me/mylists/{myListId}/items?itemId={itemId}&description='
             .replace('{myListId}', myListId)
-            .replace('{itemId}', videoId)
+            .replace('{itemId}', watchId)
 
         return fetch(url, {
             method: 'post',

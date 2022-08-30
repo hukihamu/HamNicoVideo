@@ -11,10 +11,10 @@ export default ()=>{
     const cardGridList: OnSetCardGrid[] = [] // カードに追加要素追加
     const initList: (()=>void)[] = [] // 初回起動時
     const videoChangeList: (()=>void)[] = [] // 動画変更毎
-    if (storage.get("Video_Watch_ChangeVideoList").enable) cardGridList.push(onSetChangeVideoList)
-    if (storage.get("Video_Watch_RemoveWatchLater").enable) videoChangeList.push(onSetRemoveWatchLater)
-    if (storage.get("Video_Watch_MinimizeLike").enable) initList.push(onSetMinimizeLike)
-    if (storage.get('Video_Watch_OneClickMyList').enable) {
+    if (storage.get("Video_Watch_ChangeVideoList").config.enable) cardGridList.push(onSetChangeVideoList)
+    if (storage.get("Video_Watch_RemoveWatchLater").config.enable) videoChangeList.push(onSetRemoveWatchLater)
+    if (storage.get("Video_Watch_MinimizeLike").config.enable) initList.push(onSetMinimizeLike)
+    if (storage.get('Video_Watch_OneClickMyList').config.enable) {
         initList.push(onSetOneClickMyList.init)
         cardGridList.push(onSetOneClickMyList.cardGrid)
     }

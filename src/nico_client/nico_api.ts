@@ -2,6 +2,7 @@ import {watchDetail} from '@/nico_client/watch_detail';
 import {watchLater} from '@/nico_client/watch_later';
 import {series} from '@/nico_client/series';
 import {channels} from '@/nico_client/channels';
+import {users} from '@/nico_client/users';
 
 export const NicoAPI = {
     getWatchDetail: watchDetail.get,
@@ -9,5 +10,6 @@ export const NicoAPI = {
     removeWatchLater: watchLater.remove,
     hasWatchLater: watchLater.has,
     getSeries: series.get,
-    getChannel: channels.get
+    getChannelVideos: channels.get,
+    getUserVideos: users.get
 }

@@ -16,9 +16,8 @@ export interface ValuesNotifySeries {
     seriesName: string
 }
 export interface ValueNotifyUserVideo {
-    userId: string
+    userId: number
     userName: string
     isCh: boolean
     lastCheckIndex: number
-    lastCheckTotalSize: number
 }

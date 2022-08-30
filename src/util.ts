@@ -47,9 +47,6 @@ export default {
         return keys.every(key=>key in value['config'])
     },
     isInstancesParamTemplateOf<T extends ParameterTemplateValue>(value: ParameterTemplateValue, ...keys: (keyof T['template'])[]): value is T{
-        console.warn(value['template'])
-        console.log(keys)
-        keys.forEach(key => console.warn(key in value['template']))
         return keys.every(key=>key in value['template'])
     },
     isInstancesValuesBaseOf<T extends ValuesBase<any>>(value: ValuesBase<any>, ...keys: (keyof T['config'])[]): value is T{

@@ -1,26 +1,28 @@
-
-import util from '@/util';
-
-export type ChannelsType = {
-  'data': {
-    items: {
-      id: string
-      link: string
-    }[]
-    lastPublishedAt: string
-    link: string
-  }
+export type ChannelVideosType = {
+    'niconico_response': {
+        total_count: number
+        video_info: {
+            video: {
+                id: string
+            }
+        }[]
+    }
 }
 export const channels = {
-  get: async (channelId: string): Promise<ChannelsType>=>{
-    return fetch(`https://public.api.nicovideo.jp/v1/channel/channelapp/content/videos.json?channelId=${channelId}&page=1`, {
-      method: 'get',
-      headers: {
-        'X-Frontend-Id': '6',
-        'X-Frontend-Version': '0'
-      }
-    }).then(value => {
-      return value.json()
-    })
-  }
+    /**
+     *
+     * @param channelId
+     * @param offset 次回表示index
+     */
+    get: async (channelId: number|string, offset: number = 0): Promise<ChannelVideosType> => {
+        return fetch(`https://api.ce.nicovideo.jp/nicoapi/v1/community.video?id=ch${channelId}&from=${offset}`, {
+            method: 'get',
+            headers: {
+                'X-Frontend-Id': '6',
+                'X-Frontend-Version': '0'
+            }
+        }).then(value => {
+            return value.json()
+        })
+    }
 }

@@ -15,7 +15,7 @@ export default class {
         BROWSER.storage.onChanged.addListener(changes => {
             storage_cache = changes[STORAGE_KEY].newValue
         })
-        return BROWSER.storage.sync.get(null).then(items=>{
+        return BROWSER.storage.local.get(null).then(items=>{
             storage_cache = items[STORAGE_KEY]
         }).then(()=>{
             // TODO 開発初期化用
@@ -44,13 +44,13 @@ export default class {
             clone.template = {}
         }
         storage_cache[key] = clone
-        BROWSER.storage.sync.set({[STORAGE_KEY]: storage_cache}).then()
+        BROWSER.storage.local.set({[STORAGE_KEY]: storage_cache}).then()
     }
     static allDefault = ()=> {
         // 手動初期化
-        BROWSER.storage.sync.set({[STORAGE_KEY]: {}}).then()
+        BROWSER.storage.local.set({[STORAGE_KEY]: {}}).then()
         storage_cache = parameterDefault
     }
-
+    static getAll = ()=>storage_cache
     static default = parameterDefault
 }

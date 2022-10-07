@@ -26,7 +26,7 @@ const showNotifyId: {[valueId: number]: string | undefined} = {}
 const initBackground = async () => {
     await storage.init()
     notifyList = storage.get('Notify_NotifyList').config.dynamicValues
-    BROWSER.alarms.onAlarm.addListener(async (alarm) => {
+    BROWSER.alarms.onAlarm.addListener(alarm => {
         const v = getNotifyData(Number.parseInt(alarm.name))
         if (v) onCreateAlarm(v).then()
         // TODO アラーム動作時の挙動
@@ -151,7 +151,6 @@ const onCreateAlarm = async (notifyValue: ValuesNotify) => {
     if (!notifyValue.config.isInterval) return
     if (!notifyValue.config.intervalTime) return
     await BROWSER.alarms.clear(notifyValue.config.valueId.toString())
-
     const nowDate = new Date()
     const nowDayOfWeek = nowDate.getDay()
     const nowHour = `${nowDate.getHours().toString().padStart(2, '0')}:${nowDate.getMinutes().toString().padStart(2, '0')}`

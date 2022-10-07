@@ -1,4 +1,5 @@
 import Tab = chrome.tabs.Tab;
+import * as Process from 'process';
 
 export const BROWSER = {
     storage: {
@@ -11,6 +12,20 @@ export const BROWSER = {
             set: async (items: {[p: string]: any}): Promise<void>=>{
                 return new Promise((resolve)=>{
                     chrome.storage.sync.set(items, ()=>{
+                        resolve()
+                    })
+                })
+            }
+        },
+        local: {
+            get: async (keys: string | string[] | {[key: string]: any} | null): Promise<any>=>{
+                return new Promise((resolve)=>{
+                    chrome.storage.local.get(keys, items => resolve(items))
+                })
+            },
+            set: async (items: {[p: string]: any}): Promise<void>=>{
+                return new Promise((resolve)=>{
+                    chrome.storage.local.set(items, ()=>{
                         resolve()
                     })
                 })
@@ -31,5 +46,15 @@ export const BROWSER = {
     connect: chrome.runtime.connect,
     onStartup: chrome.runtime.onStartup,
     onInstalled: chrome.runtime.onInstalled,
-    alarms: chrome.alarms,
+    alarms: {
+        clear: async (name?: string): Promise<void> =>{
+            return new Promise(resolve=>{
+                chrome.alarms.clear(name,(()=>{
+                    resolve()
+                }))
+            })
+        },
+        create: chrome.alarms.create,
+        onAlarm: chrome.alarms.onAlarm
+    },
 }

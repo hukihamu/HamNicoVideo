@@ -69,7 +69,7 @@ body {
     background-color: gainsboro;
     padding: 2px;
 }
-.target-highlight *{
+.target-highlight{
     background-color: #ffa000;
 }
 .target-index::before{

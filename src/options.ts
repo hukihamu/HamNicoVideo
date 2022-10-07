@@ -36,19 +36,20 @@ const setEvent = ()=>{
 
     document.getElementById('export')?.addEventListener('click', ()=>{
         // TODO
-        // const e = new Blob([JSON.stringify(BStorage.cache)])
-        // const date = new Date()
-        // const t = `HamNicoVideo ${date.toLocaleString('ja-JP')}.json`
-        // const o = document.createElement('a')
-        // o.href = 'string' == typeof e ? e : URL.createObjectURL(e)
-        // o.download = t
-        // o.dispatchEvent(new MouseEvent('click'))
+        const e = new Blob([JSON.stringify(storage.getAll())])
+        const date = new Date()
+        const t = `HamNicoVideo ${date.toLocaleString('ja-JP')}.json`
+        const o = document.createElement('a')
+        o.href = URL.createObjectURL(e)
+        o.download = t
+        o.dispatchEvent(new MouseEvent('click'))
+        o.remove()
     })
     document.getElementById('import')?.addEventListener('click', ()=>{
         document.getElementById('import_input')?.click()
     })
     document.getElementById('import_input')?.addEventListener('change', ()=>{
-        // TODO
+        // TODO 旧式の設定ファイルの互換性
         // const file = e.target.files[0]
         // const t = new FileReader
         // t.addEventListener('load', (() => {

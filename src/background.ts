@@ -1,7 +1,5 @@
 import storage from '@/storage';
 import connection from '@/connection';
-import {WatchDetailType} from '@/nico_client/watch_detail';
-import {NicoAPI} from '@/nico_client/nico_api';
 import {toVideoDetailPostData} from '@/post_data/video_detail_post_data';
 import util from '@/util';
 import {NotifyPostData} from '@/post_data/notify_post_data';
@@ -20,6 +18,10 @@ const hasNotify = async (valueId: number): Promise<boolean>=>{
         return false
     }
 }
+const newNotifyList: number[] = []
+const showBadgeText = ()=>{
+    BROWSER.setBadgeText(newNotifyList.length.toString())
+}
 let notifyList: ValuesNotify[] = []
 const showNotifyId: {[valueId: number]: string | undefined} = {}
 // TODO v3はクソ https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
@@ -27,13 +29,35 @@ const initBackground = async () => {
     await storage.init()
     notifyList = storage.get('Notify_NotifyList').config.dynamicValues
     BROWSER.alarms.onAlarm.addListener(alarm => {
+        // アラーム動作時の挙動
         const v = getNotifyData(Number.parseInt(alarm.name))
         if (v) onCreateAlarm(v).then()
-        // TODO アラーム動作時の挙動
+        // 未読追加
+        const addNewNotify = (async ()=>{
+            if (await hasNotify(v.config.valueId)){
+                newNotifyList.push(v.config.valueId)
+            }
+        })()
+        addNewNotify.then(()=>{
+            // BadgeText にセット
+            showBadgeText()
+        })
     })
+    const counterList = []
     for (const v of storage.get('Notify_NotifyList').config.dynamicValues) {
+        // アラーム設定
         onCreateAlarm(v).then()
+        // 未読カウント用
+        counterList.push(v.config.valueId)
     }
+    Promise.all(counterList.map(value => (async ()=>{
+        if (await hasNotify(value)){
+            newNotifyList.push(value)
+        }
+    })())).then(()=>{
+        // 未読件数を表示
+        showBadgeText()
+    })
 
     connection.setConnectListener(async (key, args) => {
         switch (key){
@@ -121,13 +145,17 @@ const initBackground = async () => {
                 })
             case 'is_new_notify':
                 return connection.run(key, args, async a=> hasNotify(a) )
-            case 'read_notify':
+            case 'read_notify': // 既読
                 return connection.run(key, args, async a =>{
                     const index = util.findIndex(a, notifyList)
                     notifyList[index].config.lastCheckDateTime = Date.now()
                     const param = storage.get('Notify_NotifyList')
                     param.config.dynamicValues = notifyList
                     storage.set('Notify_NotifyList', param)
+                    // 未読件数から削除
+                    const removeIndex = newNotifyList.indexOf(notifyList[index].config.valueId)
+                    if (removeIndex !== -1) newNotifyList.splice(removeIndex,1)
+                    showBadgeText()
                     return undefined
                 })
             case 'reload':

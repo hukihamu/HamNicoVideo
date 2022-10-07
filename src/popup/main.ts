@@ -22,7 +22,7 @@ const createNotifyView = (viewData: NotifyPostData) => {
     createNotifyHeader(parent, viewData)
     createNotifyBody(parent, viewData)
     connection.oldConnect('is_new_notify', viewData.valueId, isNewNotify => {
-        parent.getElementsByClassName('target-type')[0].classList.toggle('target-highlight', isNewNotify)
+        parent.classList.toggle('target-highlight', isNewNotify)
     })
 }
 const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
@@ -217,6 +217,7 @@ const setNotifyData = (parent: HTMLDivElement, valueId: number) => {
             doc.getElementById('d8_5-' + valueId).textContent = util.formatNumber(videoDetail.likeCounter)//いいね数
             doc.getElementById('d8_6-' + valueId).textContent = util.formatNumber(videoDetail.myListCounter)//マイリス数
             doc.getElementsByFirstClassName('notification', parent).classList.remove('invisible')
+
         } else {
             // 非表示
             doc.getElementsByFirstClassName('notification', parent).classList.add('invisible')
@@ -270,7 +271,7 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
     notifyRead.className = 'notify-read'
     notifyRead.addEventListener('click', () => {
         connection.oldConnect('read_notify', viewData.valueId, () => {
-            header.classList.toggle('target-highlight', false)
+            header.parentElement?.classList.toggle('target-highlight', false)
         })
     })
     //リフレッシュ
@@ -281,7 +282,7 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
         parent.classList.toggle('child-loading', true)
         connection.oldConnect('is_new_notify', viewData.valueId, (isNewNotify) => {
             if (isNewNotify) {
-                header.classList.toggle('target-highlight', true)
+                header.parentElement?.classList.toggle('target-highlight', true)
                 connection.oldConnect('reload', viewData.valueId, () => {
                     setNotifyData(parent, viewData.valueId)
                 })

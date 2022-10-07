@@ -1,5 +1,7 @@
 import Tab = chrome.tabs.Tab;
 import * as Process from 'process';
+import AlarmCreateInfo = chrome.alarms.AlarmCreateInfo;
+import Alarm = chrome.alarms.Alarm;
 
 export const BROWSER = {
     storage: {
@@ -46,6 +48,9 @@ export const BROWSER = {
     connect: chrome.runtime.connect,
     onStartup: chrome.runtime.onStartup,
     onInstalled: chrome.runtime.onInstalled,
+    setBadgeText: (text: string)=>{
+        chrome.browserAction.setBadgeText({text},()=>{})
+    },
     alarms: {
         clear: async (name?: string): Promise<void> =>{
             return new Promise(resolve=>{
@@ -54,7 +59,13 @@ export const BROWSER = {
                 }))
             })
         },
-        create: chrome.alarms.create,
-        onAlarm: chrome.alarms.onAlarm
+        create: (name: string, alarmInfo: AlarmCreateInfo)=>{
+            chrome.alarms.create(name, alarmInfo)
+        },
+        onAlarm: {
+            addListener: (callback: (alarm: Alarm) => void)=>{
+                chrome.alarms.onAlarm.addListener(callback)
+            }
+        }
     },
 }

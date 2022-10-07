@@ -7,7 +7,7 @@ import {onSetMinimizeLike} from '@/video/watch/minimize_like';
 import {onSetOneClickMyList} from '@/video/watch/one_click_my_list';
 
 export default ()=>{
-    // enable確認 TODO 適時追加
+    // enable確認
     const cardGridList: OnSetCardGrid[] = [] // カードに追加要素追加
     const initList: (()=>void)[] = [] // 初回起動時
     const videoChangeList: (()=>void)[] = [] // 動画変更毎

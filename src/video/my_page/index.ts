@@ -21,7 +21,6 @@ export default () => {
         sideBarList.push(onSetFilter.sideBar)
     }
     if (storage.get('Video_MyPage_HideSideBar').config.enable)sideBarList.push(onSetHideSideBar)
-    // TODO 適時追加
 
     // 各画面要素の処理を呼び出し
     const userPageMain = document.getElementsByClassName('UserPage-main')[0]

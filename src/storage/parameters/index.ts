@@ -26,7 +26,7 @@ export type ParametersType = {
     Video_Watch_OneClickMyList: ParameterTextValue,
     Notify_NotifyList: ParameterDynamicValues<ValuesNotify>
 }
-// default設定 TODO 適時追記
+// default設定
 export const parameterDefault: ParametersType = {
     Notify_NotifyList: {
         config: {

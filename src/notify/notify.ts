@@ -10,6 +10,8 @@ import {
 } from '@/storage/parameters/values_type/values_notify';
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import storage from '@/storage';
+import {NotifySeries} from '@/notify/series';
+import {NotifyUser} from '@/notify/user';
 
 export type NotifyDetailType = 'series' | 'user_video'
 
@@ -73,72 +75,48 @@ const moveUserVideo = async (lastWatchId: string, notifyUserVideo: ValueNotifyUs
     }
     return watchId
 }
-
-
+export interface NotifyInterface {
+    EditNotify: {
+        onChangeTargetType: (targetType: NotifyDetailType) => void
+        createNotifyDetail: (targetType: NotifyDetailType, watchDetailType: WatchDetailType) => Promise<NotifyDetail | undefined>
+        clearEditView: () => void
+        initEditView: (notifyDetail: NotifyDetail) => number | undefined
+    },
+    Background: {
+        createNotifyPostData: (valuesNotify: ValuesNotify) => NotifyPostData | undefined
+        getCurrentWatchId: (valuesNotify: ValuesNotify)=> Promise<string | undefined>
+        getNextWatchId: (valuesNotify: ValuesNotify, currentWatchId: string) => Promise<string | undefined>
+        getPrevWatchId: (valuesNotify: ValuesNotify, currentId: string) => Promise<string | undefined>
+        getLastedWatchId: (valuesNotify: ValuesNotify) => Promise<WatchDetailType | undefined>
+    }
+}
+const notifyFuncList: NotifyInterface[] = [
+    NotifySeries,NotifyUser
+]
+const allRunNotifyFunc = (func: (ni: NotifyInterface)=>void)=>{
+    notifyFuncList.forEach(value =>func(value))
+}
+const resultRunNotifyFunc = (func: (ni: NotifyInterface)=>any): any=>{
+    for (const n of notifyFuncList){
+        const result = func(n)
+        if (result !== undefined) return result
+    }
+    return undefined
+}
 export const Notify = {
     EditNotify: {
-        // TODO 昇順の切り替え
         onChangeTargetType: (targetType: NotifyDetailType) => {
-            const seriesDiv = doc.getElementById('series_value')
-            const userVideoDiv = doc.getElementById('user_video_value')
+            allRunNotifyFunc(ni => ni.EditNotify.onChangeTargetType(targetType))
             const tagsDiv = doc.getElementById('tags_value')
-            seriesDiv.classList.toggle('hidden', targetType !== 'series')
-            userVideoDiv.classList.toggle('hidden', targetType !== 'user_video')
             tagsDiv.classList.toggle('hidden', true)
         },
         createNotifyDetail: async (targetType: NotifyDetailType, watchDetailType: WatchDetailType): Promise<NotifyDetail | undefined> => {
-            switch (targetType) {
-                case 'series': {
-                    if (watchDetailType.data.series) {
-                        return {
-                            seriesId: watchDetailType.data.series.id.toString(),
-                            seriesName: watchDetailType.data.series.title,
-                        }
-                    } else {
-                        alert('シリーズを取得できませんでした')
-                    }
-                    break
-                }
-                case 'user_video': {
-                    if (watchDetailType.data.channel) {
-                        const channelId = watchDetailType.data.channel.id.replace('ch', '')
-                        const channelVideos = await NicoAPI.getChannelVideos(channelId)
-                        return {
-                            userId: Number.parseInt(channelId),
-                            userName: watchDetailType.data.channel.name,
-                            lastCheckIndex: channelVideos.niconico_response.video_info.findIndex(v => v.video.id === watchDetailType.data.client.watchId),
-                            isCh: true
-                        }
-                    }else if (watchDetailType.data.owner){
-                        const userVideos = await NicoAPI.getUserVideos(watchDetailType.data.owner.id)
-                        return {
-                            userId: watchDetailType.data.owner.id,
-                            isCh:false,
-                            userName: watchDetailType.data.owner.nickname,
-                            lastCheckIndex: userVideos.data.items.findIndex(v => v.essential.id === watchDetailType.data.client.watchId)
-                        }
-                    }
-                    break
-                }
-            }
-            return undefined
+            return resultRunNotifyFunc(ni => ni.EditNotify.createNotifyDetail(targetType,watchDetailType))
         },
         initEditView: (notifyDetail: NotifyDetail | undefined): number | undefined => {
-            const seriesNameSpan = doc.getElementById('series_name')
-            const userNameSpan = doc.getElementById('user_name')
-            seriesNameSpan.textContent = ''
-            userNameSpan.textContent = ''
+            allRunNotifyFunc(ni => ni.EditNotify.clearEditView())
             if (notifyDetail) {
-                if (util.isInstanceOf<ValuesNotifySeries>(notifyDetail, 'seriesName')) {
-                    // シリーズ
-                    seriesNameSpan.textContent = notifyDetail.seriesName
-                    return 0
-                }
-                if (util.isInstanceOf<ValueNotifyUserVideo>(notifyDetail, 'userName')) {
-                    // 動画投稿者
-                    userNameSpan.textContent = notifyDetail.userName
-                    return 1
-                }
+                return resultRunNotifyFunc(ni => ni.EditNotify.initEditView(notifyDetail))
             }
             return undefined
         }

@@ -1,4 +1,4 @@
-import {ParameterBaseValue, ParameterTemplateValue} from '@/storage/parameters/parameter_value/parameter_base_value';
+import {ParameterTemplateValue} from '@/storage/parameters/parameter_value/parameter_base_value';
 
 export interface ParameterSelectValue extends ParameterTemplateValue{
     config: {

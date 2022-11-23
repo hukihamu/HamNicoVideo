@@ -1,8 +1,24 @@
-type SeriesType = {
+export type SeriesType = {
     data: {
         "items": {
             video: {
+                "acf68865": boolean // プレミアム
                 "id": string
+                count: {
+                    comment: number
+                    like: number
+                    mylist: number
+                    view: number
+                }
+                duration: number
+                isChannelVideo: boolean
+                isPaymentRequired: boolean
+                registeredAt: string
+                shortDescription: string
+                title: string
+                thumbnail: {
+                    url: string
+                }
             }
         }[]
     }

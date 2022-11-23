@@ -1,5 +1,4 @@
 import Tab = chrome.tabs.Tab;
-import * as Process from 'process';
 import AlarmCreateInfo = chrome.alarms.AlarmCreateInfo;
 import Alarm = chrome.alarms.Alarm;
 

@@ -38,32 +38,32 @@ interface ConnectType  {
         args: number, // valueId
         result: void
     }
-    watch_detail: { // 動画生データ取得
+    watch_detail: { // 入力補助のため動画生データ取得
         args: string, // watchId
         result: WatchDetailType
     }
-    is_new_notify: { // 新着動画確認
-        args: number
+    is_new_notify: { // カウント済み新着動画確認
+        args: number // valueId
         result: boolean
     }
     read_notify: { // 既読
         args: number // valueId
         result: void
     }
-    reload: {
+    reload: { // 新着確認
         args: number // valueId
-        result: void
+        result: boolean
     }
 }
 export default {
-    oldConnect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args'], resultCallback: (resultValue: ConnectType[K]['result']) => void)=>{
-        const port = BROWSER.connect({name: key})
-        port.onMessage.addListener(message => {
-            resultCallback(message)
-            return true
-        })
-        port.postMessage(args)
-    },
+    // oldConnect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args'], resultCallback: (resultValue: ConnectType[K]['result']) => void)=>{
+    //     const port = BROWSER.connect({name: key})
+    //     port.onMessage.addListener(message => {
+    //         resultCallback(message)
+    //         return true
+    //     })
+    //     port.postMessage(args)
+    // },
     connect: <K extends keyof ConnectType>(key: K, args?: ConnectType[K]['args']): Promise<ConnectType[K]['result']>=>{
         const port = BROWSER.connect({name: key})
         const p = new Promise<ConnectType[K]['result']>((resolve)=>{

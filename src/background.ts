@@ -1,29 +1,17 @@
 import storage from '@/storage';
 import connection from '@/connection';
-import {toVideoDetailPostData} from '@/post_data/video_detail_post_data';
 import util from '@/util';
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import {BROWSER} from '@/browser';
 import {ValuesNotify} from '@/storage/parameters/values_type/values_notify';
-import {Notify} from '@/notify/notify';
+import {CacheNotify, Notify} from '@/notify/notify';
+import {NicoAPI} from '@/nico_client/nico_api';
 const getNotifyData = (valueId: number): ValuesNotify =>{
     return util.findValue(valueId, notifyList) ?? util.throwText(`登録された通知が見つかりませんでした\nID: ${valueId}`)
 }
-const hasNotify = async (valueId: number): Promise<boolean>=>{
-    try {
-        const notifyData = getNotifyData(valueId)
-        const lastWatchDetail = await Notify.Background.getLastedWatchId(notifyData)
-        return new Date(notifyData.config.lastCheckDateTime).getTime() < new Date(lastWatchDetail.data.video.registeredAt).getTime()
-    }catch (e) {
-        return false
-    }
-}
-const newNotifyList: number[] = []
-const showBadgeText = ()=>{
-    BROWSER.setBadgeText(newNotifyList.length.toString())
-}
-let notifyList: ValuesNotify[] = []
-const showNotifyId: {[valueId: number]: string | undefined} = {}
+const newNotifyList: Set<number> = new Set<number>()// カウント用
+let notifyList: ValuesNotify[] = [] // storage格納用(メモリ退避)
+const cacheNotify: CacheNotify = {} // API取得データ格納用
 // TODO v3はクソ https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
 const initBackground = async () => {
     await storage.init()
@@ -32,32 +20,15 @@ const initBackground = async () => {
         // アラーム動作時の挙動
         const v = getNotifyData(Number.parseInt(alarm.name))
         if (v) onCreateAlarm(v).then()
-        // 未読追加
-        const addNewNotify = (async ()=>{
-            if (await hasNotify(v.config.valueId)){
-                newNotifyList.push(v.config.valueId)
-            }
-        })()
-        addNewNotify.then(()=>{
-            // BadgeText にセット
-            showBadgeText()
-        })
+        checkAndShowNotify(v).then()
     })
-    const counterList = []
+
     for (const v of storage.get('Notify_NotifyList').config.dynamicValues) {
         // アラーム設定
         onCreateAlarm(v).then()
-        // 未読カウント用
-        counterList.push(v.config.valueId)
+        // 未読確認
+        checkAndShowNotify(v).then()
     }
-    Promise.all(counterList.map(value => (async ()=>{
-        if (await hasNotify(value)){
-            newNotifyList.push(value)
-        }
-    })())).then(()=>{
-        // 未読件数を表示
-        showBadgeText()
-    })
 
     connection.setConnectListener(async (key, args) => {
         switch (key){
@@ -73,53 +44,49 @@ const initBackground = async () => {
                 return connection.run(key, args, async _ => {
                     const result: NotifyPostData[] = []
                     for (const value of notifyList) {
-                        result.push(Notify.Background.createNotifyPostData(value))
+                        const bn = Notify.getBackgroundNotify(value,cacheNotify)
+                        result.push(bn.createNotifyPostData())
                     }
                     return result
                 })
             case 'detail':
                 return connection.run(key, args, async a => {
-                    let nId = showNotifyId[a]
-                    if (!nId){
-                        const notify = getNotifyData(a)
-                        nId = await Notify.Background.getCurrentWatchId(notify)
-                        if (!nId) return
-                        showNotifyId[a] = nId
-                    }
-                    return toVideoDetailPostData(await Notify.Background.getCacheWatchDetail(nId))
+                    const notify = getNotifyData(a)
+                    const bn = Notify.getBackgroundNotify(notify,cacheNotify)
+                    if (!cacheNotify[notify.config.valueId]) await bn.setCache()
+                    if (!notify.config.lastWatchId) return bn.firstVideoDetailPostData()
+                    return bn.currentVideoDetailPostData()
                 })
             case 'next':
                 return connection.run(key, args, async a => {
-                    const nId = showNotifyId[a]
-                    if (!nId) return
-                    const nextId = await Notify.Background.getNextWatchId(getNotifyData(a), nId)
+                    const notify = getNotifyData(a)
+                    const bn = Notify.getBackgroundNotify(notify,cacheNotify)
                     const i = util.findIndex(a, notifyList)
-                    notifyList[i].config.lastWatchId = showNotifyId[a]
+                    const nextId = bn.getNextWatchId()
+                    if (!nextId) return
+                    notifyList[i].config.lastWatchId = nextId
                     const param = storage.get('Notify_NotifyList')
                     param.config.dynamicValues = notifyList
                     storage.set('Notify_NotifyList', param)
-                    showNotifyId[a] = nextId
-                    return undefined
+                    return
                 })
             case 'prev':
                 return connection.run(key, args, async a => {
                     const notify = getNotifyData(a)
                     const prevId = notify.config.lastWatchId
                     if (prevId){
-                        showNotifyId[a] = prevId
-                        const lastWatchId = await Notify.Background.getPrevWatchId(notify, prevId)
+                        const bn = Notify.getBackgroundNotify(notify,cacheNotify)
                         const i = util.findIndex(a, notifyList)
-                        notifyList[i].config.lastWatchId = lastWatchId
+                        notifyList[i].config.lastWatchId = bn.getPrevWatchId()
                         const param = storage.get('Notify_NotifyList')
                         param.config.dynamicValues = notifyList
                         storage.set('Notify_NotifyList', param)
                     }
                     return undefined
                 })
-            // TODO 削除したい
             case 'watch_detail':
                 return connection.run(key, args, async a => {
-                    return await Notify.Background.getCacheWatchDetail(a)
+                    return await NicoAPI.getWatchDetail(a)
                 })
             case 'remove':
                 return connection.run(key, args, async a => {
@@ -144,7 +111,9 @@ const initBackground = async () => {
                     return undefined
                 })
             case 'is_new_notify':
-                return connection.run(key, args, async a=> hasNotify(a) )
+                return connection.run(key, args, async a=> {
+                    return newNotifyList.has(a)
+                } )
             case 'read_notify': // 既読
                 return connection.run(key, args, async a =>{
                     const index = util.findIndex(a, notifyList)
@@ -153,24 +122,22 @@ const initBackground = async () => {
                     param.config.dynamicValues = notifyList
                     storage.set('Notify_NotifyList', param)
                     // 未読件数から削除
-                    const removeIndex = newNotifyList.indexOf(notifyList[index].config.valueId)
-                    if (removeIndex !== -1) newNotifyList.splice(removeIndex,1)
+                    newNotifyList.delete(notifyList[index].config.valueId)
                     showBadgeText()
                     return undefined
                 })
             case 'reload':
                 return connection.run(key, args, async a =>{
-                    const notifyData = getNotifyData(a)
-                    if (notifyData.config.lastWatchId){
-                        await Notify.Background.getCacheWatchDetail(notifyData.config.lastWatchId, true)
+                    const notify = getNotifyData(a)
+                    if (notify.config.lastWatchId){
+                        return checkAndShowNotify(notify)
                     }
-                    return undefined
+                    return false
                 })
             default:
                 console.error('メッセージ取得に失敗')
                 console.log(args)
                 return
-
         }
     })
 }
@@ -210,5 +177,19 @@ const onCreateAlarm = async (notifyValue: ValuesNotify) => {
     })
 }
 
+const checkAndShowNotify = async (notifyValue: ValuesNotify): Promise<boolean>=>{
+    const bn = Notify.getBackgroundNotify(notifyValue, cacheNotify)
+    await bn.setCache()
+    // 未読追加
+    const result = bn.isNewVideo()
+    if (result){
+        newNotifyList.add(notifyValue.config.valueId)
+        showBadgeText()
+    }
+    return result
+}
+const showBadgeText = ()=>{
+    BROWSER.setBadgeText(newNotifyList.size.toString())
+}
 BROWSER.onInstalled.addListener(initBackground)
 BROWSER.onStartup.addListener(initBackground)

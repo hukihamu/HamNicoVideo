@@ -9,25 +9,10 @@
 <body>
 <form id="form">
     <p class="target-type" id="target-type">
-        <label><input type="radio" name="target_type" value="series" checked required>シリーズ</label>
-        <label><input type="radio" name="target_type" value="user_video" required>動画投稿者</label>
-        <label><input type="radio" name="target_type" value="tag" disabled>タグ</label>
     </p>
     <button id="get_video_info" type="button">動画視聴画面から情報取得</button>
     <div class="target-value" id="target-value">
-        <div id="series_value">
-            <p>
-                <label>シリーズ名:<span id="series_name"></span></label>
-            </p>
-        </div>
-        <div id="user_video_value">
-            <p>
-                <label>動画投稿者名:<span id="user_name"></span></label>
-            </p>
-        </div>
-        <div id="tags_value" class="hidden">
-            <p><label>検索タグ<br><input type="text" name="tags_name" style="width: 80%;"></label></p>
-        </div>
+
     </div>
     <div class="target-interval">
         <label>更新周期<input type="checkbox" id="is_interval" name="is_interval" checked></label><br>

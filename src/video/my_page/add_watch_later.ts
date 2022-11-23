@@ -1,5 +1,4 @@
 import {OnSetRepoItem} from '@/video/type_on_set';
-import {watchLater} from '@/nico_client/watch_later';
 import {NicoAPI} from '@/nico_client/nico_api';
 import util from '@/util';
 

@@ -1,6 +1,5 @@
 import connection from '@/connection';
 import {NotifyPostData} from '@/post_data/notify_post_data';
-import {NicoAPI} from '@/nico_client/nico_api';
 import {doc} from '@/window';
 import util from '@/util';
 
@@ -21,7 +20,7 @@ const createNotifyView = (viewData: NotifyPostData) => {
     body?.appendChild(parent)
     createNotifyHeader(parent, viewData)
     createNotifyBody(parent, viewData)
-    connection.oldConnect('is_new_notify', viewData.valueId, isNewNotify => {
+    connection.connect('is_new_notify', viewData.valueId).then(isNewNotify =>{
         parent.classList.toggle('target-highlight', isNewNotify)
     })
 }
@@ -45,10 +44,9 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
     a3.rel = 'noopener'
     a3.target = '_blank'
     a3.addEventListener('click', () => {
-        connection.oldConnect('next', viewData.valueId, () => {
+        connection.connect('next', viewData.valueId).then( () => {
             // 既読
-            connection.oldConnect('read_notify', viewData.valueId, () => {
-            })
+            connection.connect('read_notify', viewData.valueId).then(() => {})
         })
     })
     d2.appendChild(a3)
@@ -183,7 +181,7 @@ const createNotifyBody = (parent: HTMLDivElement, viewData: NotifyPostData) => {
     setNotifyData(parent, viewData.valueId)
 }
 const setNotifyData = (parent: HTMLDivElement, valueId: number) => {
-    connection.oldConnect('detail', valueId, videoDetail => {
+    connection.connect('detail', valueId).then(videoDetail => {
         if (videoDetail) {
             doc.getElementById<HTMLAnchorElement>('a3-' + valueId).href = 'https://www.nicovideo.jp/watch/' + videoDetail.watchId
             const d9_1 = doc.getElementById('d9_1-' + valueId)
@@ -249,7 +247,7 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
     nextButton.className = 'next_button'
     nextButton.addEventListener('click', () => {
         parent.classList.add('child-loading')
-        connection.oldConnect('next', viewData.valueId, () => {
+        connection.connect('next', viewData.valueId).then( () => {
             setNotifyData(parent, viewData.valueId)
         })
     })
@@ -260,7 +258,7 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
     prevButton.className = 'prev_button'
     prevButton.addEventListener('click', () => {
         parent.classList.add('child-loading')
-        connection.oldConnect('prev', viewData.valueId, () => {
+        connection.connect('prev', viewData.valueId).then( () => {
             setNotifyData(parent, viewData.valueId)
         })
     })
@@ -270,7 +268,7 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
     notifyRead.innerText = '既読'
     notifyRead.className = 'notify-read'
     notifyRead.addEventListener('click', () => {
-        connection.oldConnect('read_notify', viewData.valueId, () => {
+        connection.connect('read_notify', viewData.valueId).then( () => {
             header.parentElement?.classList.toggle('target-highlight', false)
         })
     })
@@ -280,13 +278,12 @@ const createNotifyHeader = (parent: HTMLDivElement, viewData: NotifyPostData) =>
     refreshButton.className = 'refresh'
     refreshButton.addEventListener('click', () => {
         parent.classList.toggle('child-loading', true)
-        connection.oldConnect('is_new_notify', viewData.valueId, (isNewNotify) => {
-            if (isNewNotify) {
-                header.parentElement?.classList.toggle('target-highlight', true)
-                connection.oldConnect('reload', viewData.valueId, () => {
-                    setNotifyData(parent, viewData.valueId)
-                })
-            } else {
+        connection.connect('reload',viewData.valueId).then(isNewNotify =>{
+            header.parentElement?.classList.toggle('target-highlight', isNewNotify)
+            if (isNewNotify){
+                // 新着があるため、再表示
+                setNotifyData(parent, viewData.valueId)
+            }else {
                 parent.classList.toggle('child-loading', false)
             }
         })

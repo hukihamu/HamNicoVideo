@@ -3,13 +3,15 @@ import {BROWSER} from '@/browser';
 import {doc} from '@/window';
 import storage from '@/storage';
 import util from '@/util';
-import {Notify, NotifyDetailType} from '@/notify/notify';
+import {Notify, NotifyType, NotifyTypeArray} from '@/notify/notify';
 import {NotifyDetail, ValuesNotify} from '@/storage/parameters/values_type/values_notify';
+import {WatchDetailType} from '@/nico_client/watch_detail';
 
 export const editNotify = async () => {
     // 取得に利用した情報
     let notifyDetail: NotifyDetail | undefined
-    let watchId: string | undefined
+    let notifyType: NotifyType = 'series'
+    let watchDetail: WatchDetailType | undefined
     await storage.init()
 
     const editForm = document.getElementById('form') as HTMLFormElement
@@ -19,14 +21,25 @@ export const editNotify = async () => {
     let editNotifyData: ValuesNotify
 
 
-    //targetType切り替え
-    for (const elm of Array.from(document.getElementsByName('target_type'))) {
-        elm.addEventListener('click', (e) => {
-            const target = e.target as HTMLInputElement
-            Notify.EditNotify.onChangeTargetType(target.value as NotifyDetailType)
+    // targetType生成
+    const targetType = doc.getElementById('target-type')
+    for (const notifyTypeItem of NotifyTypeArray){
+        const label = document.createElement('label')
+        label.setAttribute('for',notifyTypeItem.key)
+        label.textContent = notifyTypeItem.name
+        const input = document.createElement('input')
+        input.type = 'radio'
+        input.name = 'target-type'
+        input.id = notifyTypeItem.key
+        input.addEventListener('change',()=>{
+            doc.getElementById('target-value').replaceChildren(Notify.getInputNotify(notifyTypeItem.key).createNotifyDetailElement())
         })
+
+        targetType.appendChild(label)
+        targetType.appendChild(input)
+
+        if (notifyTypeItem.key === notifyType) input.click()
     }
-    Notify.EditNotify.onChangeTargetType('series')
 
     //interval切り替え
     document.getElementById('is_interval')?.addEventListener('change', (e) => {
@@ -55,40 +68,42 @@ export const editNotify = async () => {
                 }
             }
         }
+
         // valuesの処理
         const intervalTime: string | undefined = (document.getElementById('is_interval') as HTMLInputElement).checked
             ? editForm.target_interval_time.value
             : null
+        const ino = Notify.getInputNotify(notifyType)
         if (editId) {
             // 編集
+            ino.getInputNotifyDetail(editNotifyData.config.notifyDetail)
             editNotifyData.config.isInterval = editForm.is_interval.checked
             editNotifyData.config.intervalWeek = weekList
             editNotifyData.config.intervalTime = intervalTime
-            connection.oldConnect('edit', editNotifyData, () => {
+            connection.connect('edit', editNotifyData).then( () => {
                 window.location.href = '/html/popup_main.html'
             })
         } else {
             // 追加
-            if (watchId && notifyDetail) {
+            if (watchDetail && notifyDetail) {
+                ino.getInputNotifyDetail(notifyDetail)
                 const valuesNotify = {
                     config: {
                         valueId: Date.now(),
-                        isNotify: false,
                         isInterval: editForm.is_interval.checked,
                         intervalTime,
                         intervalWeek: weekList,
-                        lastWatchId: watchId,
+                        lastWatchId: watchDetail.data.client.watchId,
                         lastCheckDateTime: Date.now(),
                         notifyDetail
                     }
                 } as ValuesNotify
-                connection.oldConnect('add', valuesNotify, () => {
+                connection.connect('add', valuesNotify).then( () => {
                     window.location.href = '/html/popup_main.html'
                 })
             } else {
                 alert('追加に必要な情報が足りません')
             }
-
         }
 
         event.preventDefault()
@@ -135,7 +150,8 @@ export const editNotify = async () => {
             }
             connection.connect('watch_detail', urlWatchId).then(async (resultValue) => {
                 if (resultValue) {
-                    const date = new Date(resultValue.data.video.registeredAt)
+                    watchDetail = resultValue
+                    const date = new Date(watchDetail.data.video.registeredAt)
                     date.setMinutes(date.getMinutes() + 1)
                     editForm.target_interval_time.value = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2)
                     Array.from((document.getElementsByName('target_interval_week')) as NodeListOf<HTMLInputElement>).forEach(
@@ -145,9 +161,9 @@ export const editNotify = async () => {
                     onClickWeek()
 
                     const targetType = editForm.target_type.value
-                    notifyDetail = await Notify.EditNotify.createNotifyDetail(targetType, resultValue)
-                    watchId = notifyDetail ? resultValue.data.client.watchId : undefined
-                    Notify.EditNotify.initEditView(notifyDetail)
+                    const ino = Notify.getInputNotify(targetType)
+                    notifyDetail = ino.createNotifyDetail(watchDetail)
+                    ino.showWatchDetail(watchDetail)
                 } else {
                     alert('動画情報の取得に失敗\n取得したい動画タブを選択してください')
                 }
@@ -167,7 +183,7 @@ export const editNotify = async () => {
     document.getElementById('delete')?.addEventListener('click', (ev) => {
         ev.stopPropagation()
         if (confirm('削除しますか？')) {
-            connection.oldConnect('remove', Number.parseInt(editId ?? util.throwText('IDの取得に失敗しました')), () => {
+            connection.connect('remove', Number.parseInt(editId ?? util.throwText('IDの取得に失敗しました'))).then( () => {
                 window.location.href = '/html/popup_main.html'
             })
         }
@@ -179,24 +195,27 @@ export const editNotify = async () => {
         doc.getElementById<HTMLButtonElement>('get_video_info').disabled = true
 
         // 変更元取得
-        connection.oldConnect('get_notify', Number.parseInt(editId), (notifyData) => {
+        connection.connect('get_notify', Number.parseInt(editId)).then( (notifyData) => {
             // 通知対象型式切り替え
-            const targetTypeIndex = Notify.EditNotify.initEditView(notifyData.config.notifyDetail)
-            if (targetTypeIndex) editForm.target_type[targetTypeIndex].click()
+            notifyType = Notify.checkNotifyType(notifyData)
+            doc.getElementById(notifyType).click()
+            editNotifyData = notifyData
+            Notify.getInputNotify(notifyType).showNotifyDetail(editNotifyData.config.notifyDetail)
 
-            for (const type of editForm.target_type) {
-                type.disabled = true
+            // 通知タイプ非有効
+            for (const notifyTypeItem of NotifyTypeArray){
+                (doc.getElementById(notifyType) as HTMLInputElement).disabled = true
             }
-            if (!notifyData.config.isInterval) {
+
+            if (!editNotifyData.config.isInterval) {
                 editForm.is_interval.click()
             } else {
-                for (const weekIndex of notifyData.config.intervalWeek) {
+                for (const weekIndex of editNotifyData.config.intervalWeek) {
                     const targetIntervalWeek = document.getElementsByName('target_interval_week')
                     targetIntervalWeek[weekIndex].click()
                 }
-                editForm.target_interval_time.value = notifyData.config.intervalTime
+                editForm.target_interval_time.value = editNotifyData.config.intervalTime
             }
-            editNotifyData = notifyData
         })
     } else {
         doc.getElementById('edit').className = 'hidden'

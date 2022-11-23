@@ -6,16 +6,19 @@
   - [ ] インポート
   - [ ] 通知表示
 - [ ] 通知
-  - [ ] ？登録された通知が見つかりませんでした
-  - [ ] 共通化
+  - [x] 現状のdetailでは、視聴履歴に乗る
+    - listから、値を取得
+  - [x] 共通化
     - 区分けごとに処理を作成
     - 必要な処理はinterface
     - 処理をまとめて運用するmain的な関数を利用
     - 別区分と同じ処理を動かしても良いようにする
-  - [ ] 昇順降順の切り替え
+  - [x] 昇順降順の切り替え
   - [ ] 動画が削除などされた際の対応
   - [ ] 全体新着確認
   - [ ] 通知の投稿者対応
+  - [ ] 通知のチャンネル対応
+  - [ ] 通知のタグ対応
   - [ ] 通知一覧のグループタグ機能
     - [ ] 最小化
 
@@ -55,5 +58,3 @@ A. 連絡手段は下記の通り
 
 
 ## 利用API(2022/01/28)
-- https://nvapi.nicovideo.jp/v3/users/4846395/videos?sortKey=registeredAt&sortOrder=desc&pageSize=100&page=1
-- https://nvapi.nicovideo.jp/v1/playlist/search?sortKey=registeredAt&sortOrder=desc&tag=d%E3%82%A2%E3%83%8B%E3%83%A1%E3%82%B9%E3%83%88%E3%82%A2&pageSize=32&page=1

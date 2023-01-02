@@ -1,51 +1,56 @@
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import Util from '@/util';
 
-type TagType = {
-
-}
-// 1page 32件
+// 1ページ大体32件
 export const searchTag = {
     // return配列は、ページ分のlengthを確保
     getPage: async (tagText: string, page: number): Promise<(VideoDetailPostData|undefined)[]>=>{
-        return fetch(`https://www.nicovideo.jp/tag/${tagText}?sort=f&order=a&page=${page}`,{
-            credentials: 'omit'
-        }).then(resp =>resp.text()).then(text =>{
-            const dom = (new DOMParser()).parseFromString(text, 'text/html')
-            const totalText = dom.getElementsByClassName('num')[0].textContent ?? Util.throwText('タグ総件数が見つかりません')
-            const total = Number.parseInt(totalText.replace(',',''))
-            const result: (VideoDetailPostData | undefined)[] = new Array(total)
-            const tagElements = dom.getElementsByClassName('contentBody video uad videoList')[0].children[1]
-            let adCounter = 0
-            for (let i = 0; i < tagElements.children.length;i++){
-                const element = tagElements.children[i]
-                // ニコニ広告
-                if (element.classList.contains('nicoadVideoItem')) {
-                    adCounter--
-                    continue
-                }
-                // センシティブ
-                if (element.hasAttribute('data-video-item-sensitive')) continue
-                const timeArray: number[] = element.getElementsByClassName('videoLength')[0].textContent?.split(':').reverse().map(it => Number.parseInt(it)) ?? Util.throwText('動画時間取得に失敗')
-                const seconds = timeArray[0] + timeArray[1] * 60 + (timeArray[2] ?? 0) * 360;
-                result[i - adCounter + (page - 1) * 32] = {
-                    viewCounter: Number.parseInt(element.getElementsByClassName('count view')[0].children[0].textContent?.replace(',','') ?? Util.throwText('再生数取得に失敗')),
-                    commentNum: Number.parseInt(element.getElementsByClassName('count comment')[0].children[0].textContent?.replace(',','') ?? Util.throwText('コメント数取得に失敗')),
-                    likeCounter: Number.parseInt(element.getElementsByClassName('count like')[0].children[0].textContent?.replace(',','') ?? Util.throwText('いいね数取得に失敗')),
-                    myListCounter: Number.parseInt(element.getElementsByClassName('count mylist')[0].children[0].textContent?.replace(',','') ?? Util.throwText('マイリスト数取得に失敗')),
-                    isCH: false, // TODO
-                    thumbnailUrl: element.getElementsByClassName('thumb')[0].getAttribute('data-original') ?? Util.throwText('サムネイル取得に失敗'),
-                    isPaid: false, // TODO
-                    description: element.getElementsByClassName('itemDescription')[0].textContent ?? '',
-                    length: seconds,
-                    title: element.getElementsByClassName('itemTitle')[0].children[0].getAttribute('title') ?? Util.throwText('動画名取得に失敗'),
-                    isPremiumOnly: false, // TODO
-                    watchId: element.getAttribute('data-video-id') ?? Util.throwText('動画ID取得に失敗'),
-                    firstRetrieve: element.getElementsByClassName('time')[0].textContent ?? Util.throwText('投稿日取得に失敗')
-                }
-            }
-            console.log(result)
-            return result
+        return fetch(`https://sp.nicovideo.jp/api/tag/${tagText}?sort=f&order=a&page=${page}`).then(resp =>resp.text()).then(text =>{
+            return toPostData(text)
         })
     },
+    getNewPage: async (tagText: string): Promise<(VideoDetailPostData|undefined)[]>=>{
+        return fetch(`https://sp.nicovideo.jp/api/tag/${tagText}?sort=f&order=d&page=1`).then(resp =>resp.text()).then(text => {
+            return toPostData(text).reverse()
+        })
+    },
+}
+type DataContext = {
+    "total_count": number
+    "page": number
+    "max_page": number
+    "video_count_after_middle_banner":number
+}
+// https://sp.nicovideo.jp/watch/so40288889?ss_id=d8b83cc3-3658-47fc-aa51-9dae70b0087e&ss_pos=1
+const toPostData = (text: string) => {
+    const dom = (new DOMParser()).parseFromString(text, 'text/html')
+    const dataContext: DataContext = JSON.parse((dom.getElementsByClassName('jsSearchResultContainer')[0] as HTMLDivElement).dataset['context'] ?? Util.throwText('jsSearchResultContainer の取得に失敗しました'))
+    const result: (VideoDetailPostData | undefined)[] = new Array(dataContext.total_count)
+    const videoList = dom.getElementById('jsVideoListPage' + dataContext.page) ?? Util.throwText('jsVideoListPage の取得に失敗しました')
+
+    for (const videoItem of Array.from(videoList.children) as HTMLLIElement[]){
+        const data = videoItem.dataset
+        if (data['nicoad_video_tracking_click']){
+            // にこに広告
+            continue
+        }
+        const index = Number.parseInt((data['video_url']?.match(/(?<=ss_pos=)\d*$/) ?? Util.throwText('video_url の取得に失敗しました'))[0]) - 1
+        result[index] = {
+            isPremiumOnly: videoItem.getElementsByClassName('video-item-premiumOnlyLabel').length !== 0,
+            likeCounter: Number.parseInt(data['like_counter'] ?? Util.throwText('like_counter の取得に失敗しました')),
+            watchId: data['watch_id'] ?? Util.throwText('watch_id の取得に失敗しました'),
+            commentNum: Number.parseInt(data['comment_counter'] ?? Util.throwText('comment_counter の取得に失敗しました')),
+            isCH: videoItem.getElementsByClassName('video-item-channelLabel').length !== 0,
+            isPaid: videoItem.getElementsByClassName('video-item-ppvLabel').length !== 0,
+            length: Number.parseInt(data['video_length'] ?? Util.throwText('video_length の取得に失敗しました')),
+            title: data['title'] ?? Util.throwText('title の取得に失敗しました'),
+            myListCounter: Number.parseInt(data['mylist_counter'] ?? Util.throwText('mylist_counter の取得に失敗しました')),
+            viewCounter: Number.parseInt(data['view_counter'] ?? Util.throwText('view_counter の取得に失敗しました')),
+            // 利用前に取得
+            thumbnailUrl: '',
+            firstRetrieve: '',
+            description: '',
+        }
+    }
+    return result
 }

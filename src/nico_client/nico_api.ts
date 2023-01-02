@@ -13,5 +13,6 @@ export const NicoAPI = {
     getSeries: series.get,
     getChannelVideos: channels.get,
     getUserVideos: users.get,
-    getSearchTagPage: searchTag.getPage
+    getSearchTagPage: searchTag.getPage,
+    getSearchTagNewPage: searchTag.getNewPage
 }

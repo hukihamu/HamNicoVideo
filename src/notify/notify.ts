@@ -98,6 +98,12 @@ export const NotifyTypeArray = [
 export type NotifyType = typeof NotifyTypeArray[number]['key']
 
 export interface InputNotify {
+
+    /**
+     * watchDetailがない状態で、NotifyDetailを生成<br>
+     * watchDetailが必須な場合はundefinedを還す
+     */
+    initNotifyDetail(): NotifyDetail | undefined
     /**
      * APIから取得したデータから、NotifyDetailを生成
      */

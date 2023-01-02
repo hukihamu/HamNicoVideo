@@ -8,8 +8,15 @@ import {NotifyPostData} from '@/post_data/notify_post_data';
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import {NicoAPI} from '@/nico_client/nico_api';
 import {doc} from '@/window';
-
+const MAX_SEARCH_SIZE = 32
 export class TagInputNotify implements InputNotify{
+    initNotifyDetail(): NotifyDetailTag | undefined {
+        return {
+            searchTagText: '',
+            lastCheckPage: 1
+        }
+    }
+
     createNotifyDetail(watchDetail: WatchDetailType): NotifyDetailTag {
         return {
             searchTagText: (doc.getElementById('search-tag-text') as HTMLInputElement).value,
@@ -24,6 +31,7 @@ export class TagInputNotify implements InputNotify{
         const searchTagTextInput = document.createElement('input')
         searchTagTextInput.type = 'text'
         searchTagTextInput.id = 'search-tag-text'
+        searchTagTextInput.required = true
         searchTagTextInput.style.width = '80%'
 
         div.appendChild(searchTagTextLabel)
@@ -47,21 +55,93 @@ export class TagBackgroundNotify implements BackgroundNotify{
     }
     async setCache(): Promise<void> {
         this.mergeCache(await NicoAPI.getSearchTagPage(this.detail.searchTagText, this.detail.lastCheckPage))
+        this.mergeCache(await NicoAPI.getSearchTagNewPage(this.detail.searchTagText))
     }
     async currentVideoDetailPostData(): Promise<VideoDetailPostData | undefined> {
-        return // TODO
+        const items = this.cache[this.valuesNotify.config.valueId]
+        let resultItem: VideoDetailPostData | undefined = undefined
+        if (this.valuesNotify.config.lastWatchId){
+            const lastWatchIndex = items.findIndex(it => it?.watchId === this.valuesNotify.config.lastWatchId)
+            if (0 <= lastWatchIndex && lastWatchIndex < items.length - 1) {
+                if (items[lastWatchIndex + 1]){
+                    // 1つ後が存在している
+                    resultItem = items[lastWatchIndex + 1]
+                }else {
+                    // 1つ後が存在しない => currentPageを増やして取得
+                    if ((this.detail.lastCheckPage ) * MAX_SEARCH_SIZE < items.length){
+                        this.detail.lastCheckPage++
+                        await this.setCache()
+                        this.detail.lastCheckPage--
+                        resultItem = items[lastWatchIndex + 1]
+                    }
+                }
+            }
+            if (resultItem) {
+                await this.fillLackData(resultItem)
+            }
+        }
+        return resultItem
     }
     async firstVideoDetailPostData(): Promise<VideoDetailPostData | undefined> {
-        return // TODO
+        const items = this.cache[this.valuesNotify.config.valueId]
+        const resultItem = items[0]
+        if (resultItem) {
+            await this.fillLackData(resultItem)
+        }
+        return resultItem
     }
     async nextWatchId(): Promise<void> {
-        return // TODO
+        const items = this.cache[this.valuesNotify.config.valueId]
+        if (!this.valuesNotify.config.lastWatchId) {
+            this.valuesNotify.config.lastWatchId = items[0]?.watchId
+            return
+        }
+        const lastWatchIndex = items.findIndex(it => it?.watchId === this.valuesNotify.config.lastWatchId)
+        if (0 <= lastWatchIndex && lastWatchIndex < items.length - 1) {
+            if (items[lastWatchIndex + 1]){
+                // 1つ後が存在している
+                this.valuesNotify.config.lastWatchId = items[lastWatchIndex + 1]?.watchId
+            }else {
+                // 2つ後が存在しない => currentPageを増やして取得
+                if ((this.detail.lastCheckPage) * MAX_SEARCH_SIZE < items.length){
+                    this.detail.lastCheckPage++
+                    await this.setCache()
+                    this.valuesNotify.config.lastWatchId = items[lastWatchIndex + 1]?.watchId
+                }
+            }
+        }
+        return
     }
     async prevWatchId(): Promise<void> {
-        return // TODO
+        const items = this.cache[this.valuesNotify.config.valueId]
+        const lastWatchIndex = items.findIndex(it => it?.watchId === this.valuesNotify.config.lastWatchId)
+        if (lastWatchIndex > 0) {
+            if (items[lastWatchIndex - 1]){
+                // 1つ前が存在している
+                this.valuesNotify.config.lastWatchId = items[lastWatchIndex - 1]?.watchId
+            }else {
+                // 1つ前が存在しない => currentPageを減らして取得
+                if (this.detail.lastCheckPage !== 1){
+                    this.detail.lastCheckPage--
+                    await this.setCache()
+                    this.valuesNotify.config.lastWatchId = items[lastWatchIndex - 1]?.watchId
+                }
+            }
+        }else {
+            this.valuesNotify.config.lastWatchId = undefined
+        }
+        return
     }
     async isNewVideo(): Promise<boolean> {
-        return false // TODO
+        const items = this.cache[this.valuesNotify.config.valueId]
+        for (let i = items.length - 1; i >= 0; i--){
+            const item = items[i]
+            if (item){
+                await this.fillLackData(item)
+                return new Date(item.firstRetrieve).getTime() > new Date(this.valuesNotify.config.lastCheckDateTime).getTime()
+            }
+        }
+        return false
     }
     createNotifyPostData(): NotifyPostData {
         return {
@@ -71,10 +151,19 @@ export class TagBackgroundNotify implements BackgroundNotify{
         }
     }
     private mergeCache(data: (VideoDetailPostData|undefined)[]){
+        if (!this.cache[this.valuesNotify.config.valueId]) this.cache[this.valuesNotify.config.valueId] = []
         for (let i = 0; i < data.length;i++){
             if (data[i]){
                 this.cache[this.valuesNotify.config.valueId][i] = data[i]
             }
+        }
+    }
+    private async fillLackData(data: VideoDetailPostData) {
+        if (data.firstRetrieve === ''){
+            const wd = await NicoAPI.getWatchDetail(data.watchId)
+            data.firstRetrieve = wd.data.video.registeredAt
+            data.thumbnailUrl = wd.data.video.thumbnail.url
+            data.description = wd.data.video.description
         }
     }
 }

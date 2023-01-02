@@ -9,8 +9,8 @@ import {WatchDetailType} from '@/nico_client/watch_detail';
 
 export const editNotify = async () => {
     // 取得に利用した情報
-    let notifyDetail: NotifyDetail | undefined
     let notifyType: NotifyType = 'series'
+    let notifyDetail: NotifyDetail | undefined = Notify.getInputNotify(notifyType).initNotifyDetail()
     let watchDetail: WatchDetailType | undefined
     await storage.init()
     const editForm = document.getElementById('form') as HTMLFormElement
@@ -34,6 +34,7 @@ export const editNotify = async () => {
         input.addEventListener('change',()=>{
             doc.getElementById('target-value').replaceChildren(Notify.getInputNotify(notifyTypeItem.key).createNotifyDetailElement())
             notifyType = notifyTypeItem.key
+            notifyDetail = Notify.getInputNotify(notifyType).initNotifyDetail()
         })
 
         targetType.appendChild(label)
@@ -204,7 +205,7 @@ export const editNotify = async () => {
 
             // 通知タイプ非有効
             for (const notifyTypeItem of NotifyTypeArray){
-                (doc.getElementById(notifyType) as HTMLInputElement).disabled = true
+                (doc.getElementById(notifyTypeItem.key) as HTMLInputElement).disabled = true
             }
 
             if (!editNotifyData.config.isInterval) {

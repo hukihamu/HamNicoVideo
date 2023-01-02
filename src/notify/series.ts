@@ -11,6 +11,10 @@ import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import Util from '@/util';
 
 export class SeriesInputNotify implements InputNotify {
+    initNotifyDetail(): NotifyDetailSeries | undefined {
+        return undefined
+    }
+
     createNotifyDetail(watchDetail: WatchDetailType): NotifyDetailSeries {
         return {
             seriesId: watchDetail.data.series.id.toString(),

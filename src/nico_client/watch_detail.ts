@@ -53,6 +53,14 @@ export type WatchDetailType = {
                 name: string
             }[]
         }
+        comment: {
+            nvComment: {
+                // `/v1/threads`と合わせて利用
+                server: string
+                params: any
+                threadKey: string
+            }
+        }
     }
 }
 export const watchDetail = {

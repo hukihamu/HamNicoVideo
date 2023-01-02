@@ -4,14 +4,14 @@ import util from '@/util';
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import {BROWSER} from '@/browser';
 import {ValuesNotify} from '@/storage/parameters/values_type/values_notify';
-import {CacheNotify, Notify} from '@/notify/notify';
+import {CachePostData, Notify} from '@/notify/notify';
 import {NicoAPI} from '@/nico_client/nico_api';
 const getNotifyData = (valueId: number): ValuesNotify =>{
     return util.findValue(valueId, notifyList) ?? util.throwText(`登録された通知が見つかりませんでした\nID: ${valueId}`)
 }
 const newNotifyList: Set<number> = new Set<number>()// カウント用
 let notifyList: ValuesNotify[] = [] // storage格納用(メモリ退避)
-const cacheNotify: CacheNotify = {} // API取得データ格納用
+const cachePostData: CachePostData = {} // API取得データ格納用
 // TODO v3はクソ https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
 const initBackground = async () => {
     await storage.init()
@@ -44,7 +44,7 @@ const initBackground = async () => {
                 return connection.run(key, args, async _ => {
                     const result: NotifyPostData[] = []
                     for (const value of notifyList) {
-                        const bn = Notify.getBackgroundNotify(value,cacheNotify)
+                        const bn = Notify.getBackgroundNotify(value,cachePostData)
                         result.push(bn.createNotifyPostData())
                     }
                     return result
@@ -52,19 +52,18 @@ const initBackground = async () => {
             case 'detail':
                 return connection.run(key, args, async a => {
                     const notify = getNotifyData(a)
-                    const bn = Notify.getBackgroundNotify(notify,cacheNotify)
-                    if (!cacheNotify[notify.config.valueId]) await bn.setCache()
+                    const bn = Notify.getBackgroundNotify(notify,cachePostData)
+                    if (!cachePostData[notify.config.valueId]) await bn.setCache()
                     if (!notify.config.lastWatchId) return bn.firstVideoDetailPostData()
                     return bn.currentVideoDetailPostData()
                 })
             case 'next':
                 return connection.run(key, args, async a => {
                     const notify = getNotifyData(a)
-                    const bn = Notify.getBackgroundNotify(notify,cacheNotify)
+                    const bn = Notify.getBackgroundNotify(notify,cachePostData)
                     const i = util.findIndex(a, notifyList)
-                    const nextId = bn.getNextWatchId()
-                    if (!nextId) return
-                    notifyList[i].config.lastWatchId = nextId
+                    await bn.nextWatchId()
+                    notifyList[i] = notify
                     const param = storage.get('Notify_NotifyList')
                     param.config.dynamicValues = notifyList
                     storage.set('Notify_NotifyList', param)
@@ -75,9 +74,10 @@ const initBackground = async () => {
                     const notify = getNotifyData(a)
                     const prevId = notify.config.lastWatchId
                     if (prevId){
-                        const bn = Notify.getBackgroundNotify(notify,cacheNotify)
+                        const bn = Notify.getBackgroundNotify(notify,cachePostData)
                         const i = util.findIndex(a, notifyList)
-                        notifyList[i].config.lastWatchId = bn.getPrevWatchId()
+                        await bn.prevWatchId()
+                        notifyList[i] = notify
                         const param = storage.get('Notify_NotifyList')
                         param.config.dynamicValues = notifyList
                         storage.set('Notify_NotifyList', param)
@@ -178,10 +178,10 @@ const onCreateAlarm = async (notifyValue: ValuesNotify) => {
 }
 
 const checkAndShowNotify = async (notifyValue: ValuesNotify): Promise<boolean>=>{
-    const bn = Notify.getBackgroundNotify(notifyValue, cacheNotify)
+    const bn = Notify.getBackgroundNotify(notifyValue, cachePostData)
     await bn.setCache()
     // 未読追加
-    const result = bn.isNewVideo()
+    const result = await bn.isNewVideo()
     if (result){
         newNotifyList.add(notifyValue.config.valueId)
         showBadgeText()
@@ -189,7 +189,8 @@ const checkAndShowNotify = async (notifyValue: ValuesNotify): Promise<boolean>=>
     return result
 }
 const showBadgeText = ()=>{
-    BROWSER.setBadgeText(newNotifyList.size.toString())
+
+    BROWSER.setBadgeText(newNotifyList.size ? newNotifyList.size.toString() : '')
 }
 BROWSER.onInstalled.addListener(initBackground)
 BROWSER.onStartup.addListener(initBackground)

@@ -1,5 +1,6 @@
 import {ParameterBaseValue, ParameterTemplateValue} from '@/storage/parameters/parameter_value/parameter_base_value';
 import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
+import KeyEventEvent = chrome.input.ime.KeyEventEvent;
 
 
 export default {
@@ -89,8 +90,17 @@ export default {
             return 0;
         })
         return v as (keyof T)[]
+    },
+    setReadonly(element: HTMLInputElement){
+        element.classList.add('readonly')
+        const listener = (e: KeyboardEvent) =>{
+            if (e.key !== 'Tab') e.preventDefault()
+        }
+        element.addEventListener('keydown', listener)
+        element.addEventListener('paste', listener)
+        element.addEventListener('focus', listener)
+        element.addEventListener('mousedown', listener)
     }
-
 }
 
 

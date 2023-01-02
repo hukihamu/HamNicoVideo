@@ -15,10 +15,3 @@ const content_script = async ()=>{
     }
 }
 window.addEventListener('DOMContentLoaded', content_script)
-
-/*
-TODO
- 旧データの移行
- オプションの保存
- オプションの入出力
- */

@@ -13,7 +13,6 @@ export const editNotify = async () => {
     let notifyType: NotifyType = 'series'
     let watchDetail: WatchDetailType | undefined
     await storage.init()
-
     const editForm = document.getElementById('form') as HTMLFormElement
 
     //登録か編集家判別
@@ -31,8 +30,10 @@ export const editNotify = async () => {
         input.type = 'radio'
         input.name = 'target-type'
         input.id = notifyTypeItem.key
+        input.value = notifyTypeItem.key
         input.addEventListener('change',()=>{
             doc.getElementById('target-value').replaceChildren(Notify.getInputNotify(notifyTypeItem.key).createNotifyDetailElement())
+            notifyType = notifyTypeItem.key
         })
 
         targetType.appendChild(label)
@@ -76,7 +77,7 @@ export const editNotify = async () => {
         const ino = Notify.getInputNotify(notifyType)
         if (editId) {
             // 編集
-            ino.getInputNotifyDetail(editNotifyData.config.notifyDetail)
+            ino.setNotifyDetail(editNotifyData.config.notifyDetail)
             editNotifyData.config.isInterval = editForm.is_interval.checked
             editNotifyData.config.intervalWeek = weekList
             editNotifyData.config.intervalTime = intervalTime
@@ -85,15 +86,15 @@ export const editNotify = async () => {
             })
         } else {
             // 追加
-            if (watchDetail && notifyDetail) {
-                ino.getInputNotifyDetail(notifyDetail)
+            if (notifyDetail) {
+                ino.setNotifyDetail(notifyDetail)
                 const valuesNotify = {
                     config: {
                         valueId: Date.now(),
                         isInterval: editForm.is_interval.checked,
                         intervalTime,
                         intervalWeek: weekList,
-                        lastWatchId: watchDetail.data.client.watchId,
+                        lastWatchId: watchDetail?.data.client.watchId,
                         lastCheckDateTime: Date.now(),
                         notifyDetail
                     }
@@ -150,6 +151,7 @@ export const editNotify = async () => {
             }
             connection.connect('watch_detail', urlWatchId).then(async (resultValue) => {
                 if (resultValue) {
+                    console.log(resultValue) // TODO
                     watchDetail = resultValue
                     const date = new Date(watchDetail.data.video.registeredAt)
                     date.setMinutes(date.getMinutes() + 1)
@@ -159,9 +161,7 @@ export const editNotify = async () => {
                             value.checked = index === date.getDay()
                         })
                     onClickWeek()
-
-                    const targetType = editForm.target_type.value
-                    const ino = Notify.getInputNotify(targetType)
+                    const ino = Notify.getInputNotify(notifyType)
                     notifyDetail = ino.createNotifyDetail(watchDetail)
                     ino.showWatchDetail(watchDetail)
                 } else {

@@ -10,7 +10,7 @@ export interface ValuesNotify extends ValuesBase<number>{
         notifyDetail: NotifyDetail // 各対象の専用変数
     }
 }
-export type NotifyDetail = NotifyDetailSeries | NotifyDetailUserVideo
+export type NotifyDetail = NotifyDetailSeries | NotifyDetailUserVideo | NotifyDetailTag
 export interface NotifyDetailSeries {
     seriesId: string
     seriesName: string
@@ -20,4 +20,8 @@ export interface NotifyDetailUserVideo {
     userId: number
     userName: string
     lastCheckIndex: number
+}
+export interface NotifyDetailTag {
+    searchTagText: string
+    lastCheckPage: number
 }

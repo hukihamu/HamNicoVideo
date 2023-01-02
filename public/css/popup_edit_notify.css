@@ -25,3 +25,22 @@ body {
 .invisible {
     visibility: hidden;
 }
+.target-value label::before{
+    content: "\A";
+    white-space: pre;
+}
+
+.readonly {
+    cursor: default;
+    background-color: rgba(59, 59, 59, 0.3);
+    border-color: rgba(118, 118, 118, 0.3);
+}
+.target-type label {
+    vertical-align: text-bottom;
+    padding-left: 8px;
+}
+.target-type label:not(:first-child){
+    border-left: black solid;
+    border-width: thin;
+    margin-left: 8px;
+}

@@ -12,6 +12,7 @@ export type WatchDetailType = {
         "owner": {
             id: number
             nickname: string
+            isVideosPublic: boolean
         } | null
         "video": {
             "title": string,
@@ -47,15 +48,21 @@ export type WatchDetailType = {
                 } | null
             }
         }
+        "tag": {
+            items: {
+                name: string
+            }[]
+        }
     }
 }
 export const watchDetail = {
     get: async (watchId: string): Promise<WatchDetailType>=>{
-        return fetch(`https://www.nicovideo.jp/api/watch/v3/${watchId}?actionTrackId=${util.getRandomString(10)}_${util.getRandomNumber(13)}&additionals=series&skips=harmful`, {
+        // Webスマホ版にて対応
+        return fetch(`https://www.nicovideo.jp/api/watch/v3_guest/${watchId}?actionTrackId=${util.getRandomString(10)}_${util.getRandomNumber(13)}&additionals=series&skips=harmful`, {
             method: 'post',
             headers: {
-                'X-Frontend-Id': '6',
-                'X-Frontend-Version': '0'
+                'X-Frontend-Id': '3',
+                'X-Frontend-Version': '0.1.0'
             }
         }).then(async value => {
             if (value.status !== 200) {

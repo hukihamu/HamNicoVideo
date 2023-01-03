@@ -56,44 +56,36 @@ interface ConnectType  {
     }
 }
 export default {
-    // oldConnect: <K extends keyof ConnectType>(key: K, args: ConnectType[K]['args'], resultCallback: (resultValue: ConnectType[K]['result']) => void)=>{
-    //     const port = BROWSER.connect({name: key})
-    //     port.onMessage.addListener(message => {
-    //         resultCallback(message)
-    //         return true
-    //     })
-    //     port.postMessage(args)
-    // },
     connect: <K extends keyof ConnectType>(key: K, args?: ConnectType[K]['args']): Promise<ConnectType[K]['result']>=>{
-        const port = BROWSER.connect({name: key})
-        const p = new Promise<ConnectType[K]['result']>((resolve)=>{
-            port.onMessage.addListener(message => {
-                resolve(message)
-                return true
-            })
+        return new Promise(resolve => {
+            let count = 0
+            const interval = setInterval(() => {
+                BROWSER.sendMessage(undefined, response => {
+                    if (response) {
+                        clearInterval(interval)
+                        BROWSER.sendMessage({key, args}, response => {
+                            resolve(response)
+                            return true
+                        })
+                    }
+                    if (count > 50) {
+                        clearInterval(interval)
+                        throw 'backgroundに接続できません'
+                    }
+                    count++
+                })
+            }, 200)
         })
-        port.postMessage(args)
-        return p
     },
     setConnectListener: <K extends keyof ConnectType>(listener: (key: K, args: ConnectType[K]['args'])=>Promise<ConnectType[K]['result']>)=>{
-        BROWSER.onConnect.addListener(port => {
-            const key = port.name as K
-            port.onMessage.addListener(_args =>{
-                const args = _args as ConnectType[K]['args']
-                listener(key, args).then(result=>{
-                    // TODO 稀にエラー発生
-                    try {
-                        port.postMessage(result)
-                    }catch (e) {
-                        console.warn('key', key)
-                        console.warn('args', args)
-                        console.warn('port', port)
-                        console.warn('result', result)
-                        throw e
-                    }
+        BROWSER.onMessage.addListener((message, sender, sendResponse) => {
+            if (message){
+                listener(message.key, message.args).then(result => {
+                    sendResponse(result)
                 })
                 return true
-            })
+            }
+            return false
         })
     },
     isInstanceof: <K extends keyof ConnectType>(target: K, key: string, value: any)

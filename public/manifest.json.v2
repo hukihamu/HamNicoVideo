@@ -1,5 +1,5 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "HamNicoVideo",
   "description": "hamによるniconico便利機能",
   "version": "0.7.0",
@@ -11,15 +11,13 @@
     "storage",
     "activeTab",
     "alarms",
-    "scripting"
+    "*://*.nicovideo.jp/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "scripts":["background.js"],
+    "persistent": true
   },
-  "host_permissions": [
-    "https://www.nicovideo.jp/*"
-  ],
-  "action": {
+  "browser_action": {
     "default_popup": "html/popup_main.html"
   },
   "content_scripts": [{
@@ -28,11 +26,8 @@
     "css": ["css/content_css.css"],
     "run_at": "document_start"
   }],
-  "web_accessible_resources":[{
-    "resources": [
-      "css/*.css",
-      "html/*.html"
-    ],
-    "matches": ["<all_urls>"]
-  }]
+  "web_accessible_resources":[
+    "css/*.css",
+    "html/*.html"
+  ]
 }

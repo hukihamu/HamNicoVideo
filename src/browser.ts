@@ -1,7 +1,9 @@
 import Tab = chrome.tabs.Tab;
 import AlarmCreateInfo = chrome.alarms.AlarmCreateInfo;
 import Alarm = chrome.alarms.Alarm;
-
+import {Problem} from 'webpack-cli'
+import {makeResolver} from 'ts-loader/dist/resolver'
+const isV2 = !!chrome.browserAction
 export const BROWSER = {
     storage: {
         sync: {
@@ -30,6 +32,11 @@ export const BROWSER = {
                         resolve()
                     })
                 })
+            },
+            remove: async (keys: string | string[]): Promise<void> => {
+                return new Promise(resolve => {
+                    chrome.storage.local.remove(keys, () => resolve())
+                })
             }
         },
         onChanged: chrome.storage.onChanged
@@ -47,8 +54,14 @@ export const BROWSER = {
     connect: chrome.runtime.connect,
     onStartup: chrome.runtime.onStartup,
     onInstalled: chrome.runtime.onInstalled,
+    sendMessage: chrome.runtime.sendMessage,
+    onMessage: chrome.runtime.onMessage,
     setBadgeText: (text: string)=>{
-        chrome.browserAction.setBadgeText({text},()=>{})
+        if (isV2){
+            chrome.browserAction.setBadgeText({text},()=>{})
+        }else {
+            chrome.action.setBadgeText({text}).then()
+        }
     },
     alarms: {
         clear: async (name?: string): Promise<void> =>{

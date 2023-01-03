@@ -8,6 +8,7 @@ import {NotifyPostData} from '@/post_data/notify_post_data';
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import {NicoAPI} from '@/nico_client/nico_api';
 import {doc} from '@/window';
+import Util from '@/util'
 const MAX_SEARCH_SIZE = 32
 export class TagInputNotify implements InputNotify{
     initNotifyDetail(): NotifyDetailTag | undefined {
@@ -42,7 +43,9 @@ export class TagInputNotify implements InputNotify{
         (doc.getElementById('search-tag-text') as HTMLInputElement).value = watchDetail.data.tag.items.map(it => it.name).join(' ')
     }
     showNotifyDetail(notifyDetail: NotifyDetailTag) {
-        (doc.getElementById('search-tag-text') as HTMLInputElement).value = notifyDetail.searchTagText
+        const input = doc.getElementById('search-tag-text') as HTMLInputElement
+        input.value = notifyDetail.searchTagText
+        Util.setReadonly(input)
     }
     setNotifyDetail(notifyDetail: NotifyDetailTag) {
         notifyDetail.searchTagText = (doc.getElementById('search-tag-text') as HTMLInputElement).value
@@ -61,7 +64,20 @@ export class TagBackgroundNotify implements BackgroundNotify{
         const items = this.cache[this.valuesNotify.config.valueId]
         let resultItem: VideoDetailPostData | undefined = undefined
         if (this.valuesNotify.config.lastWatchId){
-            const lastWatchIndex = items.findIndex(it => it?.watchId === this.valuesNotify.config.lastWatchId)
+            let lastWatchIndex = items.findIndex(it => it?.watchId === this.valuesNotify.config.lastWatchId)
+            if (lastWatchIndex === -1){
+                if ((this.detail.lastCheckPage ) * MAX_SEARCH_SIZE < items.length) {
+                    this.detail.lastCheckPage++
+                    await this.setCache()
+                    this.detail.lastCheckPage--
+                }
+                if (this.detail.lastCheckPage > 1) {
+                    this.detail.lastCheckPage--
+                    await this.setCache()
+                    this.detail.lastCheckPage++
+                }
+                lastWatchIndex = items.findIndex(it => it?.watchId === this.valuesNotify.config.lastWatchId)
+            }
             if (0 <= lastWatchIndex && lastWatchIndex < items.length - 1) {
                 if (items[lastWatchIndex + 1]){
                     // 1つ後が存在している
@@ -99,14 +115,14 @@ export class TagBackgroundNotify implements BackgroundNotify{
         const lastWatchIndex = items.findIndex(it => it?.watchId === this.valuesNotify.config.lastWatchId)
         if (0 <= lastWatchIndex && lastWatchIndex < items.length - 1) {
             if (items[lastWatchIndex + 1]){
-                // 1つ後が存在している
+                // 1つ後が存在している => 1つ後をセット
                 this.valuesNotify.config.lastWatchId = items[lastWatchIndex + 1]?.watchId
-            }else {
-                // 2つ後が存在しない => currentPageを増やして取得
+            }
+            if (!items[lastWatchIndex + 2]){
+                // 2つ後が存在しない => currentPageを増やす
                 if ((this.detail.lastCheckPage) * MAX_SEARCH_SIZE < items.length){
                     this.detail.lastCheckPage++
                     await this.setCache()
-                    this.valuesNotify.config.lastWatchId = items[lastWatchIndex + 1]?.watchId
                 }
             }
         }
@@ -121,10 +137,12 @@ export class TagBackgroundNotify implements BackgroundNotify{
                 this.valuesNotify.config.lastWatchId = items[lastWatchIndex - 1]?.watchId
             }else {
                 // 1つ前が存在しない => currentPageを減らして取得
-                if (this.detail.lastCheckPage !== 1){
+                if (this.detail.lastCheckPage > 1){
                     this.detail.lastCheckPage--
                     await this.setCache()
                     this.valuesNotify.config.lastWatchId = items[lastWatchIndex - 1]?.watchId
+                } else {
+                    this.valuesNotify.config.lastWatchId = undefined
                 }
             }
         }else {

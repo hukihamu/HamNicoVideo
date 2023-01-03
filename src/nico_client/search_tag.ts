@@ -21,20 +21,24 @@ type DataContext = {
     "max_page": number
     "video_count_after_middle_banner":number
 }
-// https://sp.nicovideo.jp/watch/so40288889?ss_id=d8b83cc3-3658-47fc-aa51-9dae70b0087e&ss_pos=1
 const toPostData = (text: string) => {
     const dom = (new DOMParser()).parseFromString(text, 'text/html')
     const dataContext: DataContext = JSON.parse((dom.getElementsByClassName('jsSearchResultContainer')[0] as HTMLDivElement).dataset['context'] ?? Util.throwText('jsSearchResultContainer の取得に失敗しました'))
     const result: (VideoDetailPostData | undefined)[] = new Array(dataContext.total_count)
     const videoList = dom.getElementById('jsVideoListPage' + dataContext.page) ?? Util.throwText('jsVideoListPage の取得に失敗しました')
-
+    let index = (dataContext.page - 1) * 35
+    // 広告で減った分を計算(最後が広告な場合は考慮しないため、11)
+    if (index !== 0) index-= (index - (index % 11)) / 11
     for (const videoItem of Array.from(videoList.children) as HTMLLIElement[]){
+        if (videoItem.classList.contains('list-item-banner')) {
+            // バナー
+            continue
+        }
         const data = videoItem.dataset
-        if (data['nicoad_video_tracking_click']){
+        if (videoItem.getElementsByClassName('video-item-nicoadLabel').length !== 0){
             // にこに広告
             continue
         }
-        const index = Number.parseInt((data['video_url']?.match(/(?<=ss_pos=)\d*$/) ?? Util.throwText('video_url の取得に失敗しました'))[0]) - 1
         result[index] = {
             isPremiumOnly: videoItem.getElementsByClassName('video-item-premiumOnlyLabel').length !== 0,
             likeCounter: Number.parseInt(data['like_counter'] ?? Util.throwText('like_counter の取得に失敗しました')),
@@ -51,6 +55,7 @@ const toPostData = (text: string) => {
             firstRetrieve: '',
             description: '',
         }
+        index++
     }
     return result
 }

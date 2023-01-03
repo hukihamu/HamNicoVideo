@@ -26,9 +26,7 @@ const toPostData = (text: string) => {
     const dataContext: DataContext = JSON.parse((dom.getElementsByClassName('jsSearchResultContainer')[0] as HTMLDivElement).dataset['context'] ?? Util.throwText('jsSearchResultContainer の取得に失敗しました'))
     const result: (VideoDetailPostData | undefined)[] = new Array(dataContext.total_count)
     const videoList = dom.getElementById('jsVideoListPage' + dataContext.page) ?? Util.throwText('jsVideoListPage の取得に失敗しました')
-    let index = (dataContext.page - 1) * 35
-    // 広告で減った分を計算(最後が広告な場合は考慮しないため、11)
-    if (index !== 0) index-= (index - (index % 11)) / 11
+    let index = Util.calcTagSearchStartIndex(dataContext.page)
     for (const videoItem of Array.from(videoList.children) as HTMLLIElement[]){
         if (videoItem.classList.contains('list-item-banner')) {
             // バナー

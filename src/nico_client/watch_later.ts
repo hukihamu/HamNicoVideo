@@ -40,7 +40,7 @@ export const watchLater = {
                     }
                     default: {
                         error()
-                        console.log('Failed. HttpStatus: ' + value.statusText)
+                        console.warn('Failed. HttpStatus: ' + value.statusText)
                     }
                 }
                 setTimeout(wait, 5000)

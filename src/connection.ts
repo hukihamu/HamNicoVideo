@@ -81,7 +81,16 @@ export default {
             port.onMessage.addListener(_args =>{
                 const args = _args as ConnectType[K]['args']
                 listener(key, args).then(result=>{
-                    port.postMessage(result)
+                    // TODO 稀にエラー発生
+                    try {
+                        port.postMessage(result)
+                    }catch (e) {
+                        console.warn('key', key)
+                        console.warn('args', args)
+                        console.warn('port', port)
+                        console.warn('result', result)
+                        throw e
+                    }
                 })
                 return true
             })

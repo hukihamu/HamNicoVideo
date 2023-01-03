@@ -17,9 +17,6 @@ export default class {
         })
         return BROWSER.storage.local.get(null).then(items=>{
             storage_cache = items[STORAGE_KEY]
-        }).then(()=>{
-            // TODO 開発初期化用
-            // this.allDefault()
         })
     }
     static get<U extends keyof ParametersType>(key: U): ParametersType[U]  {

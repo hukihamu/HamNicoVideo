@@ -152,7 +152,6 @@ export const editNotify = async () => {
             }
             connection.connect('watch_detail', urlWatchId).then(async (resultValue) => {
                 if (resultValue) {
-                    console.log(resultValue) // TODO
                     watchDetail = resultValue
                     const date = new Date(watchDetail.data.video.registeredAt)
                     date.setMinutes(date.getMinutes() + 1)

@@ -9,7 +9,6 @@ import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import {NicoAPI} from '@/nico_client/nico_api';
 import {doc} from '@/window';
 import Util from '@/util'
-const MAX_SEARCH_SIZE = 32
 export class TagInputNotify implements InputNotify{
     initNotifyDetail(): NotifyDetailTag | undefined {
         return {
@@ -66,7 +65,8 @@ export class TagBackgroundNotify implements BackgroundNotify{
         if (this.valuesNotify.config.lastWatchId){
             let lastWatchIndex = items.findIndex(it => it?.watchId === this.valuesNotify.config.lastWatchId)
             if (lastWatchIndex === -1){
-                if ((this.detail.lastCheckPage ) * MAX_SEARCH_SIZE < items.length) {
+
+                if (Util.calcTagSearchStartIndex(this.detail.lastCheckPage + 1) < items.length) {
                     this.detail.lastCheckPage++
                     await this.setCache()
                     this.detail.lastCheckPage--
@@ -84,7 +84,7 @@ export class TagBackgroundNotify implements BackgroundNotify{
                     resultItem = items[lastWatchIndex + 1]
                 }else {
                     // 1つ後が存在しない => currentPageを増やして取得
-                    if ((this.detail.lastCheckPage ) * MAX_SEARCH_SIZE < items.length){
+                    if (Util.calcTagSearchStartIndex(this.detail.lastCheckPage + 1) < items.length){
                         this.detail.lastCheckPage++
                         await this.setCache()
                         this.detail.lastCheckPage--
@@ -120,7 +120,7 @@ export class TagBackgroundNotify implements BackgroundNotify{
             }
             if (!items[lastWatchIndex + 2]){
                 // 2つ後が存在しない => currentPageを増やす
-                if ((this.detail.lastCheckPage) * MAX_SEARCH_SIZE < items.length){
+                if (Util.calcTagSearchStartIndex(this.detail.lastCheckPage + 1) < items.length){
                     this.detail.lastCheckPage++
                     await this.setCache()
                 }
@@ -172,6 +172,8 @@ export class TagBackgroundNotify implements BackgroundNotify{
         if (!this.cache[this.valuesNotify.config.valueId]) this.cache[this.valuesNotify.config.valueId] = []
         for (let i = 0; i < data.length;i++){
             if (data[i]){
+                this.cache[this.valuesNotify.config.valueId][i] = data[i]
+            }else if(this.cache[this.valuesNotify.config.valueId].length <= i){
                 this.cache[this.valuesNotify.config.valueId][i] = data[i]
             }
         }

@@ -6,7 +6,7 @@ import {ParametersType} from '@/storage/parameters';
 import {ParameterSelectValue} from '@/storage/parameters/parameter_value/parameter_select_value';
 import {ParameterTextValue} from '@/storage/parameters/parameter_value/parameter_text_value';
 import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
-// TODO 見た目を洗練
+
 const parameterToName = {
     Video: "動画",
     Watch: "視聴画面",
@@ -35,7 +35,6 @@ const setEvent = ()=>{
     })
 
     document.getElementById('export')?.addEventListener('click', ()=>{
-        // TODO
         const e = new Blob([JSON.stringify(storage.getAll())])
         const date = new Date()
         const t = `HamNicoVideo ${date.toLocaleString('ja-JP')}.json`
@@ -231,7 +230,7 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
         })
     }
 
-    //default復元
+    //個別default復元
     const defaultDiv = document.createElement('div')
     defaultDiv.className = 'default'
     flexParent.appendChild(defaultDiv)
@@ -239,7 +238,8 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
     defaultButton.textContent = 'default'
     defaultButton.addEventListener('click', ()=>{
         onSave(key, storage.default[key])
-        location.reload() // TODO 気に食わないが、しゃーない
+        // 手動で戻すくらいなら、リロードして生成し直す TODO 良いフローがあれば治す
+        location.reload()
     })
     defaultDiv.appendChild(defaultButton)
 }

@@ -135,8 +135,7 @@ const initBackground = async () => {
                     return false
                 })
             default:
-                console.error('メッセージ取得に失敗')
-                console.log(args)
+                console.error('メッセージ取得に失敗', args)
                 return
         }
     })

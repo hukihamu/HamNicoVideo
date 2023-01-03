@@ -15,9 +15,6 @@ export default {
         if (numString.length <= 4){
             // 4桁以下
             return num.toLocaleString('ja-JP')
-        }else if (numString.length % 4 === 0){
-            // TODO 1,000表記
-            return num.toLocaleString('ja-JP')
         }else {
             const place = ['', '万', '億']
             let kDotText = ''
@@ -100,6 +97,12 @@ export default {
         element.addEventListener('paste', listener)
         element.addEventListener('focus', listener)
         element.addEventListener('mousedown', listener)
+    },
+    calcTagSearchStartIndex(page: number): number {
+        let index = (page - 1) * 35
+        // 広告で減った分を計算(最後が広告な場合は考慮しないため、11)
+        if (index !== 0) index-= (index - (index % 11)) / 11
+        return index
     }
 }
 

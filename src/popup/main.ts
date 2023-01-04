@@ -7,7 +7,9 @@ export const popupMain = () => {
     document.getElementById('notification_edit')?.addEventListener('click', () => {
         window.location.href = '/html/popup_edit_notify.html?add'
     })
+    const loadingElement = doc.getElementById('loading_text')
     connection.connect('list').then((resultValue) => {
+        loadingElement.classList.add('hidden')
         for (const viewData of resultValue) {
             createNotifyView(viewData)
         }
@@ -186,7 +188,7 @@ const setNotifyData = (parent: HTMLDivElement, valueId: number) => {
             doc.getElementById<HTMLAnchorElement>('a3-' + valueId).href = 'https://www.nicovideo.jp/watch/' + videoDetail.watchId
             const d9_1 = doc.getElementById('d9_1-' + valueId)
             d9_1.setAttribute('aria-label', videoDetail.title)
-            d9_1.setAttribute('style', `background-image: url('${videoDetail.thumbnailUrl}');`) //サムネ
+            d9_1.setAttribute('style', `background-image: url('${videoDetail.thumbnailUrl}.M');`) //サムネ
             let lengthText = ''
             const hour = Math.floor(videoDetail.length / 3600)
             const min = Math.floor(videoDetail.length % 3600 / 60);

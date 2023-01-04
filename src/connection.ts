@@ -4,6 +4,8 @@ import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import {WatchDetailType} from '@/nico_client/watch_detail';
 import {BROWSER} from '@/browser';
 import {ValuesNotify} from '@/storage/parameters/values_type/values_notify';
+import connection from '@/connection'
+import Util from '@/util'
 
 interface ConnectType  {
     add: { // 通知追加
@@ -56,36 +58,50 @@ interface ConnectType  {
     }
 }
 export default {
-    connect: <K extends keyof ConnectType>(key: K, args?: ConnectType[K]['args']): Promise<ConnectType[K]['result']>=>{
-        return new Promise(resolve => {
-            let count = 0
-            const interval = setInterval(() => {
-                BROWSER.sendMessage(undefined, response => {
-                    if (response) {
-                        clearInterval(interval)
-                        BROWSER.sendMessage({key, args}, response => {
-                            resolve(response)
-                            return true
-                        })
-                    }
-                    if (count > 50) {
-                        clearInterval(interval)
-                        throw 'backgroundに接続できません'
-                    }
-                    count++
-                })
-            }, 200)
-        })
+    connect: async <K extends keyof ConnectType>(key: K, args?: ConnectType[K]['args']): Promise<ConnectType[K]['result']>=>{
+        for (let i = 0; i < 100; i++) {
+            const response = await BROWSER.mSendMessage({key, args})
+            if (response !== connection.NO_RESPONSE){
+                return response
+            }
+            await Util.sleep(100)
+        }
+        throw 'backgroundに接続できません'
+
+            // BROWSER.sendMessage(undefined, response => {
+            //     if (response) {
+            //         BROWSER.sendMessage({key, args}, response => {
+            //             resolve(response)
+            //             return true
+            //         })
+            //     }else {
+            //         let count = 0
+            //         const interval = setInterval(() => {
+            //             BROWSER.sendMessage(undefined, response => {
+            //                 if (response) {
+            //                     clearInterval(interval)
+            //                     BROWSER.sendMessage({key, args}, response => {
+            //                         resolve(response)
+            //                         return true
+            //                     })
+            //                 }
+            //                 if (count > 10) {
+            //                     clearInterval(interval)
+            //                     throw
+            //                 }
+            //                 count++
+            //             })
+            //         }, 1000)
+            //     }
+            // })
     },
     setConnectListener: <K extends keyof ConnectType>(listener: (key: K, args: ConnectType[K]['args'])=>Promise<ConnectType[K]['result']>)=>{
         BROWSER.onMessage.addListener((message, sender, sendResponse) => {
-            if (message){
-                listener(message.key, message.args).then(result => {
-                    sendResponse(result)
-                })
-                return true
-            }
-            return false
+            listener(message.key, message.args).then(async result => {
+                await Util.sleep(1000)
+                sendResponse(result)
+            })
+            return true
         })
     },
     isInstanceof: <K extends keyof ConnectType>(target: K, key: string, value: any)
@@ -94,6 +110,7 @@ export default {
     },
     run: async <K extends keyof ConnectType>(key: K, value: any, fun: (a: ConnectType[K]['args'])=>Promise<ConnectType[K]['result']>): Promise<ConnectType[K]['result']>=>{
         return fun(value)
-    }
+    },
+    NO_RESPONSE: 'NO_RESPONSE'
 }
 

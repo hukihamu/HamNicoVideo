@@ -54,13 +54,36 @@ export const BROWSER = {
     connect: chrome.runtime.connect,
     onStartup: chrome.runtime.onStartup,
     onInstalled: chrome.runtime.onInstalled,
-    sendMessage: chrome.runtime.sendMessage,
+    mSendMessage: async (request: any) => {
+        if (isV2){
+            return new Promise(resolve => {
+                chrome.runtime.sendMessage(request, response => {
+                    resolve(response)
+                    return true
+                })
+            })
+        } else {
+            return chrome.runtime.sendMessage(request)
+        }
+
+    },
     onMessage: chrome.runtime.onMessage,
-    setBadgeText: (text: string)=>{
+    mSetBadgeText: (text: string)=>{
         if (isV2){
             chrome.browserAction.setBadgeText({text},()=>{})
         }else {
             chrome.action.setBadgeText({text}).then()
+        }
+    },
+    mGetBadgeText: async (): Promise<string> => {
+        if (isV2){
+            return new Promise(resolve => {
+                chrome.browserAction.getBadgeText({},(it)=>{
+                    resolve(it)
+                })
+            })
+        }else {
+            return chrome.action.getBadgeText({})
         }
     },
     alarms: {

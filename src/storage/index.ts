@@ -5,7 +5,8 @@ import {ParameterTemplateValue} from '@/storage/parameters/parameter_value/param
 
 let storage_cache: ParametersType | undefined = undefined
 const STORAGE_KEY = "ham-nico-video"
-type CacheType = 'newNotifyList' | 'cachePostData'
+const CACHE_KEY = "cache"
+type CacheType = 'newNotifyIds'
 const localToParameter = (local: any): ParametersType => {
     const temp = {}
     Object.assign(temp, parameterDefault)
@@ -45,13 +46,14 @@ export default class {
         BROWSER.storage.local.set({[STORAGE_KEY]: storage_cache}).then()
     }
     static async getCache(key: CacheType): Promise<any> {
-        return BROWSER.storage.local.get(key).then(it => {
-            return it
+        return BROWSER.storage.local.get(CACHE_KEY).then(it => {
+            return it[CACHE_KEY][key]
         })
     }
 
     static async setCache(key: CacheType, value: any): Promise<void> {
-        return BROWSER.storage.local.set({[key]: value})
+        // TODO キャッシュは1つのみ対応
+        return BROWSER.storage.local.set({[CACHE_KEY]: {[key]: value}})
     }
     static allDefault = ()=> {
         // 手動初期化

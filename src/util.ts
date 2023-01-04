@@ -103,6 +103,13 @@ export default {
         // 広告で減った分を計算(最後が広告な場合は考慮しないため、11)
         if (index !== 0) index-= (index - (index % 11)) / 11
         return index
+    },
+    sleep: (mSec: number) => {
+        return new Promise<void>(resolve => {
+            setTimeout(() => {
+                resolve()
+            }, mSec)
+        })
     }
 }
 

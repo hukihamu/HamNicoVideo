@@ -1,13 +1,20 @@
 export interface ValuesNotify extends ValuesBase<number>{
     config: {
         valueId: number
-        isInterval: boolean //周期確認を行うか
-        intervalWeek: number[] // 0 ~ 6
-        intervalTime: string | undefined //確認時間
-        lastWatchId: string | undefined // 最後に確認した動画ID null->取得しやすい動画を参照
-        lastCheckDateTime: number // 最終確認日時
-        groupTag: string | undefined // グループとしてまとめるタグ
-        notifyDetail: NotifyDetail // 各対象の専用変数
+        //周期確認を行うか
+        isInterval: boolean
+        // 0 ~ 6
+        intervalWeek: number[]
+        //確認時間
+        intervalTime: string | undefined
+        // 最後に確認した動画ID null->取得しやすい動画を参照
+        lastWatchId: string | undefined
+        // 最終確認日時
+        lastCheckDateTime: number
+        // グループとしてまとめるタグ
+        groupTag: string | undefined
+        // 各対象の専用変数
+        notifyDetail: NotifyDetail
     }
 }
 export type NotifyDetail = NotifyDetailSeries | NotifyDetailUserVideo | NotifyDetailTag

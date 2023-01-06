@@ -61,5 +61,8 @@ export default class {
         storage_cache = parameterDefault
     }
     static getAll = ()=>storage_cache
+    static setAll = (s: any) => {
+        BROWSER.storage.local.set({[STORAGE_KEY]: s}).then()
+    }
     static default = parameterDefault
 }

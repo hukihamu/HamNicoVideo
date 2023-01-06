@@ -10,6 +10,8 @@ import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parame
 const parameterToName = {
     Video: "動画",
     Watch: "視聴画面",
+    Notify: '通知',
+    NotifyList: '通知一覧',
     MinimizeLike: 'いいねボタン大きさ変更',
     RemoveWatchLater: '後で見るから削除ボタン追加',
     ChangeVideoList: '後で見るリストを表示するリンク追加',
@@ -24,7 +26,6 @@ const parameterToName = {
 } as { [key: string]: string }
 
 const onSave = <U extends keyof ParametersType>(key: U, newValue:ParametersType[U])=>{
-    const p = storage.get(key)
     storage.set(key, newValue)
     document.getElementById('save')?.classList.add('is-show')
 }
@@ -47,32 +48,28 @@ const setEvent = ()=>{
     document.getElementById('import')?.addEventListener('click', ()=>{
         document.getElementById('import_input')?.click()
     })
-    document.getElementById('import_input')?.addEventListener('change', ()=>{
-        // TODO 旧式の設定ファイルの互換性
-        // const file = e.target.files[0]
-        // const t = new FileReader
-        // t.addEventListener('load', (() => {
-        //     let e
-        //     try {
-        //         e = JSON.parse(t.result)
-        //     } catch (e) {
-        //         console.group('Import')
-        //         console.error('Failed to read settings file')
-        //         console.error(e)
-        //         console.groupEnd()
-        //         alert('インポートに失敗しました')
-        //         return
-        //     }
-        //     for (const key in BStorage.defaults) {
-        //         BStorage.set(key, BStorage.defaults[key])
-        //     }
-        //     for (const key in e) {
-        //         BStorage.set(key, e[key])
-        //     }
-        //     alert('インポートしました')
-        //     window.location.reload()
-        // }))
-        // t.readAsText(file)
+    document.getElementById('import_input')?.addEventListener('change', (e)=>{
+        const target = e.target
+        if (target){
+            try {
+                const file = ((target as HTMLInputElement).files ?? [])[0]
+                const fReader = new FileReader()
+                fReader.addEventListener('load', () => {
+                    const json = JSON.parse(fReader.result as string)
+                    if (json['video/repo/add_watch_later']){
+                        // 旧式設定
+                        alert('設定情報が旧式だったため、インポートを中断しました。')
+                    }else {
+                        storage.setAll(json)
+                    }
+                })
+                alert('インポートしました')
+                location.reload()
+                fReader.readAsText(file)
+            }catch (e) {
+                alert('インポートに失敗しました')
+            }
+        }
     })
     document.getElementById('all_default')?.addEventListener('click',()=>{
         storage.allDefault()

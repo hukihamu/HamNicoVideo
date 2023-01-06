@@ -96,14 +96,15 @@ body, html {
 }
 
 /*インポート・エクスポート*/
-.option-file {
+.option-button {
     width: 100%;
     display: flex;
+    margin-bottom: 16px;
     flex-direction: row;
     justify-content: space-evenly;
 }
 
-.option-file > * {
+.option-button > * {
     width: 40%;
 }
 
@@ -140,7 +141,9 @@ body, html {
     white-space: nowrap;
     user-select: none;
 }
-
+#main label:hover {
+    background-color: var(--button-hover-bg-color);
+}
 
 .values-content {
     display: flex;

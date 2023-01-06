@@ -75,7 +75,7 @@ const onLoadBackground = async () => {
                 case 'list':
                     return connection.run(key, args, async _ => {
                         const result: NotifyPostData[] = []
-                        for (const value of notifyList) {
+                        for (const value of storage.get('Notify_NotifyList').config.dynamicValues) {
                             const bn = Notify.getBackgroundNotify(value,cachePostData)
                             result.push(bn.createNotifyPostData())
                         }

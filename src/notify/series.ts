@@ -6,7 +6,7 @@ import {
 } from '@/storage/parameters/values_type/values_notify';
 import {NicoAPI} from '@/nico_client/nico_api';
 import {NotifyPostData} from '@/post_data/notify_post_data';
-import {BackgroundNotify, CachePostData, InputNotify} from '@/notify/notify';
+import {BackgroundNotify, CachePostData, InputNotify, Notify, NotifyTypeArray, OptionNotify} from '@/notify/notify'
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
 import Util from '@/util';
 
@@ -156,5 +156,21 @@ export class SeriesBackgroundNotify implements BackgroundNotify{
             title: this.detail.seriesName,
             titleLink: 'https://www.nicovideo.jp/series/' + this.detail.seriesId
         }
+    }
+}
+export class SeriesOptionNotify implements OptionNotify {
+
+    private detail: NotifyDetailSeries
+    constructor(private valuesNotify: ValuesNotify) {
+        this.detail = valuesNotify.config.notifyDetail as NotifyDetailSeries
+    }
+    getType(): string {
+        return NotifyTypeArray.find(it => it.key === 'series')?.name ?? ''
+    }
+    getName(): string {
+        return this.detail.seriesName
+    }
+    getUrl(): string {
+        return 'https://www.nicovideo.jp/series/' + this.detail.seriesId
     }
 }

@@ -1,8 +1,9 @@
-import {BackgroundNotify, CachePostData, InputNotify} from '@/notify/notify';
+import {BackgroundNotify, CachePostData, InputNotify, NotifyTypeArray, OptionNotify} from '@/notify/notify'
 import {
+    NotifyDetailSeries,
     NotifyDetailTag,
     ValuesNotify
-} from '@/storage/parameters/values_type/values_notify';
+} from '@/storage/parameters/values_type/values_notify'
 import {WatchDetailType} from '@/nico_client/watch_detail';
 import {NotifyPostData} from '@/post_data/notify_post_data';
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
@@ -185,5 +186,21 @@ export class TagBackgroundNotify implements BackgroundNotify{
             data.thumbnailUrl = wd.data.video.thumbnail.url
             data.description = wd.data.video.description
         }
+    }
+}
+export class TagOptionNotify implements OptionNotify {
+
+    private detail: NotifyDetailTag
+    constructor(private valuesNotify: ValuesNotify) {
+        this.detail = valuesNotify.config.notifyDetail as NotifyDetailTag
+    }
+    getType(): string {
+        return NotifyTypeArray.find(it => it.key === 'tag')?.name ?? ''
+    }
+    getName(): string {
+        return this.detail.searchTagText
+    }
+    getUrl(): string {
+        return 'https://www.nicovideo.jp/tag/' + this.detail.searchTagText
     }
 }

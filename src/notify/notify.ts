@@ -6,9 +6,9 @@ import {
     NotifyDetailSeries, NotifyDetailTag
 } from '@/storage/parameters/values_type/values_notify';
 import {NotifyPostData} from '@/post_data/notify_post_data';
-import {SeriesBackgroundNotify, SeriesInputNotify} from '@/notify/series';
+import {SeriesBackgroundNotify, SeriesInputNotify, SeriesOptionNotify} from '@/notify/series'
 import {VideoDetailPostData} from '@/post_data/video_detail_post_data';
-import {TagBackgroundNotify, TagInputNotify} from '@/notify/tag';
+import {TagBackgroundNotify, TagInputNotify, TagOptionNotify} from '@/notify/tag'
 
 
 // const moveUserVideo = async (lastWatchId: string, notifyUserVideo: ValueNotifyUserVideo, moveIndex: number): Promise<string | undefined>=>{
@@ -79,6 +79,14 @@ export const Notify = {
                 return new SeriesBackgroundNotify(notify, cache)
             case 'tag':
                 return new TagBackgroundNotify(notify, cache)
+        }
+    },
+    getOptionNotify: (notify: ValuesNotify):OptionNotify =>{
+        switch (Notify.checkNotifyType(notify)) {
+            case 'series':
+                return new SeriesOptionNotify(notify)
+            case 'tag':
+                return new TagOptionNotify(notify)
         }
     },
     checkNotifyType: (notify: ValuesNotify): NotifyType =>{
@@ -173,4 +181,18 @@ export interface BackgroundNotify {
      * NotifyPostData(最初にpopupに渡すデータ)を作成する
      */
     createNotifyPostData(): NotifyPostData
+}
+export interface OptionNotify {
+    /**
+     * 表示する通知の種類を取得
+     */
+    getType(): string
+    /**
+     * 表示する名前を取得
+     */
+    getName(): string
+    /**
+     * 遷移先
+     */
+    getUrl(): string
 }

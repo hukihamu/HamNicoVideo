@@ -7,6 +7,9 @@ import {ParameterSelectValue} from '@/storage/parameters/parameter_value/paramet
 import {ParameterTextValue} from '@/storage/parameters/parameter_value/parameter_text_value';
 import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
 import {BROWSER} from '@/browser'
+import {ParameterDynamicValues} from '@/storage/parameters/parameter_value/parameter_dynamic_values'
+import {ValuesNotify} from '@/storage/parameters/values_type/values_notify'
+import {Notify} from '@/notify/notify'
 
 const parameterToName = {
     Video: "動画",
@@ -229,7 +232,85 @@ const createOptionGrid = (flexParent: HTMLLIElement, key: keyof ParametersType, 
                     onApplySample()
                 }
             }
-        })
+        }) //ParameterDynamicValues
+    } else if(util.isInstancesParamBaseOf<ParameterDynamicValues<any>>(param, 'dynamicValues')) {
+        paramName.classList.add('bold')
+        if (param.config.dynamicValues.length){
+
+            const valuesUl = document.createElement('ul')
+            valuesUl.className = 'dynamic-values'
+            flexParent.appendChild(valuesUl)
+            // ValuesNotify
+            if (util.isInstancesValuesBaseOf<ValuesNotify>(param.config.dynamicValues[0], 'notifyDetail')){
+                const headerLi = document.createElement('li')
+                valuesUl.appendChild(headerLi)
+
+                const notifyTypeHeader = document.createElement('span')
+                notifyTypeHeader.textContent = '種類'
+                notifyTypeHeader.className = 'bold'
+                headerLi.appendChild(notifyTypeHeader)
+                const notifyNameHeader = document.createElement('span')
+                notifyNameHeader.textContent = '名前'
+                notifyNameHeader.className = 'bold'
+                headerLi.appendChild(notifyNameHeader)
+                const notifySortHeader = document.createElement('span')
+                notifySortHeader.textContent = '並び替え(shift)'
+                notifySortHeader.className = 'bold'
+                headerLi.appendChild(notifySortHeader)
+                const liList: HTMLLIElement[] = []
+
+                for (const value of param.config.dynamicValues){
+                    const valueLi = document.createElement('li')
+                    valueLi.dataset.id = value.config.valueId.toString()
+                    liList.push(valueLi)
+                    const optionNotify = Notify.getOptionNotify(value)
+                    const notifyTypeValue = document.createElement('span')
+                    notifyTypeValue.textContent = optionNotify.getType()
+                    valueLi.appendChild(notifyTypeValue)
+
+                    const notifyNameValue = document.createElement('a')
+                    notifyNameValue.textContent = optionNotify.getName()
+                    notifyNameValue.href = optionNotify.getUrl()
+                    notifyNameValue.target = '_blank'
+                    valueLi.appendChild(notifyNameValue)
+
+
+                    const onClickSort = (e: MouseEvent) => {
+                        const isUp = (e.target as HTMLButtonElement).textContent === '▲'
+                        const fromIndex = liList.findIndex(it=> it.dataset.id === valueLi.dataset.id)
+                        const toIndex = e.shiftKey
+                          ? isUp ? 0 : liList.length - 1
+                          : fromIndex + (isUp ? -1 : 1)
+                        if (0 <= toIndex && toIndex < liList.length) {
+                            const tempLi = liList[toIndex]
+                            liList[toIndex] = liList[fromIndex]
+                            liList[fromIndex] = tempLi
+                            const tempNotify = param.config.dynamicValues[toIndex]
+                            param.config.dynamicValues[toIndex] = param.config.dynamicValues[fromIndex]
+                            param.config.dynamicValues[fromIndex] = tempNotify
+                            storage.set('Notify_NotifyList', param)
+
+                            for (const li of liList){
+                                valuesUl.appendChild(li)
+                            }
+                        }
+                    }
+                    const notifySortValue = document.createElement('span')
+                    valueLi.appendChild(notifySortValue)
+                    const notifySortUp = document.createElement('button')
+                    notifySortValue.appendChild(notifySortUp)
+                    notifySortUp.textContent = '▲'
+                    notifySortUp.addEventListener('click', onClickSort)
+                    const notifySortDown = document.createElement('button')
+                    notifySortValue.appendChild(notifySortDown)
+                    notifySortDown.textContent = '▼'
+                    notifySortDown.addEventListener('click', onClickSort)
+                }
+                for (const li of liList){
+                    valuesUl.appendChild(li)
+                }
+            }
+        }
     }
 
     //個別default復元

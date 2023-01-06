@@ -1,0 +1,148 @@
+.save{
+
+    visibility: hidden;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    left: auto;
+    /*background-color: ;*/
+}
+.save.is-show{
+    animation-name: save-view;
+    animation-duration:1s;
+    background-color: var(--highlight-color);
+}
+
+@keyframes save-view{
+    0%{
+        opacity: 0;
+        visibility: hidden;
+    }
+    20%{
+        opacity: 1;
+        visibility: visible;
+    }
+    80%{
+        opacity: 1;
+        visibility: visible;
+    }
+    100%{
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+* {
+    --body-bg-color: #1b1c24;
+    --sidebar-bg-color: #262833;
+    --sidebar-bg-hover-color: #333643;
+    --sidebar-cat-open-bg-color: #333643;
+    --highlight-color: #3090ce;
+    --link-color: #3090ce;
+    --link-hover-color: #1a9aed;
+    --font-color: #fff;
+    --header-highlight: #036db1;
+    --sub-color: #b1b2bc;
+    --input-bg-color: #1a1c21;
+    --button-bg-color: #162c3e;
+    --button-border-color: #0b4267;
+    --button-hover-bg-color: #3090ce;
+    --button-hover-border-color: #162c3e;
+    --color-success: #02ba55;
+    --color-error: #d62205;
+}
+
+body, html {
+    font-size: 10px;
+    color: var(--font-color);
+    background-color: var(--body-bg-color);
+    margin: 0;
+    font-family: Open Sans,sans-serif;
+    text-align: left;
+}
+
+.header {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+}
+.page {
+    display: flex;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+.sidebar {
+    font-size: 1.6rem;
+    position: sticky;
+    top: 0;
+    min-width: 20em;
+    max-width: 20em;
+    background: var(--sidebar-bg-color);
+    min-height: 100vh;
+}
+.content {
+    width: 850px;
+    font-size: 1.3em;
+    padding: 0 30px 30px;
+    margin-bottom: 45px;
+}
+.td-label{
+
+}
+.td-input{
+    width: 50%;
+}
+.td-default{
+    width: 15%;
+}
+a{
+    color: var(--font-color);
+}
+tr{
+    padding: 5px 15px 5px 10px;
+}
+h1, h2, h3, h4 {
+    font-weight: 700;
+
+}
+h1 {
+    font-size: 2.6rem;
+    border-bottom: 1px solid var(--header-highlight);
+}
+h2 {
+    font-size: 2.0rem;
+}
+h3 {
+    font-size: 1.7rem;
+    margin-left: 10px;
+}
+h4 {
+    font-size: 1.4rem;
+    margin-left: 20px;
+}
+label{
+    border-left: 40px solid transparent;
+    font-weight: 200;
+}
+.input-disabled{
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+.option-file{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+.option-file > *{
+    width: 40%;
+}
+input:disabled {
+    background-color: white;
+}
+select:disabled {
+    background-color: white;
+    opacity: 1;
+}

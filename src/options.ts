@@ -6,6 +6,7 @@ import {ParametersType} from '@/storage/parameters';
 import {ParameterSelectValue} from '@/storage/parameters/parameter_value/parameter_select_value';
 import {ParameterTextValue} from '@/storage/parameters/parameter_value/parameter_text_value';
 import {ParameterStaticValues} from '@/storage/parameters/parameter_value/parameter_static_values';
+import {BROWSER} from '@/browser'
 
 const parameterToName = {
     Video: "動画",
@@ -74,6 +75,10 @@ const setEvent = ()=>{
     document.getElementById('all_default')?.addEventListener('click',()=>{
         storage.allDefault()
         location.reload()
+    })
+    document.getElementById('old_option')?.addEventListener('click', () => {
+        alert('現バージョンで使用していない旧バージョンの設定を表示します。\n設定の引き継ぎにご利用ください。\n(互換性対応に力尽きました)')
+        window.open(BROWSER.mGetURL('/html/old_option.html'), '_blank')
     })
 }
 const createBody = ()=> {

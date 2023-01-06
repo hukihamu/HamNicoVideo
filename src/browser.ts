@@ -50,6 +50,13 @@ export const BROWSER = {
             })
         }
     },
+    mGetURL: (path: string): string => {
+        if (isV2){
+            return chrome.extension.getURL(path)
+        }else {
+            return chrome.runtime.getURL(path)
+        }
+    },
     onConnect: chrome.runtime.onConnect,
     connect: chrome.runtime.connect,
     onStartup: chrome.runtime.onStartup,

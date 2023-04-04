@@ -22,7 +22,7 @@ export default class {
         })
     }
     static get<U extends keyof ParametersType>(key: U): ParametersType[U]  {
-        if (!storage_cache) throw 'storageのinitがされていません'
+        if (!storage_cache) storage_cache = Object.assign({}, this.default)
         let param = storage_cache[key] ?? this.default[key]
         if (util.isInstanceOf<ParameterTemplateValue>(param, 'template')){
             const defaultParam = this.default[key] as ParameterTemplateValue
@@ -37,7 +37,7 @@ export default class {
         return param
     }
     static set<U extends keyof ParametersType>(key: U, value: ParametersType[U]) {
-        if (!storage_cache) throw 'storageのinitがされていません'
+        if (!storage_cache) storage_cache = Object.assign({}, this.default)
         const clone = Object.assign(value)
         if (util.isInstanceOf<ParameterTemplateValue>(clone, 'template')){
             clone.template = {}

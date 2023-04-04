@@ -37,7 +37,7 @@ export const nicoRepoMatcher: NicoRepoMatcherType = {
     IMAGE_CLIP: {valueId: 'IMAGE_CLIP', name: '静画クリップ', matcher: '^イラストをクリップしました$'},
     BLOG_UP: {valueId: 'BLOG_UP', name: 'ブロマガ', matcher: '^ブロマガを投稿しました$'},
     MANGA_UP: {valueId: 'MANGA_UP', name: 'マンガ投稿', matcher: 'マンガ'},// TODO
-    MANGA_FAV: {valueId: 'MANGA_FAV', name: 'マンガお気に入り', matcher: '^マンガをお気に入り登録しました$'},
+    MANGA_FAV: {valueId: 'MANGA_FAV', name: 'マンガお気に入り', matcher: 'マンガをお気に入り登録しました'},
     MODEL_UP: {valueId: 'MODEL_UP', name: 'ニコニ立体投稿', matcher: '^ニコニ立体に作品を投稿しました$'},
     MODEL_FAV: {valueId: 'MODEL_FAV', name: 'ニコニ立体お気に入り', matcher: '^ニコニ立体の作品をお気に入り登録しました$'},
     FOLLOW: {valueId: 'FOLLOW', name: 'フォロー通知', matcher: 'さんにフォローされました'}

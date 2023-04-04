@@ -22,6 +22,7 @@ type DataContext = {
     "video_count_after_middle_banner":number
 }
 const toPostData = (text: string) => {
+    // TODO DOMParserはないため、matcherでがんばる
     const dom = (new DOMParser()).parseFromString(text, 'text/html')
     const dataContext: DataContext = JSON.parse((dom.getElementsByClassName('jsSearchResultContainer')[0] as HTMLDivElement).dataset['context'] ?? Util.throwText('jsSearchResultContainer の取得に失敗しました'))
     const result: (VideoDetailPostData | undefined)[] = new Array(dataContext.total_count)
